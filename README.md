@@ -42,7 +42,7 @@ Vue3（IM 聊天室系统）是非必须的。如果部署，则需要依赖博�
 └── blog.sql                # 数据库初始化脚本
 ```
 
-## 🚀 增强功能
+## 🚀 增强功能（待实现）
 
 1. 多维度门户系统：
     - 经典博客首页
@@ -84,6 +84,8 @@ CREATE DATABASE blog DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ```bash
 mysql -u用户名 -p密码 blog < blog.sql
 ```
+
+sql地址：backend/blog-api/src/main/resources/sql
 
 ### 后端启动
 
@@ -135,15 +137,9 @@ npm run serve
 npm run build
 ```
 
-## 📝 接口文档
-
-启动后端服务后，访问 Swagger 接口文档：
-
-```
-http://localhost:8080/swagger-ui/index.html
-```
-
 ## 🔐 默认账号
 
+- 普通账号：user
+- 普通密码：123456
 - 管理员账号：admin
 - 管理员密码：123456
