@@ -1,0 +1,106 @@
+# 编译输出目录
+/target/
+/build/
+/out/
+/bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# 日志文件
+*.log
+logs/
+*.logs
+
+# 依赖管理
+/.gradle/
+/gradle/
+!gradle-wrapper.jar
+/.mvn/
+/mvnw*
+/mvnw.cmd
+
+# IDE 文件
+/.idea/
+*.iml
+*.iws
+*.ipr
+/.classpath
+/.project
+/.settings/
+/.vscode/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 环境配置和敏感文件
+*.properties
+*.yml
+*.yaml
+!.gitignore
+/config/application.properties
+/config/application.yml
+/config/application-*.properties
+/config/application-*.yml
+!.env.example
+.env
+*.key
+*.cert
+*.p12
+
+# 数据库文件（如果有本地数据库）
+*.db
+*.sqlite
+/h2/
+
+# 上传文件目录（如果你的博客有上传功能）
+/uploads/
+/static/uploads/
+/images/uploads/
+
+# 临时文件
+/tmp/
+/temp/
+*.tmp
+*.temp
+
+# 构建工具特定文件
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# 其他
+/.factorypath
+/checkstyle.xml
+
+# 博客主题文件（如果是动态主题）
+/themes/*/
+!/themes/default/
+
+# 缓存文件
+/cache/
+*.cache
+
+# 会话文件
+*.session
+
+# 备份文件
+*.bak
+*.backup
+
+# 前端构建文件（如果有前端）
+/node_modules/
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+/dist/
+/lib/
+/es/

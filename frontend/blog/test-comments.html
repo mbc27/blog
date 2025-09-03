@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>评论系统测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .feature {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #e8f5e8;
+            border-left: 4px solid #4CAF50;
+        }
+        .feature h3 {
+            margin: 0 0 10px 0;
+            color: #2e7d32;
+        }
+        .feature ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h1>🎉 评论和留言系统优化完成</h1>
+        
+        <div class="feature">
+            <h3>📝 文章评论系统</h3>
+            <ul>
+                <li>任何人都可以对文章进行评论</li>
+                <li>支持对评论进行回复</li>
+                <li>评论计数器实时更新</li>
+                <li>支持评论点赞功能</li>
+                <li>未登录用户会被引导到登录页面</li>
+                <li>回复时会显示被回复人的昵称</li>
+            </ul>
+        </div>
+
+        <div class="feature">
+            <h3>💬 留言板系统</h3>
+            <ul>
+                <li>任何人都可以发表留言</li>
+                <li>支持对留言进行回复</li>
+                <li>支持留言点赞功能</li>
+                <li>登录用户自动填充昵称和邮箱</li>
+                <li>未登录用户需要手动输入昵称和邮箱</li>
+                <li>回复功能支持嵌套显示</li>
+            </ul>
+        </div>
+
+        <div class="feature">
+            <h3>🔧 技术改进</h3>
+            <ul>
+                <li>优化了API接口，添加了回复和点赞功能</li>
+                <li>改进了CommentSection组件，支持实时交互</li>
+                <li>更新了Message.vue组件，增强了用户体验</li>
+                <li>添加了响应式设计，适配移动端</li>
+                <li>实现了评论计数的实时更新</li>
+                <li>优化了用户信息的自动填充逻辑</li>
+            </ul>
+        </div>
+
+        <div class="note">
+            <h3>📋 使用说明</h3>
+            <p><strong>测试步骤：</strong></p>
+            <ol>
+                <li>启动开发服务器：<code>npm run serve</code></li>
+                <li>访问文章详情页面测试评论功能</li>
+                <li>访问留言板页面测试留言功能</li>
+                <li>尝试登录和未登录状态下的不同体验</li>
+                <li>测试回复、点赞等交互功能</li>
+            </ol>
+            
+            <p><strong>注意事项：</strong></p>
+            <ul>
+                <li>确保后端API支持新增的接口</li>
+                <li>评论和留言的回复功能需要后端配合</li>
+                <li>点赞功能需要后端记录用户点赞状态</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
