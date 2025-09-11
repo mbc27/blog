@@ -38,10 +38,11 @@
         style="width: 100%; margin-top: 20px"
         @selection-change="handleSelectionChange"
         v-loading="loading"
+        :default-sort="{prop: 'id', order: 'ascending'}"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         
-        <el-table-column prop="id" label="ID" width="80"></el-table-column>
+        <el-table-column prop="id" label="ID" width="80" sortable></el-table-column>
         
         <el-table-column prop="nickname" label="昵称" width="120">
           <template slot-scope="scope">
@@ -73,7 +74,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="createTime" label="创建时间" width="160">
+        <el-table-column prop="createTime" label="创建时间" width="160" sortable>
           <template slot-scope="scope">
             {{ formatDate(scope.row.createTime) }}
           </template>
@@ -204,7 +205,9 @@ export default {
       try {
         const response = await api.message.getAdminList({
           current: this.currentPage,
-          size: this.pageSize
+          size: this.pageSize,
+          orderBy: 'id',
+          orderDirection: 'asc'
         })
         console.log('留言列表响应:', response)
         if (response.code === 200) {
@@ -232,7 +235,9 @@ export default {
         const response = await api.message.getAdminList({
           current: 1,
           size: this.pageSize,
-          keyword: this.searchKeyword
+          keyword: this.searchKeyword,
+          orderBy: 'id',
+          orderDirection: 'asc'
         })
         console.log('搜索留言响应:', response)
         if (response.code === 200) {

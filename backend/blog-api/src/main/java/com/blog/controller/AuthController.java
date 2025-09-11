@@ -87,4 +87,82 @@ public class AuthController {
             return Result.error("获取用户信息失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 发送忘记密码验证码
+     */
+    @PostMapping("/forgot-password/send-code")
+    public Result sendForgotPasswordCode(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        
+        if (email == null || email.trim().isEmpty()) {
+            return Result.error("邮箱地址不能为空");
+        }
+        
+        try {
+            boolean success = userService.sendForgotPasswordCode(email);
+            if (success) {
+                return Result.success("验证码已发送到您的邮箱，请查收");
+            } else {
+                return Result.error("邮箱地址不存在或发送失败");
+            }
+        } catch (Exception e) {
+            return Result.error("发送验证码失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 验证忘记密码验证码
+     */
+    @PostMapping("/forgot-password/verify-code")
+    public Result verifyForgotPasswordCode(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+        
+        if (email == null || email.trim().isEmpty() || code == null || code.trim().isEmpty()) {
+            return Result.error("邮箱地址和验证码不能为空");
+        }
+        
+        try {
+            boolean valid = userService.verifyForgotPasswordCode(email, code);
+            if (valid) {
+                return Result.success("验证码验证成功");
+            } else {
+                return Result.error("验证码错误或已过期");
+            }
+        } catch (Exception e) {
+            return Result.error("验证码验证失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 重置密码
+     */
+    @PostMapping("/forgot-password/reset")
+    public Result resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+        String newPassword = request.get("newPassword");
+        
+        if (email == null || email.trim().isEmpty() || 
+            code == null || code.trim().isEmpty() || 
+            newPassword == null || newPassword.trim().isEmpty()) {
+            return Result.error("邮箱地址、验证码和新密码不能为空");
+        }
+        
+        if (newPassword.length() < 6 || newPassword.length() > 20) {
+            return Result.error("密码长度必须在6-20个字符之间");
+        }
+        
+        try {
+            boolean success = userService.resetPasswordByCode(email, code, newPassword);
+            if (success) {
+                return Result.success("密码重置成功，请使用新密码登录");
+            } else {
+                return Result.error("密码重置失败，请检查验证码是否正确");
+            }
+        } catch (Exception e) {
+            return Result.error("密码重置失败：" + e.getMessage());
+        }
+    }
 }

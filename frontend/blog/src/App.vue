@@ -1,23 +1,29 @@
 <template>
   <div id="app">
-    <nav-bar />
-    <div class="main-content">
+    <nav-bar v-if="!isAdminRoute" />
+    <div class="main-content" :class="{ 'admin-content': isAdminRoute }">
       <router-view/>
     </div>
+    <Footer v-if="!isAdminRoute" />
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import NavBar from './components/NavBar.vue'
+import Footer from './components/Footer.vue'
 
 export default {
   name: 'App',
   components: {
-    NavBar
+    NavBar,
+    Footer
   },
   computed: {
-    ...mapGetters(['isAuthenticated', 'isAdmin'])
+    ...mapGetters(['isAuthenticated', 'isAdmin']),
+    isAdminRoute() {
+      return this.$route.path.startsWith('/admin')
+    }
   },
   created() {
     // 检查用户登录状态
@@ -65,16 +71,29 @@ export default {
   color: #2c3e50;
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overflow-x: hidden;
 }
 
 .main-content {
   padding-top: 70px; /* 为固定导航栏留出空间 */
+  flex: 1; /* 让主内容区域占据剩余空间 */
+}
+
+.admin-content {
+  padding-top: 0; /* 管理后台不需要导航栏空间 */
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 </style>

@@ -20,10 +20,12 @@
         <el-form-item label="头像">
           <el-upload
             class="avatar-uploader"
-            action="/api/upload"
+            action="http://localhost:8080/api/upload/avatar"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
+            :on-error="handleAvatarError"
+            :before-upload="beforeAvatarUpload"
+            :headers="uploadHeaders">
             <img v-if="userForm.avatar" :src="userForm.avatar" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
@@ -68,10 +70,20 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['user'])
+    ...mapGetters(['user']),
+    uploadHeaders() {
+      const token = localStorage.getItem('token')
+      return token ? { 'Authorization': `Bearer ${token}` } : {}
+    }
   },
   created() {
     this.getUserInfo();
+  },
+  mounted() {
+    // 确保组件完全挂载后再进行任何DOM操作
+    this.$nextTick(() => {
+      console.log('UserProfile component mounted');
+    });
   },
   methods: {
     ...mapActions(['updateUserInfo']),
@@ -84,7 +96,7 @@ export default {
           this.userForm = { ...this.user };
         } else {
           // 否则从API获取
-          const response = await this.$axios.get('/api/user/info');
+          const response = await this.$axios.get('/api/user/profile/current');
           if (response.data.code === 200) {
             this.userForm = response.data.data;
           }
@@ -96,14 +108,26 @@ export default {
     
     // 更新个人信息
     updateProfile() {
+      // 添加防护措施，确保表单引用存在
+      if (!this.$refs.userForm) {
+        this.$message.error('表单未正确初始化，请刷新页面重试');
+        return;
+      }
+      
       this.$refs.userForm.validate(async valid => {
         if (valid) {
           this.loading = true;
           try {
             await this.updateUserInfo(this.userForm);
-            this.$message.success('个人信息更新成功');
+            this.$message.success('个人信息更新成功！');
+            // 强制更新导航栏显示
+            this.$forceUpdate();
+            // 触发全局状态更新
+            this.$nextTick(() => {
+              this.$root.$emit('user-updated');
+            });
           } catch (error) {
-            this.$message.error(error.message || '更新失败');
+            this.$message.error('个人信息更新失败，请检查网络连接或稍后重试');
           } finally {
             this.loading = false;
           }
@@ -113,10 +137,13 @@ export default {
     
     // 头像上传成功回调
     handleAvatarSuccess(res) {
+      console.log('头像上传响应:', res);
       if (res.code === 200) {
-        this.userForm.avatar = res.data;
+        // 后端返回的data是一个对象，包含url字段
+        this.userForm.avatar = res.data.url;
+        this.$message.success('头像更新成功！');
       } else {
-        this.$message.error('上传失败');
+        this.$message.error('头像上传失败，请重试');
       }
     },
     
@@ -126,12 +153,18 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2;
 
       if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 或 PNG 格式!');
+        this.$message.error('请选择 JPG 或 PNG 格式的图片文件');
       }
       if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
+        this.$message.error('图片文件大小不能超过 2MB，请选择较小的图片');
       }
       return isJPG && isLt2M;
+    },
+    
+    // 头像上传失败回调
+    handleAvatarError(err) {
+      console.error('头像上传失败:', err);
+      this.$message.error('头像上传失败，请检查网络连接后重试');
     }
   }
 };
@@ -177,5 +210,7 @@ export default {
   width: 100px;
   height: 100px;
   display: block;
+  object-fit: cover;
+  border-radius: 6px;
 }
 </style>

@@ -176,9 +176,11 @@ export default {
       currentPage: 1,
       pageSize: 12,
       total: 0,
+      totalViews: 0, // 改为data属性，手动计算
       previewVisible: false,
       previewPhoto: {},
-      previewIndex: 0
+      previewIndex: 0,
+      viewingPhotoIds: new Set() // 用于防止重复增加浏览量
     }
   },
   created() {
@@ -192,9 +194,6 @@ export default {
       } else {
         return this.photos.filter(photo => photo.category === this.activeCategory)
       }
-    },
-    totalViews() {
-      return this.photos.reduce((sum, photo) => sum + (photo.views || 0), 0)
     }
   },
   methods: {
@@ -234,10 +233,46 @@ export default {
       return types[index];
     },
     
-    previewImage(photo) {
+    async previewImage(photo) {
       this.previewPhoto = photo;
       this.previewIndex = this.filteredPhotos.findIndex(p => p.id === photo.id);
       this.previewVisible = true;
+      
+      // 防止重复增加浏览量
+      if (this.viewingPhotoIds.has(photo.id)) {
+        return;
+      }
+      
+      this.viewingPhotoIds.add(photo.id);
+      
+      // 调用API增加浏览量
+      try {
+        const response = await api.photo.getDetail(photo.id);
+        // 使用后端返回的最新数据更新本地浏览量
+        if (response && response.data) {
+          const photoIndex = this.photos.findIndex(p => p.id === photo.id);
+          if (photoIndex !== -1) {
+            const oldViews = this.photos[photoIndex].views;
+            const newViews = response.data.viewCount || response.data.views || this.photos[photoIndex].views;
+            this.photos[photoIndex].views = newViews;
+            // 同时更新预览照片的浏览量
+            this.previewPhoto.views = newViews;
+            
+            // 实时更新总浏览量
+            if (newViews > oldViews) {
+              this.calculateTotalViews();
+            }
+          }
+        }
+      } catch (error) {
+        console.error('增加浏览量失败:', error);
+        // 静默失败，不影响用户体验
+      } finally {
+        // 3秒后允许再次增加浏览量（防止用户快速重复点击）
+        setTimeout(() => {
+          this.viewingPhotoIds.delete(photo.id);
+        }, 3000);
+      }
     },
     
     closePreview() {
@@ -304,43 +339,56 @@ export default {
           params.categoryId = this.activeCategory
         }
         
+        console.log('获取照片列表，参数:', params)
         const response = await api.photo.getList(params)
+        console.log('照片列表响应:', response)
+        
         if (response.code === 200) {
-          // 确保response.data和response.data.records存在
-          if (response.data && Array.isArray(response.data.records)) {
-            this.photos = response.data.records.map(photo => ({
-              id: photo.id,
-              url: this.getFullImageUrl(photo.url) || 'https://via.placeholder.com/400x300',
-              title: photo.description || photo.title || '无标题',
-              description: photo.description || '暂无描述',
-              date: this.formatDate(photo.createTime),
-              views: photo.views || 0,
-              category: photo.categoryId ? photo.categoryId.toString() : 'all'
-            }))
-            this.total = response.data.total || 0
-          } else {
-            // 如果数据格式不正确，设置为空数组
-            this.photos = []
-            this.total = 0
-            console.warn('相册数据格式不正确:', response.data)
+          // 处理不同的数据结构
+          let photoData = []
+          let totalCount = 0
+          
+          if (response.data) {
+            if (Array.isArray(response.data.records)) {
+              // 分页数据格式
+              photoData = response.data.records
+              totalCount = response.data.total || 0
+            } else if (Array.isArray(response.data)) {
+              // 直接数组格式
+              photoData = response.data
+              totalCount = photoData.length
+            } else {
+              console.warn('未知的照片数据格式:', response.data)
+            }
           }
+          
+          this.photos = photoData.map(photo => ({
+            id: photo.id,
+            url: this.getFullImageUrl(photo.url) || 'https://via.placeholder.com/400x300',
+            title: photo.description || photo.title || '无标题',
+            description: photo.description || '暂无描述',
+            date: this.formatDate(photo.createTime),
+            views: photo.viewCount || 0,
+            category: photo.categoryId ? photo.categoryId.toString() : 'all'
+          }))
+          this.total = totalCount
+          
+          // 计算总浏览量
+          this.calculateTotalViews()
+          
+          console.log('处理后的照片数据:', this.photos)
+        } else {
+          console.error('获取照片列表失败:', response.message)
+          this.$message.error('获取照片列表失败: ' + (response.message || '未知错误'))
+          this.photos = []
+          this.total = 0
+          this.totalViews = 0
         }
       } catch (error) {
         console.error('获取相册列表失败:', error)
-        // 静默失败，不显示错误提示
+        this.$message.error('获取相册列表失败: ' + (error.message || '网络错误'))
         this.photos = []
         this.total = 0
-        
-        // 添加一些示例图片，以便在API失败时仍然显示一些内容
-        this.photos = Array.from({ length: 4 }, (_, i) => ({
-          id: i + 1,
-          url: `https://placehold.co/400x300/e9ecef/495057?text=示例图片 ${i + 1}`,
-          title: `示例标题 ${i + 1}`,
-          description: '这是一个示例图片描述，当API不可用时显示。',
-          date: '2025-08-27',
-          views: 0,
-          category: 'all'
-        }))
       } finally {
         this.loading = false
       }
@@ -360,6 +408,11 @@ export default {
       if (!dateString) return ''
       const date = new Date(dateString)
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    },
+    
+    // 计算总浏览量
+    calculateTotalViews() {
+      this.totalViews = this.photos.reduce((sum, photo) => sum + (photo.views || 0), 0)
     }
   },
   watch: {

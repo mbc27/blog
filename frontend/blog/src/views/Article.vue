@@ -40,10 +40,11 @@
             </el-select>
           </div>
           
-          <div class="article-count">
-            <el-tag type="info" effect="plain" size="medium">
-              <i class="el-icon-collection"></i> 共 {{ total }} 篇文章
-            </el-tag>
+          <div class="article-count-container">
+            <div class="article-count-box">
+              <i class="el-icon-collection"></i>
+              <span>共 {{ total }} 篇文章</span>
+            </div>
           </div>
         </div>
       </div>
@@ -68,9 +69,8 @@
       </el-skeleton>
       
       <div class="article-list" v-else>
-        <el-row :gutter="30">
-          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" v-for="article in articles" :key="article.id">
-            <div class="article-item">
+        <div class="articles-masonry-grid">
+          <div class="article-item" v-for="article in articles" :key="article.id">
               <div class="article-header">
                 <h2 class="article-title">
                   <router-link :to="`/article/${article.id}`">{{ article.title }}</router-link>
@@ -103,8 +103,7 @@
                 </div>
               </div>
             </div>
-          </el-col>
-        </el-row>
+          </div>
         
         <el-empty v-if="articles.length === 0" description="暂无文章"></el-empty>
       </div>
@@ -144,6 +143,21 @@ export default {
   created() {
     this.loadSiteSettings() // 获取系统设置
     this.fetchCategories() // 获取分类列表
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.optimizeArticleLayout()
+    })
+    // 监听窗口大小变化
+    window.addEventListener('resize', this.handleResize)
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.handleResize)
+  },
+  updated() {
+    this.$nextTick(() => {
+      this.optimizeArticleLayout()
+    })
   },
   methods: {
     // 获取系统设置
@@ -334,6 +348,14 @@ export default {
         this.$message.error('获取文章列表失败: ' + (error.message || '未知错误'))
       } finally {
         this.loading = false
+        // 数据加载完成后，延迟执行布局优化
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.optimizeArticleLayout()
+            // 监听图片加载完成后重新布局
+            this.watchImageLoad()
+          }, 100)
+        })
       }
     },
     
@@ -393,6 +415,181 @@ export default {
       };
       
       return iconMap[categoryName] || 'el-icon-collection';
+    },
+    
+    // 优化文章布局 - 真正的瀑布流实现
+    optimizeArticleLayout() {
+      const container = document.querySelector('.articles-masonry-grid')
+      const items = document.querySelectorAll('.article-item')
+      
+      if (!container || !items.length) return
+      
+      // 只在有内容时才进行布局优化，避免影响骨架屏显示
+      const hasRealContent = items.length > 0 && !items[0].classList.contains('el-skeleton')
+      
+      if (hasRealContent) {
+        // 临时隐藏容器，避免布局计算时的闪烁
+        container.style.opacity = '0'
+        container.style.transition = 'none'
+      }
+      
+      // 重置所有卡片的样式，确保能正确计算高度
+      items.forEach(item => {
+        item.style.position = 'static'
+        item.style.width = 'auto'
+        item.style.left = 'auto'
+        item.style.top = 'auto'
+        if (hasRealContent) {
+          item.style.transition = 'none' // 暂时禁用过渡效果
+        }
+      })
+      
+      // 强制重新渲染
+      container.offsetHeight
+      
+      // 动态计算列数和卡片宽度
+      const containerWidth = container.offsetWidth
+      const containerPadding = 20 // 只有左边距20px，右边距为0
+      const availableWidth = containerWidth - containerPadding
+      let columns = 1
+      let itemWidth = availableWidth
+      const gap = 20
+      
+      if (availableWidth >= 1200) {
+        columns = 3
+        // 重新计算，确保右侧紧贴
+        itemWidth = Math.floor((availableWidth - gap * (columns - 1)) / columns)
+      } else if (availableWidth >= 700) {
+        columns = 2
+        // 重新计算，确保右侧紧贴
+        itemWidth = Math.floor((availableWidth - gap * (columns - 1)) / columns)
+      }
+      
+      // 如果是多列布局，重新精确计算宽度以消除右侧空隙
+      if (columns > 1) {
+        const totalGapWidth = gap * (columns - 1)
+        itemWidth = Math.floor((availableWidth - totalGapWidth) / columns)
+      }
+      
+      // 如果只有一列，使用简单布局
+      if (columns === 1) {
+        items.forEach((item, index) => {
+          item.style.width = '100%'
+          item.style.marginBottom = `${gap}px`
+          if (hasRealContent) {
+            item.style.transition = 'none'
+          }
+          
+          // 最后一个元素时显示容器
+          if (index === items.length - 1) {
+            setTimeout(() => {
+              if (hasRealContent) {
+                items.forEach(item => {
+                  item.style.transition = 'all 0.3s ease'
+                })
+                container.style.transition = 'opacity 0.3s ease'
+                container.style.opacity = '1'
+              }
+            }, 50)
+          }
+        })
+        return
+      }
+      
+      // 初始化每列的高度数组
+      const columnHeights = new Array(columns).fill(0)
+      
+      // 为每个卡片设置宽度并计算位置
+      items.forEach((item, index) => {
+        // 设置卡片宽度
+        item.style.width = `${itemWidth}px`
+        item.style.position = 'absolute'
+        item.style.boxSizing = 'border-box'
+        
+        // 等待DOM更新后再计算高度
+        setTimeout(() => {
+          const itemHeight = item.offsetHeight
+          
+          // 找到最短的列
+          const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights))
+          
+          // 计算位置
+          const left = shortestColumnIndex * (itemWidth + gap)
+          const top = columnHeights[shortestColumnIndex]
+          
+          // 设置位置
+          item.style.left = `${left}px`
+          item.style.top = `${top}px`
+          item.style.zIndex = '1'
+          
+          // 更新该列的高度
+          columnHeights[shortestColumnIndex] = top + itemHeight + gap
+          
+          // 如果是最后一个元素，更新容器高度并显示
+          if (index === items.length - 1) {
+            setTimeout(() => {
+              const maxHeight = Math.max(...columnHeights)
+              container.style.height = `${maxHeight}px`
+              
+              // 布局完成后，恢复过渡效果和显示容器
+              if (hasRealContent) {
+                items.forEach(item => {
+                  item.style.transition = 'all 0.3s ease'
+                })
+                container.style.transition = 'opacity 0.3s ease'
+                container.style.opacity = '1'
+              }
+            }, 50)
+          }
+        }, index * 10) // 错开执行时间避免冲突
+      })
+      
+      console.log('瀑布流布局开始:', {
+        containerWidth,
+        availableWidth,
+        columns,
+        itemWidth,
+        gap
+      })
+    },
+    
+    // 处理窗口大小变化
+    handleResize() {
+      clearTimeout(this.resizeTimer)
+      this.resizeTimer = setTimeout(() => {
+        this.optimizeArticleLayout()
+      }, 200)
+    },
+    
+    // 监听图片加载完成
+    watchImageLoad() {
+      const images = document.querySelectorAll('.article-item img')
+      let loadedCount = 0
+      const totalImages = images.length
+      
+      if (totalImages === 0) {
+        // 如果没有图片，直接重新布局
+        setTimeout(() => this.optimizeArticleLayout(), 100)
+        return
+      }
+      
+      images.forEach(img => {
+        if (img.complete) {
+          loadedCount++
+        } else {
+          img.onload = () => {
+            loadedCount++
+            if (loadedCount === totalImages) {
+              this.optimizeArticleLayout()
+            }
+          }
+        }
+      })
+      
+      // 如果所有图片都已加载完成
+      if (loadedCount === totalImages) {
+        setTimeout(() => this.optimizeArticleLayout(), 100)
+      }
     }
   }
 }
@@ -473,17 +670,46 @@ h1:before {
   font-weight: 500;
 }
 
-.article-count {
-  font-size: 14px;
+.article-count-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.article-count .el-tag {
-  padding: 8px 15px;
-  font-weight: 500;
+.article-count-box {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  min-width: 150px;
+  justify-content: center;
+}
+
+.article-count-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.article-count-box i {
+  font-size: 16px;
 }
 
 .article-list {
   margin-bottom: 40px;
+}
+
+.articles-masonry-grid {
+  position: relative;
+  width: 100%;
+  padding: 20px 0 20px 20px;
+  box-sizing: border-box;
 }
 
 .article-item {
@@ -491,13 +717,12 @@ h1:before {
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   padding: 30px;
-  margin-bottom: 30px;
   transition: all 0.3s ease;
-  height: 100%;
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: absolute;
   overflow: hidden;
+  break-inside: avoid;
 }
 
 .article-item:hover {
@@ -672,12 +897,46 @@ h1:before {
   font-size: 12px;
 }
 
+/* 瀑布流布局优化 */
+@supports (grid-template-rows: masonry) {
+  .articles-masonry-grid {
+    grid-template-rows: masonry;
+  }
+}
+
 /* 响应式设计 */
+@media (max-width: 1400px) {
+  .articles-masonry-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .articles-masonry-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px;
+  }
+  
+  .article-item {
+    padding: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .article-header-container {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+  }
+  
+  .filter-options {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .category-filter {
+    width: 100%;
   }
   
   .article-footer {
@@ -692,6 +951,41 @@ h1:before {
   
   .article-cover {
     height: 150px;
+  }
+  
+  .articles-masonry-grid {
+    gap: 15px;
+  }
+  
+  .article-item {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .article-page {
+    padding: 80px 0 20px;
+  }
+  
+  .filter-container {
+    margin: 0 15px 20px;
+    padding: 20px;
+  }
+  
+  .article-list {
+    margin: 0 15px;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  .article-title {
+    font-size: 18px;
+  }
+  
+  .article-item {
+    padding: 15px;
   }
 }
 </style>

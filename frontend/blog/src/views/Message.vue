@@ -299,7 +299,7 @@ export default {
           try {
             const response = await api.message.add(this.messageForm)
             if (response.code === 200) {
-              this.$message.success('留言提交成功！')
+              this.$message.success('留言提交成功！感谢您的留言，管理员会及时查看')
               // 只清空内容，保留用户信息
               this.messageForm.content = ''
               if (!this.isAuthenticated) {
@@ -311,7 +311,7 @@ export default {
             }
           } catch (error) {
             console.error('提交留言失败:', error)
-            this.$message.error('提交留言失败')
+            this.$message.error('留言提交失败，请检查网络连接或稍后重试')
           }
         } else {
           return false
@@ -377,14 +377,14 @@ export default {
         
         const response = await api.message.add(replyData)
         if (response.code === 200) {
-          this.$message.success('回复成功！')
+          this.$message.success('回复发表成功！')
           this.cancelReply()
           // 重新获取留言列表
           this.fetchMessages()
         }
       } catch (error) {
         console.error('回复失败:', error)
-        this.$message.error('回复失败')
+        this.$message.error('回复发表失败，请检查网络连接或稍后重试')
       } finally {
         this.replySubmitting = false
       }

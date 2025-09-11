@@ -22,7 +22,7 @@ public class UserController {
     /**
      * 获取当前用户信息
      */
-    @GetMapping("/info")
+    @GetMapping("/profile/current")
     public Result getCurrentUserInfo(@RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return Result.error("未提供有效的认证令牌");
@@ -44,7 +44,7 @@ public class UserController {
     /**
      * 获取用户信息
      */
-    @GetMapping("/{id}")
+    @GetMapping("/profile/{id}")
     public Result getUserById(@PathVariable Long id) {
         User user = userService.getById(id);
         if (user == null) {

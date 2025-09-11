@@ -275,11 +275,52 @@ export default {
       showReplyEmojiPicker: false,
       currentEmojiCategory: 0,
       emojiCategories: [
-        { name: '表情', icon: '😀', emojis: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳'] },
-        { name: '手势', icon: '👍', emojis: ['👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '👋', '🤚', '🖐️', '✋', '🖖', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️'] },
-        { name: '动物', icon: '🐱', emojis: ['🐱', '🐶', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌'] },
-        { name: '食物', icon: '🍎', emojis: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞'] },
-        { name: '爱心', icon: '❤️', emojis: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎'] }
+        { 
+          name: '表情', 
+          icon: '😀', 
+          emojis: [
+            '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', 
+            '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', 
+            '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', 
+            '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😔'
+          ] 
+        },
+        { 
+          name: '手势', 
+          icon: '👍', 
+          emojis: [
+            '👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '🤙', 
+            '👈', '👉', '👆', '👇', '☝️', '👋', '🤚', '🖐️', 
+            '✋', '🖖', '👏', '🙌', '👐', '🤲', '🤝', '🙏'
+          ] 
+        },
+        { 
+          name: '动物', 
+          icon: '🐱', 
+          emojis: [
+            '🐱', '🐶', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', 
+            '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', 
+            '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺'
+          ] 
+        },
+        { 
+          name: '食物', 
+          icon: '🍎', 
+          emojis: [
+            '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', 
+            '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', 
+            '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕'
+          ] 
+        },
+        { 
+          name: '爱心', 
+          icon: '❤️', 
+          emojis: [
+            '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', 
+            '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', 
+            '💘', '💝', '💟', '⭐', '✨', '💫', '⚡', '🔥'
+          ] 
+        }
       ]
     }
   },
@@ -347,6 +388,42 @@ export default {
       // 点击外部关闭表情面板
       if (this.showEmojiPicker) {
         this.$nextTick(() => {
+          // 计算表情面板的位置
+          const emojiButton = this.$el.querySelector('.emoji-button');
+          const emojiPanel = this.$el.querySelector('.emoji-panel');
+          if (emojiButton && emojiPanel) {
+            const buttonRect = emojiButton.getBoundingClientRect();
+            const panelWidth = 380;
+            const panelHeight = 350;
+            
+            // 计算最佳位置
+            let left = buttonRect.left;
+            let top = buttonRect.bottom + 10;
+            
+            // 确保面板不会超出视窗右边界
+            if (left + panelWidth > window.innerWidth) {
+              left = window.innerWidth - panelWidth - 20;
+            }
+            
+            // 确保面板不会超出视窗下边界
+            if (top + panelHeight > window.innerHeight) {
+              top = buttonRect.top - panelHeight - 10;
+            }
+            
+            // 确保面板不会超出视窗左边界
+            if (left < 10) {
+              left = 10;
+            }
+            
+            // 确保面板不会超出视窗上边界
+            if (top < 10) {
+              top = buttonRect.bottom + 10;
+            }
+            
+            emojiPanel.style.left = left + 'px';
+            emojiPanel.style.top = top + 'px';
+          }
+          
           const closePanel = (e) => {
             if (!this.$el.querySelector('.emoji-picker').contains(e.target)) {
               this.showEmojiPicker = false;
@@ -582,53 +659,112 @@ export default {
 </script>
 
 <style>
+/* 全局表情字体样式 */
+.emoji-panel, .emoji-panel * {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji", "EmojiSymbols", "Symbola", "DejaVu Sans", sans-serif !important;
+}
+
 /* emoji面板样式 */
 .emoji-panel {
-  position: absolute;
-  z-index: 1000;
+  position: fixed;
+  z-index: 9999;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  width: 320px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  width: 380px;
   margin-top: 10px;
   left: 0;
   border: 1px solid #ebeef5;
+  max-height: 350px;
+  overflow: hidden;
+  transform: translateY(0);
 }
 
 .emoji-container {
-  padding: 10px;
+  padding: 15px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .emoji-categories {
   display: flex;
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   overflow-x: auto;
+  flex-shrink: 0;
+  gap: 5px;
+}
+
+.emoji-categories::-webkit-scrollbar {
+  height: 4px;
+}
+
+.emoji-categories::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.emoji-categories::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
 }
 
 .emoji-category {
-  padding: 5px 10px;
+  padding: 8px 12px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.2s ease;
+  font-size: 18px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 40px;
+  text-align: center;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji", "EmojiSymbols", sans-serif;
+  line-height: 1;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .emoji-category:hover {
   background: #f5f7fa;
+  transform: scale(1.05);
 }
 
 .emoji-category.active {
   background: #ecf5ff;
   color: #409EFF;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
 }
 
 .emoji-list {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 5px;
-  max-height: 200px;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 8px;
+  max-height: 250px;
   overflow-y: auto;
+  padding: 5px;
+  flex: 1;
+}
+
+.emoji-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.emoji-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.emoji-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.emoji-list::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
 }
 
 .emoji-item {
@@ -636,15 +772,57 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  padding: 5px;
+  padding: 6px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.2s ease;
+  aspect-ratio: 1;
+  min-height: 32px;
+  min-width: 32px;
+  background: transparent;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji", "EmojiSymbols", sans-serif;
+  line-height: 1;
+  text-align: center;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .emoji-item:hover {
-  background: #f5f7fa;
-  transform: scale(1.2);
+  background: #f0f9ff;
+  transform: scale(1.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  position: relative;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .emoji-panel {
+    width: calc(100vw - 40px) !important;
+    max-width: 320px;
+    max-height: 300px;
+    left: 20px !important;
+    right: 20px !important;
+  }
+  
+  .emoji-list {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    max-height: 200px;
+  }
+  
+  .emoji-item {
+    font-size: 18px;
+    padding: 6px;
+    min-height: 32px;
+    min-width: 32px;
+  }
+  
+  .emoji-category {
+    padding: 6px 10px;
+    font-size: 16px;
+  }
 }
 </style>
 

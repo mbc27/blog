@@ -13,6 +13,7 @@
             <router-link to="/message" class="nav-item">留言</router-link>
           </template>
           <router-link to="/friends" class="nav-item">友链</router-link>
+          <router-link to="/contact" class="nav-item">联系我</router-link>
           <router-link to="/about" class="nav-item">关于</router-link>
           <router-link v-if="isAdmin" to="/admin" class="nav-item admin-link">
             <i class="el-icon-setting"></i> 管理
@@ -20,7 +21,13 @@
         </div>
         <div class="user-section">
           <div v-if="isAuthenticated && user" class="user-avatar">
-            <el-dropdown trigger="click" @command="handleCommand">
+            <el-dropdown 
+              trigger="click" 
+              @command="handleCommand" 
+              placement="bottom-end"
+              :hide-on-click="true"
+              :popper-class="'home-navbar-dropdown'"
+            >
               <img :src="user.avatar" alt="用户头像" class="avatar" />
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="profile">个人中心</el-dropdown-item>
@@ -122,13 +129,27 @@
           </div>
           
           <div v-else class="articles-grid">
-            <article v-for="article in articles" :key="article.id" class="article-card">
-              <div class="article-image">
-                <img :src="article.coverImage || '/default-cover.jpg'" :alt="article.title" />
-                <div class="article-category">{{ article.categoryName || '未分类' }}</div>
+            <article v-for="article in articles" :key="article.id" class="article-card" :class="{ 'no-cover': !article.cover || article.cover.trim() === '' }">
+              <!-- 分类标签统一放在卡片左上角 -->
+              <div class="article-category-tag">{{ article.categoryName || '未分类' }}</div>
+              
+              <!-- 有封面图时显示图片 -->
+              <div v-if="article.cover && article.cover.trim() !== ''" class="article-image">
+                <img :src="article.cover" :alt="article.title" @error="handleImageError" />
+              </div>
+              <!-- 没有封面图时显示标题背景 -->
+              <div v-else class="article-title-cover">
+                <router-link :to="`/article/${article.id}`" class="title-overlay-link">
+                  <div class="title-overlay">
+                    <h3 class="cover-title">{{ article.title }}</h3>
+                  </div>
+                </router-link>
               </div>
               <div class="article-content">
-                <h3 class="article-title">
+                <h3 v-if="article.cover && article.cover.trim() !== ''" class="article-title">
+                  <router-link :to="`/article/${article.id}`">{{ article.title }}</router-link>
+                </h3>
+                <h3 v-else class="article-title clickable-title">
                   <router-link :to="`/article/${article.id}`">{{ article.title }}</router-link>
                 </h3>
                 <p class="article-summary">{{ article.summary || '暂无摘要...' }}</p>
@@ -152,26 +173,6 @@
         </div>
       </div>
     </main>
-
-    <!-- 页脚 -->
-    <footer class="footer">
-      <div class="container">
-        <div class="footer-content">
-          <div class="footer-info">
-            <h3>{{ siteSettings.site_title || '博客系统' }}</h3>
-            <p>{{ siteSettings.site_description || '记录生活，分享思考' }}</p>
-          </div>
-          <div class="footer-links">
-            <router-link to="/about">关于我们</router-link>
-            <router-link to="/friends">友情链接</router-link>
-            <router-link v-if="isAuthenticated" to="/message">留言反馈</router-link>
-          </div>
-        </div>
-        <div class="footer-bottom">
-          <p>&copy; 2025 {{ siteSettings.site_title || '博客系统' }}. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -262,21 +263,51 @@ export default {
       try {
         this.loading = true
         
-        // 获取最新文章列表
-        const articlesResponse = await api.article.getList({ current: 1, size: 6 })
-        if (articlesResponse.code === 200) {
-          this.articles = articlesResponse.data.records || []
-          this.articleCount = articlesResponse.data.total || 0
-        }
-        
-        // 获取分类数量
+        // 先获取分类列表
+        let categories = []
         try {
           const categoryResponse = await api.category.getAll()
           if (categoryResponse.code === 200) {
-            this.categoryCount = categoryResponse.data.length || 0
+            categories = categoryResponse.data || []
+            this.categoryCount = categories.length || 0
           }
         } catch (categoryError) {
+          console.error('获取分类列表失败:', categoryError)
           this.categoryCount = 5
+        }
+        
+        // 获取最新文章列表
+        const articlesResponse = await api.article.getList({ current: 1, size: 6 })
+        if (articlesResponse.code === 200) {
+          this.articles = (articlesResponse.data.records || []).map(article => {
+            // 根据categoryId查找分类名称
+            let categoryName = '未分类'
+            if (article.categoryId && categories.length > 0) {
+              const category = categories.find(cat => cat.id === article.categoryId)
+              if (category) {
+                categoryName = category.name
+              }
+            } else if (article.categoryName) {
+              categoryName = article.categoryName
+            }
+            
+            // 处理封面图URL
+            let coverUrl = ''
+            if (article.cover && article.cover.trim() !== '') {
+              coverUrl = article.cover.trim()
+              // 如果是相对路径，转换为完整URL
+              if (!coverUrl.startsWith('http')) {
+                coverUrl = `http://localhost:8080${coverUrl.startsWith('/') ? '' : '/'}${coverUrl}`
+              }
+            }
+            
+            return {
+              ...article,
+              cover: coverUrl,
+              categoryName: categoryName
+            }
+          })
+          this.articleCount = articlesResponse.data.total || 0
         }
         
         // 获取所有文章的访问量总和
@@ -328,6 +359,15 @@ export default {
         return (num / 1000).toFixed(1) + 'k'
       }
       return num.toString()
+    },
+    
+    handleImageError(event) {
+      // 图片加载失败时的处理
+      console.log('图片加载失败:', event.target.src)
+      // 可以设置默认图片或隐藏图片
+      event.target.style.display = 'none'
+      // 或者设置默认图片
+      // event.target.src = '/default-cover.jpg'
     }
   }
 }
@@ -348,8 +388,13 @@ export default {
   position: fixed;
   width: 100%;
   top: 0;
-  z-index: 1000;
+  z-index: 10000;
   transition: all 0.3s ease;
+}
+
+/* 下拉菜单样式 */
+.home-navbar-dropdown {
+  z-index: 10001 !important;
 }
 
 .nav-container {
@@ -688,6 +733,102 @@ export default {
   font-weight: 500;
 }
 
+/* 统一的分类标签样式 - 放在卡片左上角 */
+.article-category-tag {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.article-category-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 没有封面图时的标题背景样式 */
+.article-title-cover {
+  position: relative;
+  height: 200px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.article-title-cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.title-overlay-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.title-overlay-link:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.title-overlay {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  padding: 20px;
+}
+
+.cover-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.title-overlay-link:hover .cover-title {
+  transform: scale(1.05);
+}
+
+/* 没有封面图的文章卡片调整 */
+.article-card.no-cover .article-content {
+  padding-top: 20px;
+}
+
+.article-card.no-cover .article-summary {
+  margin-top: 15px;
+}
+
 .article-content {
   padding: 25px;
 }
@@ -730,54 +871,6 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
-}
-
-/* 页脚样式 */
-.footer {
-  background: #2c3e50;
-  color: white;
-  padding: 60px 0 30px;
-}
-
-.footer-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 40px;
-  margin-bottom: 40px;
-}
-
-.footer-info h3 {
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-  color: white;
-}
-
-.footer-info p {
-  color: #bdc3c7;
-  line-height: 1.6;
-}
-
-.footer-links {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.footer-links a {
-  color: #bdc3c7;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: white;
-}
-
-.footer-bottom {
-  text-align: center;
-  padding-top: 30px;
-  border-top: 1px solid #34495e;
-  color: #95a5a6;
 }
 
 /* 响应式设计 */
@@ -823,10 +916,7 @@ export default {
     text-align: center;
   }
   
-  .footer-content {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
+
 }
 
 @media (max-width: 480px) {

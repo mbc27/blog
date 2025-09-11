@@ -1,31 +1,17 @@
 <template>
-  <div class="article-detail-container">
+  <div class="article-detail-page">
     <el-card class="article-card">
-      <div slot="header" class="header">
-        <h1>{{ article.title }}</h1>
+      <div class="article-header">
+        <h1 class="article-title">{{ article.title }}</h1>
         <div class="article-meta">
-          <span class="author">作者: {{ article.authorName || '未知' }}</span>
-          <span class="time">发布时间: {{ formatDate(article.createTime) }}</span>
+          <span class="author">作者: {{ article.author || 'user' }}</span>
+          <span class="date">发布时间: {{ article.createTime }}</span>
           <span class="views">阅读: {{ article.viewCount }}</span>
-          <span class="likes">点赞: {{ article.likeCount }}</span>
-          <span class="status" :class="getStatusClass(article.status)">
-            {{ getStatusText(article.status) }}
-          </span>
-        </div>
-        
-        <!-- 管理员审核操作区 -->
-        <div class="admin-actions" v-if="isAdmin && article.status === 2">
-          <el-button type="success" size="small" @click="approveArticle">审核通过</el-button>
-          <el-button type="danger" size="small" @click="rejectArticle">审核拒绝</el-button>
-        </div>
-        
-        <!-- 作者编辑操作区 -->
-        <div class="author-actions" v-if="isAuthor && (article.status === 2 || article.status === 3)">
-          <el-button type="primary" size="small" @click="editArticle">编辑文章</el-button>
+          <span class="comments">评论: {{ article.commentCount }}</span>
         </div>
       </div>
       
-      <div class="article-content" v-html="article.content"></div>
+      <div class="article-content markdown-body" v-html="renderedContent"></div>
       
       <div class="article-footer">
         <el-button 
@@ -72,7 +58,15 @@
 </template>
 
 <script>
+import MarkdownIt from 'markdown-it'
 import CommentSection from '../components/CommentSection.vue'
+
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true
+})
+
 import api from '../api'
 
 export default {
@@ -86,7 +80,7 @@ export default {
         id: null,
         title: '',
         content: '',
-        authorName: '',
+        author: '',
         createTime: '',
         viewCount: 0,
         likeCount: 0,
@@ -106,6 +100,11 @@ export default {
     // 判断当前用户是否为文章作者
     isAuthor() {
       return this.currentUserId && this.article.userId && this.currentUserId === this.article.userId;
+    },
+    // 渲染Markdown内容
+    renderedContent() {
+      if (!this.article.content) return '';
+      return md.render(this.article.content);
     }
   },
   created() {
@@ -141,333 +140,312 @@ export default {
         }
       } catch (error) {
         console.error('获取用户信息失败:', error)
-        // 从store中获取基本用户信息
-        const storeUser = this.$store.getters.user
-        if (storeUser) {
-          this.currentUserId = storeUser.id
-          this.isAdmin = storeUser.role === 0
-          console.log('从store获取用户信息:', storeUser)
-        }
       }
     },
-    
+
+    // 获取文章详情
     async getArticleDetail() {
       try {
         const articleId = this.$route.params.id
         const response = await api.article.getDetail(articleId)
+        
         if (response.code === 200) {
           this.article = response.data
-          // 初始化评论计数
+          console.log('获取文章详情成功:', this.article)
+          
+          // 更新评论数
           this.commentCount = this.article.commentCount || 0
           
           // 检查点赞状态
-          this.checkLikeStatus()
-          
-          // 增加文章浏览量
-          this.incrementViewCount()
-        } else {
-          // 处理业务错误
-          this.$message.error(response.message || '获取文章详情失败')
-          if (response.message === '您无权查看该文章') {
-            setTimeout(() => {
-              this.$router.push('/article')
-            }, 1500)
+          if (this.currentUserId) {
+            this.checkLikeStatus()
           }
+        } else {
+          this.$message.error('获取文章详情失败')
         }
       } catch (error) {
         console.error('获取文章详情失败:', error)
-        let errorMsg = '获取文章详情失败'
-        
-        if (error.response) {
-          switch (error.response.status) {
-            case 403:
-              errorMsg = '您无权查看该文章'
-              break
-            case 404:
-              errorMsg = '请求的资源不存在'
-              break
-            default:
-              errorMsg = `获取文章详情失败: ${error.message || '未知错误'}`
-          }
-        } else if (error.message) {
-          errorMsg = `获取文章详情失败: ${error.message}`
-        }
-        
-        this.$message.error(errorMsg)
-        setTimeout(() => {
-          this.$router.push('/article')
-        }, 1500)
+        this.$message.error('获取文章详情失败')
       }
     },
-    
-    // 增加文章浏览量
-    async incrementViewCount() {
-      try {
-        // 这里可以添加增加浏览量的API调用
-        // 暂时不实现，因为后端可能已经在获取文章详情时自动增加了浏览量
-      } catch (error) {
-        console.error('增加浏览量失败:', error)
-      }
-    },
-    
-    // 检查当前用户是否已点赞该文章
+
+    // 检查点赞状态
     async checkLikeStatus() {
-      if (!this.article.id) {
-        return
-      }
-      
-      // 检查是否有token
-      const token = localStorage.getItem('token')
-      if (!token) {
-        console.log('用户未登录，无法检查点赞状态')
-        this.isLiked = false
+      if (!this.currentUserId || !this.article.id) {
         return
       }
       
       try {
-        const response = await api.article.checkLikeStatus(this.article.id)
+        const response = await api.article.checkLike(this.article.id)
         if (response.code === 200) {
           this.isLiked = response.data
-          console.log('点赞状态:', this.isLiked ? '已点赞' : '未点赞')
         }
       } catch (error) {
         console.error('检查点赞状态失败:', error)
-        // 错误不影响用户体验，只记录日志
-        this.isLiked = false
       }
     },
-    
-    // 点赞或取消点赞
+
+    // 切换点赞状态
     async toggleLike() {
-      // 检查是否有token
-      const token = localStorage.getItem('token')
-      if (!token) {
+      if (!this.$store.getters.isAuthenticated) {
         this.$message.warning('请先登录')
-        // 保存当前页面URL，登录后可以返回
-        localStorage.setItem('redirectUrl', this.$route.fullPath)
-        // 跳转到登录页
-        this.$router.push('/login')
         return
       }
-      
+
+      this.liking = true
       try {
-        this.liking = true
-        
-        // 确保token已设置到store中
-        if (!this.$store.getters.token) {
-          this.$store.commit('SET_TOKEN', token)
-        }
-        
-        // 尝试获取用户信息（如果还没有）
-        if (!this.currentUserId) {
-          // 尝试从store获取用户信息
-          const storeUser = this.$store.getters.user
-          if (storeUser && storeUser.id) {
-            this.currentUserId = storeUser.id
-            this.isAdmin = storeUser.role === 0
-          } else {
-            // 尝试从API获取用户信息
-            try {
-              await this.$store.dispatch('getUserInfo')
-              const updatedUser = this.$store.getters.user
-              if (updatedUser) {
-                this.currentUserId = updatedUser.id
-                this.isAdmin = updatedUser.role === 0
-              } else {
-                throw new Error('无法获取用户信息')
-              }
-            } catch (userError) {
-              console.error('获取用户信息失败:', userError)
-              this.$message.error('登录状态异常，请重新登录')
-              this.$store.dispatch('logout')
-              localStorage.setItem('redirectUrl', this.$route.fullPath)
-              this.$router.push('/login')
-              return
-            }
-          }
-        }
-        
-        // 执行点赞操作
-        const response = await api.article.like(this.article.id)
-        
+        const response = await api.article.toggleLike(this.article.id)
         if (response.code === 200) {
-          // 切换点赞状态
           this.isLiked = !this.isLiked
-          
           // 更新点赞数
           if (this.isLiked) {
             this.article.likeCount++
-            this.$message.success('点赞成功')
           } else {
-            if (this.article.likeCount > 0) {
-              this.article.likeCount--
-            }
-            this.$message.success('已取消点赞')
+            this.article.likeCount--
           }
+          this.$message.success(this.isLiked ? '点赞成功' : '取消点赞成功')
+        } else {
+          this.$message.error(response.message || '操作失败')
         }
       } catch (error) {
         console.error('点赞操作失败:', error)
-        if (error.response) {
-          if (error.response.status === 401 || error.response.status === 403) {
-            this.$message.error('登录已过期，请重新登录')
-            // 清除token并重定向到登录页
-            this.$store.dispatch('logout')
-            localStorage.setItem('redirectUrl', this.$route.fullPath)
-            this.$router.push('/login')
-          } else {
-            this.$message.error('操作失败: ' + (error.message || '未知错误'))
-          }
-        } else {
-          this.$message.error('操作失败: ' + (error.message || '网络错误'))
-        }
+        this.$message.error('操作失败')
       } finally {
         this.liking = false
       }
     },
-    
-    // 获取文章状态文本
-    getStatusText(status) {
-      switch (status) {
-        case 0: return '草稿';
-        case 1: return '已发布';
-        case 2: return '待审核';
-        case 3: return '审核不通过';
-        default: return '未知状态';
-      }
-    },
-    
-    // 获取文章状态样式类
-    getStatusClass(status) {
-      switch (status) {
-        case 0: return 'status-draft';
-        case 1: return 'status-published';
-        case 2: return 'status-pending';
-        case 3: return 'status-rejected';
-        default: return '';
-      }
-    },
-    
-    // 审核通过文章
-    async approveArticle() {
-      try {
-        const response = await api.article.approve(this.article.id)
-        if (response.code === 200) {
-          this.$message.success('审核通过成功')
-          this.article.status = 1 // 更新状态为已发布
-        }
-      } catch (error) {
-        this.$message.error('审核操作失败: ' + (error.message || '未知错误'))
-      }
-    },
-    
-    // 审核拒绝文章
-    async rejectArticle() {
-      try {
-        const response = await api.article.reject(this.article.id)
-        if (response.code === 200) {
-          this.$message.success('审核拒绝成功')
-          this.article.status = 3 // 更新状态为审核不通过
-        }
-      } catch (error) {
-        this.$message.error('审核操作失败: ' + (error.message || '未知错误'))
-      }
-    },
-    
-    // 编辑文章
-    editArticle() {
-      this.$router.push(`/write?id=${this.article.id}`)
-    },
-    
-    // 更新评论计数
+
+    // 更新评论数
     updateCommentCount(count) {
       this.commentCount = count
-      // 同时更新文章对象中的评论数
       this.article.commentCount = count
-    },
-    
-    // 格式化日期
-    formatDate(dateString) {
-      if (!dateString) return '';
-      const date = new Date(dateString);
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     }
   }
 }
 </script>
 
 <style scoped>
-.article-detail-container {
-  padding: 20px;
-  max-width: 1000px;
+.article-detail-page {
+  max-width: 800px;
   margin: 0 auto;
+  padding: 20px;
 }
 
 .article-card {
   margin-bottom: 20px;
 }
 
-.header h1 {
-  margin: 0 0 10px 0;
-  color: #333;
+.article-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.article-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #303133;
+  margin: 0 0 15px 0;
+  line-height: 1.3;
 }
 
 .article-meta {
   display: flex;
-  gap: 20px;
-  color: #666;
-  font-size: 14px;
   flex-wrap: wrap;
+  gap: 20px;
+  color: #909399;
+  font-size: 14px;
 }
 
-.status {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-.status-draft {
-  background-color: #e6e6e6;
-  color: #666;
-}
-
-.status-published {
-  background-color: #67C23A;
-  color: white;
-}
-
-.status-pending {
-  background-color: #E6A23C;
-  color: white;
-}
-
-.status-rejected {
-  background-color: #F56C6C;
-  color: white;
-}
-
-.admin-actions, .author-actions {
-  margin-top: 10px;
+.article-meta span {
   display: flex;
-  gap: 10px;
+  align-items: center;
 }
 
 .article-content {
   line-height: 1.8;
   font-size: 16px;
+  color: #333;
+  margin: 20px 0;
+}
+
+/* Markdown样式 */
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #24292e;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+.markdown-body h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+.markdown-body h3 {
+  font-size: 1.25em;
+}
+
+.markdown-body h4 {
+  font-size: 1em;
+}
+
+.markdown-body h5 {
+  font-size: 0.875em;
+}
+
+.markdown-body h6 {
+  font-size: 0.85em;
+  color: #6a737d;
+}
+
+.markdown-body p {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 1em;
+  color: #6a737d;
+  border-left: 0.25em solid #dfe2e5;
+  margin: 0 0 16px 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body li {
+  margin-bottom: 0.25em;
+}
+
+.markdown-body code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(27, 31, 35, 0.05);
+  border-radius: 3px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body strong {
+  font-weight: 600;
+}
+
+.markdown-body em {
+  font-style: italic;
+}
+
+.markdown-body del {
+  text-decoration: line-through;
+}
+
+.markdown-body a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.markdown-body hr {
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: #e1e4e8;
+  border: 0;
+}
+
+.markdown-body table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin-top: 0;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+}
+
+.markdown-body table th {
+  font-weight: 600;
+  background-color: #f6f8fa;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f6f8fa;
 }
 
 .article-content >>> img {
   max-width: 100%;
   height: auto;
+  border-radius: 6px;
+  margin: 10px 0;
 }
 
 .article-footer {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #ebeef5;
 }
 
 .tags {
@@ -476,14 +454,7 @@ export default {
 }
 
 .comments-card {
-  margin-top: 30px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.comments-card >>> .el-card__header {
-  background: linear-gradient(135deg, #f6f9fc 0%, #eef1f5 100%);
-  padding: 15px 20px;
+  margin-top: 20px;
 }
 
 .comments-header {
@@ -495,15 +466,10 @@ export default {
 .comments-title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 16px;
-  font-weight: 600;
-  color: #333;
-}
-
-.comments-title i {
-  color: #409EFF;
-  font-size: 18px;
+  font-weight: bold;
+  color: #303133;
 }
 
 .comments-info {
@@ -511,15 +477,27 @@ export default {
   align-items: center;
   gap: 5px;
   color: #909399;
-  font-size: 13px;
+  font-size: 12px;
 }
 
-.comments-info i {
-  color: #E6A23C;
-  cursor: pointer;
-}
-
-.comments-card >>> .el-card__body {
-  padding: 0;
+@media (max-width: 768px) {
+  .article-detail-page {
+    padding: 10px;
+  }
+  
+  .article-title {
+    font-size: 24px;
+  }
+  
+  .article-meta {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .article-footer {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
 }
 </style>

@@ -64,39 +64,115 @@
           </el-form-item>
           
           <el-form-item label="文章内容" prop="content">
+            <!-- Markdown 工具栏 -->
+            <div class="markdown-toolbar">
+              <div class="toolbar-title">
+                <i class="el-icon-edit-outline"></i>
+                Markdown 快捷工具
+              </div>
+              <div class="toolbar-buttons">
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('# ', '一级标题')"
+                  title="一级标题">
+                  H1
+                </el-button>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('## ', '二级标题')"
+                  title="二级标题">
+                  H2
+                </el-button>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('### ', '三级标题')"
+                  title="三级标题">
+                  H3
+                </el-button>
+                <el-divider direction="vertical"></el-divider>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('**', '粗体文本', '**')"
+                  title="粗体"
+                  icon="el-icon-bold">
+                </el-button>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('*', '斜体文本', '*')"
+                  title="斜体"
+                  style="font-style: italic;">
+                  I
+                </el-button>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('~~', '删除线文本', '~~')"
+                  title="删除线"
+                  style="text-decoration: line-through;">
+                  S
+                </el-button>
+                <el-divider direction="vertical"></el-divider>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('[', '链接文本', '](URL)')"
+                  title="链接"
+                  icon="el-icon-link">
+                </el-button>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('![', '图片描述', '](图片URL)')"
+                  title="图片"
+                  icon="el-icon-picture">
+                </el-button>
+                <el-divider direction="vertical"></el-divider>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('- ', '列表项')"
+                  title="无序列表"
+                  icon="el-icon-menu">
+                </el-button>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('1. ', '列表项')"
+                  title="有序列表">
+                  1.
+                </el-button>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('> ', '引用文本')"
+                  title="引用"
+                  icon="el-icon-chat-dot-square">
+                </el-button>
+                <el-divider direction="vertical"></el-divider>
+                <el-button 
+                  size="mini" 
+                  @click="insertMarkdown('`', '行内代码', '`')"
+                  title="行内代码">
+                  `code`
+                </el-button>
+                <el-button 
+                  size="mini" 
+                  @click="insertCodeBlock()"
+                  title="代码块"
+                  icon="el-icon-document">
+                </el-button>
+                <el-button 
+                  size="mini" 
+                  @click="insertDivider()"
+                  title="分割线">
+                  ---
+                </el-button>
+              </div>
+            </div>
+            
             <div class="content-editor-wrapper">
               <el-input 
+                ref="contentEditor"
                 type="textarea" 
                 v-model="articleForm.content" 
                 rows="15" 
                 placeholder="请输入文章内容，支持Markdown格式"
                 class="content-editor">
               </el-input>
-              <div class="markdown-tips">
-                <el-popover
-                  placement="right"
-                  width="300"
-                  trigger="hover">
-                  <div class="markdown-cheatsheet">
-                    <h4>Markdown 语法参考</h4>
-                    <ul>
-                      <li><code># 标题</code> - 一级标题</li>
-                      <li><code>## 标题</code> - 二级标题</li>
-                      <li><code>**粗体**</code> - <strong>粗体</strong></li>
-                      <li><code>*斜体*</code> - <em>斜体</em></li>
-                      <li><code>[链接](URL)</code> - <a href="#">链接</a></li>
-                      <li><code>![图片](URL)</code> - 图片</li>
-                      <li><code>- 列表项</code> - 无序列表</li>
-                      <li><code>1. 列表项</code> - 有序列表</li>
-                      <li><code>```代码块```</code> - 代码块</li>
-                      <li><code>> 引用</code> - 引用文本</li>
-                    </ul>
-                  </div>
-                  <el-button slot="reference" type="text" icon="el-icon-question" class="help-btn">
-                    Markdown 帮助
-                  </el-button>
-                </el-popover>
-              </div>
             </div>
           </el-form-item>
           
@@ -476,6 +552,107 @@ export default {
       };
       
       return iconMap[categoryName] || 'el-icon-collection';
+    },
+    
+    // 插入Markdown语法
+    insertMarkdown(prefix, placeholder = '', suffix = '') {
+      // 检查refs是否存在
+      if (!this.$refs.contentEditor || !this.$refs.contentEditor.$refs || !this.$refs.contentEditor.$refs.textarea) {
+        // 如果textarea还没有渲染，直接在内容末尾插入
+        const insertText = prefix + placeholder + suffix;
+        this.articleForm.content += insertText;
+        return;
+      }
+      
+      const textarea = this.$refs.contentEditor.$refs.textarea;
+      const start = textarea.selectionStart || 0;
+      const end = textarea.selectionEnd || 0;
+      const selectedText = this.articleForm.content.substring(start, end);
+      
+      let insertText;
+      if (selectedText) {
+        // 如果有选中文本，用选中的文本替换placeholder
+        insertText = prefix + selectedText + suffix;
+      } else {
+        // 如果没有选中文本，使用placeholder
+        insertText = prefix + placeholder + suffix;
+      }
+      
+      // 插入文本
+      const newContent = 
+        this.articleForm.content.substring(0, start) + 
+        insertText + 
+        this.articleForm.content.substring(end);
+      
+      this.articleForm.content = newContent;
+      
+      // 设置光标位置
+      this.$nextTick(() => {
+        try {
+          if (selectedText) {
+            // 如果有选中文本，光标放在插入文本的末尾
+            textarea.setSelectionRange(start + insertText.length, start + insertText.length);
+          } else {
+            // 如果没有选中文本，光标放在placeholder文本的开始和结束之间
+            const cursorPos = start + prefix.length;
+            const endPos = cursorPos + placeholder.length;
+            textarea.setSelectionRange(cursorPos, endPos);
+          }
+          textarea.focus();
+        } catch (error) {
+          console.warn('设置光标位置失败:', error);
+        }
+      });
+    },
+    
+    // 插入代码块
+    insertCodeBlock() {
+      // 检查refs是否存在
+      if (!this.$refs.contentEditor || !this.$refs.contentEditor.$refs || !this.$refs.contentEditor.$refs.textarea) {
+        // 如果textarea还没有渲染，直接在内容末尾插入
+        this.articleForm.content += '```\n代码内容\n```';
+        return;
+      }
+      
+      const textarea = this.$refs.contentEditor.$refs.textarea;
+      const start = textarea.selectionStart || 0;
+      const end = textarea.selectionEnd || 0;
+      const selectedText = this.articleForm.content.substring(start, end);
+      
+      let insertText;
+      if (selectedText) {
+        insertText = '```\n' + selectedText + '\n```';
+      } else {
+        insertText = '```\n代码内容\n```';
+      }
+      
+      const newContent = 
+        this.articleForm.content.substring(0, start) + 
+        insertText + 
+        this.articleForm.content.substring(end);
+      
+      this.articleForm.content = newContent;
+      
+      this.$nextTick(() => {
+        try {
+          if (selectedText) {
+            textarea.setSelectionRange(start + insertText.length, start + insertText.length);
+          } else {
+            // 光标放在"代码内容"的位置
+            const cursorStart = start + 4; // '```\n'.length
+            const cursorEnd = cursorStart + 4; // '代码内容'.length
+            textarea.setSelectionRange(cursorStart, cursorEnd);
+          }
+          textarea.focus();
+        } catch (error) {
+          console.warn('设置光标位置失败:', error);
+        }
+      });
+    },
+    
+    // 插入分割线
+    insertDivider() {
+      this.insertMarkdown('---\n');
     }
   }
 }
@@ -544,44 +721,96 @@ h1 i {
   border-radius: 8px;
 }
 
-.markdown-tips {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
+/* Markdown 工具栏样式 */
+.markdown-toolbar {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+  border-radius: 8px 8px 0 0;
+  padding: 12px 16px;
+  margin-bottom: -1px;
+  position: relative;
+  z-index: 1;
 }
 
-.help-btn {
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 4px;
-  padding: 5px 10px;
-  font-size: 12px;
+.toolbar-title {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 12px;
 }
 
-.markdown-cheatsheet {
-  font-size: 13px;
-}
-
-.markdown-cheatsheet h4 {
-  margin-top: 0;
-  margin-bottom: 10px;
+.toolbar-title i {
+  margin-right: 8px;
   color: #409EFF;
+  font-size: 16px;
 }
 
-.markdown-cheatsheet ul {
-  padding-left: 15px;
-  margin: 0;
+.toolbar-buttons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.markdown-cheatsheet li {
-  margin-bottom: 5px;
+.toolbar-buttons .el-button--mini {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #374151;
+  transition: all 0.2s ease;
+  min-width: auto;
+  height: 28px;
 }
 
-.markdown-cheatsheet code {
-  background-color: #f0f0f0;
-  padding: 2px 4px;
-  border-radius: 3px;
+.toolbar-buttons .el-button--mini:hover {
+  background-color: #409EFF;
+  border-color: #409EFF;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(64, 158, 255, 0.3);
+}
+
+.toolbar-buttons .el-button--mini:active {
+  transform: translateY(0);
+}
+
+.toolbar-buttons .el-divider--vertical {
+  height: 20px;
+  margin: 0 8px;
+  border-left: 1px solid #d1d5db;
+}
+
+/* 特殊按钮样式 */
+.toolbar-buttons .el-button--mini[title="粗体"] {
+  font-weight: bold;
+}
+
+.toolbar-buttons .el-button--mini[title="行内代码"] {
   font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+
+.toolbar-buttons .el-button--mini[title="分割线"] {
+  font-family: monospace;
+  font-weight: bold;
+}
+
+/* 调整内容编辑器样式，使其与工具栏连接 */
+.markdown-toolbar + .content-editor-wrapper .content-editor >>> .el-textarea__inner {
+  border-radius: 0 0 8px 8px;
+  border-top: none;
+  font-family: 'Courier New', monospace;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.markdown-toolbar + .content-editor-wrapper .content-editor >>> .el-textarea__inner:focus {
+  border-color: #409EFF;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
 }
 
 .cover-upload-container {
@@ -903,6 +1132,10 @@ h1 i {
   
   .cover-uploader {
     width: 100%;
+  }
+  
+  .toolbar-buttons {
+    flex-wrap: wrap;
   }
 }
 </style>

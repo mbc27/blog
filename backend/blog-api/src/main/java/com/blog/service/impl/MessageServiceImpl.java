@@ -5,7 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.blog.dao.MessageMapper;
 import com.blog.entity.Message;
+import com.blog.entity.User;
 import com.blog.service.MessageService;
+import com.blog.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,6 +24,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public Page<Message> listMessages(Page<Message> page) {
@@ -66,6 +74,37 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             message.setParentId(0L);
         } else {
             message.setLevel(2); // 回复留言
+        }
+        
+        // 如果是登录用户，自动获取用户头像和信息
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.isAuthenticated() && 
+                !authentication.getPrincipal().equals("anonymousUser")) {
+                
+                String userId = authentication.getName();
+                if (userId != null && !userId.isEmpty()) {
+                    User user = userService.getById(Long.parseLong(userId));
+                    if (user != null) {
+                        // 使用登录用户的头像和信息
+                        message.setAvatar(user.getAvatar());
+                        message.setNickname(user.getNickname() != null ? user.getNickname() : user.getUsername());
+                        message.setEmail(user.getEmail());
+                        System.out.println("设置登录用户头像: " + user.getAvatar());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("获取登录用户信息失败: " + e.getMessage());
+            // 如果获取失败，使用默认头像
+            if (message.getAvatar() == null || message.getAvatar().isEmpty()) {
+                message.setAvatar("https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png");
+            }
+        }
+        
+        // 如果仍然没有头像，设置默认头像
+        if (message.getAvatar() == null || message.getAvatar().isEmpty()) {
+            message.setAvatar("https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png");
         }
         
         return this.save(message);

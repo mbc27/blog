@@ -9,11 +9,13 @@
       <el-table
         :data="categories"
         style="width: 100%"
-        v-loading="loading">
+        v-loading="loading"
+        :default-sort="{prop: 'id', order: 'ascending'}">
         <el-table-column
           prop="id"
           label="ID"
-          width="80">
+          width="80"
+          sortable>
         </el-table-column>
         <el-table-column
           prop="categoryName"
@@ -37,7 +39,8 @@
         <el-table-column
           prop="createTime"
           label="创建时间"
-          width="180">
+          width="180"
+          sortable>
         </el-table-column>
         <el-table-column
           label="操作"
@@ -145,7 +148,9 @@ export default {
       this.loading = true
       const params = {
         current: this.pagination.current,
-        size: this.pagination.size
+        size: this.pagination.size,
+        orderBy: 'id',
+        orderDirection: 'asc'
       }
       
       const token = localStorage.getItem('token')

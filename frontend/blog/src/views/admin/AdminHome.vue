@@ -185,14 +185,13 @@ export default {
 
     async getCommentStats() {
       try {
-        // 使用文章评论接口，传入一个存在的文章ID来获取评论数据
-        const articleResponse = await api.article.getList({ current: 1, size: 1 })
-        if (articleResponse.code === 200 && articleResponse.data.records.length > 0) {
-          const articleId = articleResponse.data.records[0].id
-          const response = await api.comment.getByArticle(articleId, { current: 1, size: 1 })
-          if (response.code === 200) {
-            this.stats[1].value = response.data.total || 0
-          }
+        // 使用管理员接口获取所有评论的总数
+        const response = await api.comment.getList({ 
+          current: 1, 
+          size: 1 
+        })
+        if (response.code === 200) {
+          this.stats[1].value = response.data.total || 0
         } else {
           this.stats[1].value = 0
         }
@@ -241,32 +240,15 @@ export default {
 
     async getRecentComments() {
       try {
-        // 获取最新文章的评论作为最近评论
-        const articleResponse = await api.article.getList({ current: 1, size: 3 })
-        if (articleResponse.code === 200 && articleResponse.data.records.length > 0) {
-          let allComments = []
-          
-          // 获取前几篇文章的评论
-          for (const article of articleResponse.data.records) {
-            try {
-              const commentResponse = await api.comment.getByArticle(article.id, { current: 1, size: 3 })
-              if (commentResponse.code === 200 && commentResponse.data.records) {
-                const comments = commentResponse.data.records.map(comment => ({
-                  ...comment,
-                  nickname: comment.user ? comment.user.nickname : comment.nickname || '匿名用户',
-                  articleTitle: article.title
-                }))
-                allComments = allComments.concat(comments)
-              }
-            } catch (err) {
-              console.log('获取文章评论失败:', err)
-            }
-          }
-          
-          // 按时间排序并取前5条
-          this.recentComments = allComments
-            .sort((a, b) => new Date(b.createTime) - new Date(a.createTime))
-            .slice(0, 5)
+        // 直接使用管理员接口获取最近评论
+        const response = await api.comment.getList({ current: 1, size: 5 })
+        if (response.code === 200 && response.data.records) {
+          this.recentComments = response.data.records.map(comment => ({
+            ...comment,
+            nickname: comment.user ? comment.user.nickname : comment.nickname || '匿名用户'
+          }))
+        } else {
+          this.recentComments = []
         }
       } catch (error) {
         console.error('获取最近评论失败:', error)
@@ -288,8 +270,16 @@ export default {
 
     async getRecentUsers() {
       try {
-        // 暂时显示空数据，因为没有公开的用户接口
-        this.recentUsers = []
+        // 使用管理员用户接口获取最近注册的用户
+        const response = await api.adminUser.getList({ page: 1, size: 5 })
+        if (response.code === 200 && response.data.records) {
+          this.recentUsers = response.data.records.map(user => ({
+            ...user,
+            nickname: user.nickname || user.username || '未知用户'
+          }))
+        } else {
+          this.recentUsers = []
+        }
       } catch (error) {
         console.error('获取最近用户失败:', error)
         this.recentUsers = []

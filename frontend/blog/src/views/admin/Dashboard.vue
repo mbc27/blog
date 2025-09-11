@@ -44,6 +44,10 @@
             <i class="el-icon-user"></i>
             <span slot="title">用户管理</span>
           </el-menu-item>
+          <el-menu-item index="/admin/about">
+            <i class="el-icon-user-solid"></i>
+            <span slot="title">关于我管理</span>
+          </el-menu-item>
           <el-menu-item index="/admin/setting">
             <i class="el-icon-setting"></i>
             <span slot="title">系统设置</span>
@@ -159,6 +163,16 @@ export default {
 <style scoped>
 .admin-dashboard {
   height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.el-container {
+  height: 100vh;
 }
 
 .el-header {
@@ -169,6 +183,8 @@ export default {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  position: relative;
+  z-index: 1000;
 }
 
 .header-left {
@@ -191,20 +207,37 @@ export default {
   background-color: #304156;
   color: #bfcbd9;
   transition: width 0.3s;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 999;
 }
 
 .el-menu-vertical:not(.el-menu--collapse) {
   width: 200px;
-  min-height: 400px;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .el-menu {
   border-right: none;
+  height: 100%;
+}
+
+.el-container.is-vertical {
+  margin-left: 200px;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .el-main {
   background-color: #f0f2f5;
   padding: 20px;
+  overflow-y: auto;
+  height: calc(100vh - 60px);
+  width: 100%;
 }
 
 .username {

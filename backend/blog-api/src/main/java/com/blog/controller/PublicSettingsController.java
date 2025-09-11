@@ -46,6 +46,16 @@ public class PublicSettingsController {
             publicSettings.put("about_author", allSettings.getOrDefault("about_author", "热爱编程，喜欢分享技术知识和生活感悟。希望通过这个博客平台与大家交流学习，共同进步。"));
             publicSettings.put("about_contact", allSettings.getOrDefault("about_contact", "如果您有任何问题或建议，欢迎通过留言板与我联系，我会尽快回复。"));
             
+            // 联系信息设置
+            publicSettings.put("about_email", allSettings.getOrDefault("about_email", ""));
+            publicSettings.put("about_github", allSettings.getOrDefault("about_github", ""));
+            publicSettings.put("about_wechat", allSettings.getOrDefault("about_wechat", ""));
+            publicSettings.put("about_wechat_public", allSettings.getOrDefault("about_wechat_public", ""));
+            
+            // 二维码设置
+            publicSettings.put("wechat_qr_code", allSettings.getOrDefault("wechat_qr_code", ""));
+            publicSettings.put("wechat_official_qr_code", allSettings.getOrDefault("wechat_official_qr_code", ""));
+            
             return Result.success("获取公共设置成功", publicSettings);
         } catch (Exception e) {
             return Result.error("获取公共设置失败: " + e.getMessage());

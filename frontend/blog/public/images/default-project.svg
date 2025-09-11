@@ -1,0 +1,6 @@
+<svg width="350" height="200" viewBox="0 0 350 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="350" height="200" fill="#f5f5f5"/>
+  <rect x="50" y="50" width="250" height="100" fill="#e0e0e0" rx="10"/>
+  <circle cx="175" cy="100" r="20" fill="#c0c0c0"/>
+  <text x="175" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#888">项目预览图</text>
+</svg>

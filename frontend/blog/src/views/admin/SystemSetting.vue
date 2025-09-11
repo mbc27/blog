@@ -134,6 +134,83 @@
           ></el-input>
         </el-form-item>
         
+        <!-- 联系信息设置 -->\n        <el-divider content-position="left">联系信息设置</el-divider>
+        
+        <el-form-item label="联系邮箱" prop="aboutEmail">
+          <el-input v-model="settings.aboutEmail" placeholder="请输入联系邮箱"></el-input>
+        </el-form-item>
+        
+        <el-form-item label="GitHub" prop="aboutGithub">
+          <el-input v-model="settings.aboutGithub" placeholder="请输入GitHub地址"></el-input>
+        </el-form-item>
+        
+        <el-form-item label="微信号" prop="aboutWechat">
+          <el-input v-model="settings.aboutWechat" placeholder="请输入微信号"></el-input>
+        </el-form-item>
+        
+        <el-form-item label="微信公众号" prop="aboutWechatPublic">
+          <el-input v-model="settings.aboutWechatPublic" placeholder="请输入微信公众号"></el-input>
+        </el-form-item>
+        
+        <!-- 二维码设置 -->
+        <el-divider content-position="left">二维码设置</el-divider>
+        
+        <el-form-item label="微信二维码">
+          <div class="qr-upload-container">
+            <el-upload
+              class="qr-uploader"
+              :action="uploadUrl"
+              :show-file-list="false"
+              :on-success="handleWechatQRSuccess"
+              :before-upload="beforeQRUpload"
+              :headers="uploadHeaders"
+              accept="image/*">
+              <div class="qr-preview" v-if="settings.wechatQrCode">
+                <img :src="settings.wechatQrCode" alt="微信二维码">
+                <div class="qr-overlay">
+                  <i class="el-icon-edit"></i>
+                  <span>更换二维码</span>
+                </div>
+              </div>
+              <div class="qr-placeholder" v-else>
+                <i class="el-icon-plus"></i>
+                <div class="upload-text">上传微信二维码</div>
+              </div>
+            </el-upload>
+            <div class="qr-actions" v-if="settings.wechatQrCode">
+              <el-button size="mini" type="danger" @click="removeWechatQR">删除</el-button>
+            </div>
+          </div>
+        </el-form-item>
+        
+        <el-form-item label="微信公众号二维码">
+          <div class="qr-upload-container">
+            <el-upload
+              class="qr-uploader"
+              :action="uploadUrl"
+              :show-file-list="false"
+              :on-success="handleWechatPublicQRSuccess"
+              :before-upload="beforeQRUpload"
+              :headers="uploadHeaders"
+              accept="image/*">
+              <div class="qr-preview" v-if="settings.wechatPublicQrCode">
+                <img :src="settings.wechatPublicQrCode" alt="微信公众号二维码">
+                <div class="qr-overlay">
+                  <i class="el-icon-edit"></i>
+                  <span>更换二维码</span>
+                </div>
+              </div>
+              <div class="qr-placeholder" v-else>
+                <i class="el-icon-plus"></i>
+                <div class="upload-text">上传微信公众号二维码</div>
+              </div>
+            </el-upload>
+            <div class="qr-actions" v-if="settings.wechatPublicQrCode">
+              <el-button size="mini" type="danger" @click="removeWechatPublicQR">删除</el-button>
+            </div>
+          </div>
+        </el-form-item>
+        
         <!-- 操作按钮 -->
         <el-form-item>
           <el-button type="primary" @click="saveSettings" :loading="loading">
@@ -175,7 +252,17 @@ export default {
         aboutBlogIntro: '',
         aboutTechStack: '',
         aboutAuthor: '',
-        aboutContact: ''
+        aboutContact: '',
+        aboutEmail: '',
+        aboutGithub: '',
+        aboutWechat: '',
+        aboutWechatPublic: '',
+        wechatQrCode: '',
+        wechatPublicQrCode: ''
+      },
+      uploadUrl: (process.env.VUE_APP_BASE_API || 'http://localhost:8080/api') + '/upload',
+      uploadHeaders: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
       },
       rules: {
         siteTitle: [
@@ -238,7 +325,13 @@ export default {
               aboutBlogIntro: data.about_blog_intro || '这是一个基于Vue2和SpringBoot的个人博客系统，具有文章，表白墙，图片墙，收藏夹，音乐播放，视频播放，留言，友链，后台管理等功能。',
               aboutTechStack: data.about_tech_stack || '本网站采用前后端分离进行实现，前端使用Vue2和Element UI，后端使用Java SpringBoot和MySQL。',
               aboutAuthor: data.about_author || '热爱编程，喜欢分享技术知识和生活感悟。希望通过这个博客平台与大家交流学习，共同进步。',
-              aboutContact: data.about_contact || '如果您有任何问题或建议，欢迎通过留言板与我联系，我会尽快回复。'
+              aboutContact: data.about_contact || '如果您有任何问题或建议，欢迎通过留言板与我联系，我会尽快回复。',
+              aboutEmail: data.about_email || '',
+              aboutGithub: data.about_github || '',
+              aboutWechat: data.about_wechat || '',
+              aboutWechatPublic: data.about_wechat_public || '',
+              wechatQrCode: data.wechat_qr_code || '',
+              wechatPublicQrCode: data.wechat_official_qr_code || ''
             }
           } else {
             this.$message.error(response.message || '获取设置失败')
@@ -279,7 +372,13 @@ export default {
             about_blog_intro: this.settings.aboutBlogIntro,
             about_tech_stack: this.settings.aboutTechStack,
             about_author: this.settings.aboutAuthor,
-            about_contact: this.settings.aboutContact
+            about_contact: this.settings.aboutContact,
+            about_email: this.settings.aboutEmail,
+            about_github: this.settings.aboutGithub,
+            about_wechat: this.settings.aboutWechat,
+            about_wechat_public: this.settings.aboutWechatPublic,
+            wechat_qr_code: this.settings.wechatQrCode,
+            wechat_official_qr_code: this.settings.wechatPublicQrCode
           }
           
           console.log('保存系统设置，数据：', data)
@@ -310,6 +409,74 @@ export default {
     resetForm() {
       this.$refs.settingsForm.resetFields()
       this.fetchSettings()
+    },
+    
+    // 二维码上传前的验证
+    beforeQRUpload(file) {
+      const isImage = file.type.indexOf('image/') === 0
+      const isLt2M = file.size / 1024 / 1024 < 2
+      
+      if (!isImage) {
+        this.$message.error('只能上传图片文件!')
+        return false
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+        return false
+      }
+      return true
+    },
+    
+    // 微信二维码上传成功
+    handleWechatQRSuccess(response) {
+      console.log('微信二维码上传响应:', response)
+      if (response.code === 200) {
+        this.settings.wechatQrCode = response.data.url
+        this.$message.success('微信二维码上传成功')
+        console.log('设置微信二维码URL:', response.data.url)
+        // 自动保存设置
+        this.saveSettings()
+      } else {
+        this.$message.error(response.message || '上传失败')
+      }
+    },
+    
+    // 微信公众号二维码上传成功
+    handleWechatPublicQRSuccess(response) {
+      console.log('微信公众号二维码上传响应:', response)
+      if (response.code === 200) {
+        this.settings.wechatPublicQrCode = response.data.url
+        this.$message.success('微信公众号二维码上传成功')
+        console.log('设置微信公众号二维码URL:', response.data.url)
+        // 自动保存设置
+        this.saveSettings()
+      } else {
+        this.$message.error(response.message || '上传失败')
+      }
+    },
+    
+    // 删除微信二维码
+    removeWechatQR() {
+      this.$confirm('确定要删除微信二维码吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.settings.wechatQrCode = ''
+        this.$message.success('删除成功')
+      }).catch(() => {})
+    },
+    
+    // 删除微信公众号二维码
+    removeWechatPublicQR() {
+      this.$confirm('确定要删除微信公众号二维码吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.settings.wechatPublicQrCode = ''
+        this.$message.success('删除成功')
+      }).catch(() => {})
     }
   }
 }
@@ -320,10 +487,6 @@ export default {
   padding: 20px;
 }
 
-.box-card {
-  max-width: 800px;
-}
-
 .el-divider {
   margin: 30px 0 20px 0;
 }
@@ -331,5 +494,99 @@ export default {
 .el-divider__text {
   font-weight: bold;
   color: #409EFF;
+}
+
+/* 二维码上传样式 */
+.qr-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.qr-uploader {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.qr-uploader:hover {
+  border-color: #409EFF;
+}
+
+.qr-placeholder {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fafafa;
+  color: #8c939d;
+  transition: all 0.3s ease;
+}
+
+.qr-placeholder:hover {
+  background-color: #f5f7fa;
+  color: #409EFF;
+}
+
+.qr-placeholder i {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-size: 14px;
+  text-align: center;
+}
+
+.qr-preview {
+  width: 150px;
+  height: 150px;
+  position: relative;
+  overflow: hidden;
+}
+
+.qr-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.qr-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.qr-preview:hover .qr-overlay {
+  opacity: 1;
+}
+
+.qr-overlay i {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.qr-overlay span {
+  font-size: 12px;
+}
+
+.qr-actions {
+  margin-top: 10px;
 }
 </style>

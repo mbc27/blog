@@ -99,4 +99,31 @@ public interface UserService extends IService<User> {
      * @return 用户列表
      */
     IPage<User> getAllUsers(int page, int size, String username, String nickname, Integer role, Integer status);
+    
+    /**
+     * 发送忘记密码验证码
+     *
+     * @param email 邮箱地址
+     * @return 发送结果
+     */
+    boolean sendForgotPasswordCode(String email);
+    
+    /**
+     * 验证忘记密码验证码
+     *
+     * @param email 邮箱地址
+     * @param code 验证码
+     * @return 验证结果
+     */
+    boolean verifyForgotPasswordCode(String email, String code);
+    
+    /**
+     * 重置密码（通过验证码）
+     *
+     * @param email 邮箱地址
+     * @param code 验证码
+     * @param newPassword 新密码
+     * @return 重置结果
+     */
+    boolean resetPasswordByCode(String email, String code, String newPassword);
 }

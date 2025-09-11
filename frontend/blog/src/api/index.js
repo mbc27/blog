@@ -116,8 +116,8 @@ service.interceptors.response.use(
 
 // 封装API请求方法
 export default {
-  // 用户相关接口
-  user: {
+  // 认证相关接口
+  auth: {
     // 登录
     login: (data) => {
       return service.post('/auth/login', data).catch(error => {
@@ -126,6 +126,33 @@ export default {
       });
     },
     // 注册
+    register(data) {
+      return service.post('/auth/register', data)
+    },
+    // 发送忘记密码验证码
+    sendForgotPasswordCode(data) {
+      return service.post('/auth/forgot-password/send-code', data)
+    },
+    // 验证忘记密码验证码
+    verifyForgotPasswordCode(data) {
+      return service.post('/auth/forgot-password/verify-code', data)
+    },
+    // 重置密码
+    resetPassword(data) {
+      return service.post('/auth/forgot-password/reset', data)
+    }
+  },
+
+  // 用户相关接口
+  user: {
+    // 登录（保持向后兼容）
+    login: (data) => {
+      return service.post('/auth/login', data).catch(error => {
+        console.error('Login API error:', error);
+        throw new Error('请求失败');
+      });
+    },
+    // 注册（保持向后兼容）
     register(data) {
       return service.post('/auth/register', data)
     },
@@ -138,7 +165,7 @@ export default {
         return Promise.reject(new Error('未登录，无法获取用户信息'))
       }
       
-      return service.get('/user/info')
+      return service.get('/user/profile/current')
         .then(response => {
           console.log('获取用户信息成功:', response)
           return response
@@ -164,7 +191,7 @@ export default {
     },
     // 更新用户信息
     updateInfo(data) {
-      return service.put('/user/info', data)
+      return service.put('/user/' + data.id, data)
     },
     // 修改密码
     changePassword(data) {
@@ -226,7 +253,15 @@ export default {
     like(id) {
       return service.post(`/article/${id}/like`)
     },
+    // 切换点赞状态（点赞或取消点赞）
+    toggleLike(id) {
+      return service.post(`/article/${id}/like`)
+    },
     // 检查是否已点赞文章
+    checkLike(id) {
+      return service.get(`/article/${id}/like/status`)
+    },
+    // 检查是否已点赞文章（别名）
     checkLikeStatus(id) {
       return service.get(`/article/${id}/like/status`)
     }
@@ -313,6 +348,10 @@ export default {
     // 获取照片列表
     getList(params) {
       return service.get('/photo/list', { params })
+    },
+    // 获取照片详情（会增加浏览量）
+    getDetail(id) {
+      return service.get(`/photo/${id}`)
     },
     // 获取照片分类列表
     getCategories() {
@@ -553,6 +592,14 @@ export default {
     // 获取总访问量
     getTotalViews() {
       return service.get('/statistics/total-views')
+    }
+  },
+
+  // 联系相关接口
+  contact: {
+    // 发送联系消息
+    sendMessage(data) {
+      return service.post('/contact/send', data)
     }
   }
 }

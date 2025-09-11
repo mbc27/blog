@@ -5,16 +5,45 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.File;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${file.upload.path:/uploads/}")
+    @Value("${file.upload.path:uploads/}")
     private String uploadPath;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 确保路径以斜杠结尾
+        String normalizedPath = uploadPath;
+        if (!normalizedPath.endsWith("/")) {
+            normalizedPath += "/";
+        }
+        
+        // 如果是相对路径，转换为绝对路径
+        File uploadDir = new File(normalizedPath);
+        if (!uploadDir.isAbsolute()) {
+            uploadDir = new File(System.getProperty("user.dir"), normalizedPath);
+        }
+        
+        String absolutePath = uploadDir.getAbsolutePath().replace("\\", "/");
+        if (!absolutePath.endsWith("/")) {
+            absolutePath += "/";
+        }
+        
         // 配置上传文件的静态资源访问
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:d:/Trae-AI/Project/blog/uploads/");
+                .addResourceLocations("file:" + absolutePath);
+        
+        // 添加调试日志
+        System.out.println("Static resource mapping: /uploads/** -> file:" + absolutePath);
+        System.out.println("Upload directory exists: " + uploadDir.exists());
+        
+        // 确保上传目录存在
+        if (!uploadDir.exists()) {
+            boolean created = uploadDir.mkdirs();
+            System.out.println("Created upload directory: " + created);
+        }
     }
 }

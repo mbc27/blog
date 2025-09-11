@@ -48,7 +48,7 @@
               :before-upload="beforeCoverUpload"
               accept="image/*"
             >
-              <img v-if="article.coverImage" :src="article.coverImage" class="cover-image" />
+              <img v-if="article.cover" :src="article.cover" class="cover-image" />
               <div v-else class="cover-placeholder">
                 <i class="el-icon-plus cover-uploader-icon"></i>
                 <div class="cover-uploader-text">点击上传封面图片</div>
@@ -56,7 +56,7 @@
             </el-upload>
             <div class="cover-tips">
               <p>建议尺寸：800x450px，支持 JPG、PNG 格式，文件大小不超过 2MB</p>
-              <el-button v-if="article.coverImage" @click="removeCover" type="text" size="small">
+              <el-button v-if="article.cover" @click="removeCover" type="text" size="small">
                 <i class="el-icon-delete"></i> 删除封面
               </el-button>
             </div>
@@ -186,7 +186,7 @@ export default {
         title: '',
         summary: '',
         content: '',
-        coverImage: '',
+        cover: '',
         categoryId: null,
         tags: [],
         isTop: false,
@@ -281,9 +281,9 @@ export default {
       try {
         this.article.status = 0 // 草稿状态
         await this.saveArticle()
-        this.$message.success('草稿保存成功')
+        this.$message.success('草稿已自动保存')
       } catch (error) {
-        this.$message.error('保存草稿失败')
+        this.$message.error('草稿保存失败，请检查网络连接')
       } finally {
         this.saving = false
       }
@@ -300,10 +300,10 @@ export default {
       try {
         this.article.status = 1 // 发布状态
         await this.saveArticle()
-        this.$message.success(this.isEdit ? '文章更新成功' : '文章发布成功')
+        this.$message.success(this.isEdit ? '文章更新成功！' : '文章发布成功！正在跳转...')
         this.$router.push('/article')
       } catch (error) {
-        this.$message.error(this.isEdit ? '更新文章失败' : '发布文章失败')
+        this.$message.error(this.isEdit ? '文章更新失败，请重试' : '文章发布失败，请检查网络连接或稍后重试')
       } finally {
         this.publishing = false
       }
@@ -346,20 +346,20 @@ export default {
 
     handleCoverSuccess(response) {
       if (response.code === 200) {
-        this.article.coverImage = response.data.url
-        this.$message.success('封面上传成功')
+        this.article.cover = response.data.url
+        this.$message.success('封面图片上传成功')
       } else {
-        this.$message.error(response.message || '上传失败')
+        this.$message.error('封面上传失败，请重试')
       }
     },
 
     handleCoverError(error) {
       console.error('封面上传失败:', error)
-      this.$message.error('封面上传失败')
+      this.$message.error('封面上传失败，请检查网络连接')
     },
 
     removeCover() {
-      this.article.coverImage = ''
+      this.article.cover = ''
     },
 
     // 内容图片上传

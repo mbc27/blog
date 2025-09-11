@@ -197,27 +197,53 @@ export default {
         ...this.searchForm
       }
       
+      console.log('获取管理员照片列表，参数:', params)
+      
       axios.get('/api/admin/photos', { 
         params,
         headers: {
-          Authorization: this.token
+          Authorization: `Bearer ${this.token}`
         }
       })
         .then(response => {
-          if (response.data && response.data.data) {
-            let photos = response.data.data.records || response.data.data
+          console.log('管理员照片列表响应:', response.data)
+          
+          if (response.data && response.data.code === 200) {
+            let photoData = []
+            let totalCount = 0
+            
+            if (response.data.data) {
+              if (Array.isArray(response.data.data.records)) {
+                // 分页数据格式
+                photoData = response.data.data.records
+                totalCount = response.data.data.total || 0
+              } else if (Array.isArray(response.data.data)) {
+                // 直接数组格式
+                photoData = response.data.data
+                totalCount = photoData.length
+              }
+            }
+            
             // 确保照片URL指向后端服务器
-            photos = photos.map(photo => ({
+            this.photos = photoData.map(photo => ({
               ...photo,
               url: this.getFullImageUrl(photo.url)
             }))
-            this.photos = photos
-            this.pagination.total = response.data.data.total || 0
+            this.pagination.total = totalCount
+            
+            console.log('处理后的管理员照片数据:', this.photos)
+          } else {
+            console.error('获取照片列表失败:', response.data.message)
+            this.$message.error('获取照片列表失败: ' + (response.data.message || '未知错误'))
+            this.photos = []
+            this.pagination.total = 0
           }
         })
         .catch(error => {
           console.error('获取照片列表失败', error)
-          this.$message.error('获取照片列表失败')
+          this.$message.error('获取照片列表失败: ' + (error.message || '网络错误'))
+          this.photos = []
+          this.pagination.total = 0
         })
         .finally(() => {
           this.loading = false
@@ -296,13 +322,24 @@ export default {
     handleUploadSuccess(res) {
       console.log('上传响应:', res);
       if (res.code === 200) {
-        // 确保图片URL指向后端服务器
-        this.photoForm.url = this.getFullImageUrl(res.message);
+        // 后端返回的是一个对象，包含url字段
+        let imageUrl = '';
+        if (res.data && typeof res.data === 'object') {
+          // 如果data是对象，提取url字段
+          imageUrl = res.data.url || '';
+        } else if (typeof res.data === 'string') {
+          // 如果data是字符串，直接使用
+          imageUrl = res.data;
+        } else {
+          // 兜底处理
+          imageUrl = res.message || '';
+        }
+        
+        // 确保URL是字符串类型
+        this.photoForm.url = typeof imageUrl === 'string' ? imageUrl : '';
         this.$message.success('上传成功');
-        // 立即刷新照片列表以显示新上传的照片
-        this.fetchPhotos();
       } else {
-        this.$message.error('上传失败');
+        this.$message.error('上传失败: ' + (res.message || '未知错误'));
       }
     },
     beforePhotoUpload(file) {
@@ -324,21 +361,28 @@ export default {
           const method = this.photoForm.id ? 'put' : 'post'
           const url = this.photoForm.id ? `/api/admin/photos/${this.photoForm.id}` : '/api/admin/photos'
           
+          console.log('提交照片数据:', this.photoForm)
+          
           axios[method](url, this.photoForm, {
             headers: {
               'Authorization': `Bearer ${this.token}`
             }
           })
-            .then(() => {
+            .then(response => {
+              console.log('提交照片响应:', response.data)
               this.$message.success(this.photoForm.id ? '更新成功' : '添加成功')
               this.dialogVisible = false
               // 重置分页到第一页以确保能看到新添加的照片
               this.pagination.current = 1
-              this.fetchPhotos()
+              // 延迟刷新以确保后端数据已保存
+              setTimeout(() => {
+                this.fetchPhotos()
+              }, 500)
             })
             .catch(error => {
               console.error('提交照片失败', error)
-              this.$message.error(this.photoForm.id ? '更新照片失败' : '添加照片失败')
+              const errorMsg = error.response?.data?.message || error.message || '未知错误'
+              this.$message.error(this.photoForm.id ? '更新照片失败: ' + errorMsg : '添加照片失败: ' + errorMsg)
             })
             .finally(() => {
               this.submitLoading = false

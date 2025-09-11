@@ -68,6 +68,32 @@ public class CommentController {
     }
 
     /**
+     * 管理员分页查询所有评论（兼容前端API路径）
+     *
+     * @param current      当前页
+     * @param size         每页大小
+     * @param articleTitle 文章标题（可选）
+     * @param content      评论内容（可选）
+     * @param status       评论状态（可选）
+     * @return 评论列表
+     */
+    @GetMapping("/admin")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public Result listAllCommentsAdmin(@RequestParam(defaultValue = "1") Integer current,
+                                       @RequestParam(defaultValue = "10") Integer size,
+                                       @RequestParam(required = false) String articleTitle,
+                                       @RequestParam(required = false) String content,
+                                       @RequestParam(required = false) Integer status) {
+        try {
+            Page<Comment> page = new Page<>(current, size);
+            Page<Comment> commentPage = commentService.listAllComments(page, articleTitle, content, status);
+            return Result.success(commentPage);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
      * 获取评论树
      *
      * @param articleId 文章ID

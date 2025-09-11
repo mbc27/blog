@@ -44,59 +44,60 @@
         style="width: 100%; margin-top: 20px"
         @selection-change="handleSelectionChange"
         v-loading="loading"
+        :default-sort="{prop: 'id', order: 'ascending'}"
       >
-        <el-table-column type="selection" width="55"></el-table-column>
+        <el-table-column type="selection" width="50"></el-table-column>
         
-        <el-table-column prop="id" label="ID" width="80"></el-table-column>
+        <el-table-column prop="id" label="ID" width="60" sortable></el-table-column>
         
-        <el-table-column prop="name" label="友链名称" width="150">
+        <el-table-column prop="name" label="友链名称" width="120">
           <template slot-scope="scope">
             <el-tag size="small">{{ scope.row.name }}</el-tag>
           </template>
         </el-table-column>
         
-        <el-table-column prop="description" label="描述" width="200" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="description" label="描述" width="150" show-overflow-tooltip></el-table-column>
         
-        <el-table-column prop="url" label="网址" width="200" show-overflow-tooltip>
+        <el-table-column prop="url" label="网址" width="160" show-overflow-tooltip>
           <template slot-scope="scope">
             <el-link :href="scope.row.url" target="_blank" type="primary">{{ scope.row.url }}</el-link>
           </template>
         </el-table-column>
         
-        <el-table-column prop="avatar" label="头像" width="100">
+        <el-table-column prop="avatar" label="头像" width="80">
           <template slot-scope="scope">
             <el-image
               v-if="scope.row.avatar"
               :src="scope.row.avatar"
-              style="width: 40px; height: 40px; border-radius: 50%"
+              style="width: 30px; height: 30px; border-radius: 50%"
               fit="cover"
             ></el-image>
-            <span v-else>无头像</span>
+            <span v-else class="no-avatar">无</span>
           </template>
         </el-table-column>
         
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="status" label="状态" width="80">
           <template slot-scope="scope">
             <el-tag
               :type="scope.row.status === 1 ? 'success' : scope.row.status === 2 ? 'danger' : 'warning'"
-              size="small"
+              size="mini"
             >
               {{ getStatusText(scope.row.status) }}
             </el-tag>
           </template>
         </el-table-column>
         
-        <el-table-column prop="sortOrder" label="排序" width="80"></el-table-column>
+        <el-table-column prop="sortOrder" label="排序" width="60"></el-table-column>
         
-        <el-table-column prop="createTime" label="创建时间" width="180">
+        <el-table-column prop="createTime" label="创建时间" width="110" sortable>
           <template slot-scope="scope">
-            {{ formatDate(scope.row.createTime) }}
+            {{ formatDateShort(scope.row.createTime) }}
           </template>
         </el-table-column>
         
-        <el-table-column label="操作" width="250">
+        <el-table-column label="操作" width="280" fixed="right">
           <template slot-scope="scope">
-            <el-button-group>
+            <div class="operation-buttons">
               <el-button size="mini" type="primary" @click="viewFriendLink(scope.row)">查看</el-button>
               <el-button size="mini" type="warning" @click="editFriendLink(scope.row)">编辑</el-button>
               <el-button 
@@ -116,7 +117,7 @@
                 拒绝
               </el-button>
               <el-button size="mini" type="danger" @click="deleteFriendLink(scope.row.id)">删除</el-button>
-            </el-button-group>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -253,7 +254,9 @@ export default {
         const response = await api.friendLink.getAdminList({
           current: this.currentPage,
           size: this.pageSize,
-          keyword: this.searchKeyword
+          keyword: this.searchKeyword,
+          orderBy: 'id',
+          orderDirection: 'asc'
         })
         console.log('友链列表响应:', response)
         if (response.code === 200) {
@@ -429,7 +432,22 @@ export default {
       if (!dateString) return ''
       const date = new Date(dateString)
       return date.toLocaleString('zh-CN')
-    }
+    },
+
+    // 格式化日期（简短版本）
+    formatDateShort(dateString) {
+      if (!dateString) return ''
+      const date = new Date(dateString)
+      return date.toLocaleString('zh-CN', {
+        year: '2-digit',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    },
+
+
   }
 }
 </script>
@@ -437,6 +455,42 @@ export default {
 <style scoped>
 .friend-link-management {
   padding: 20px;
+}
+
+.operation-buttons {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.operation-buttons .el-button {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.no-avatar {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 表格优化 */
+.el-table {
+  font-size: 13px;
+}
+
+.el-table .el-table__cell {
+  padding: 8px 0;
+}
+
+.el-tag--mini {
+  font-size: 11px;
+  padding: 2px 5px;
+}
+
+.el-button--mini {
+  padding: 5px 8px;
+  font-size: 11px;
 }
 
 .search-bar {

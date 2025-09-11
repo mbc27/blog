@@ -2,6 +2,7 @@ package com.blog.controller;
 
 import com.blog.utils.Result;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +19,7 @@ import java.util.UUID;
 @CrossOrigin
 public class UploadController {
 
-    @Value("${file.upload.path:/uploads/}")
+    @Value("${file.upload.path:d:/Trae-AI/Project/blog/uploads/}")
     private String uploadPath;
 
     @Value("${file.upload.url:http://localhost:8080/uploads/}")
@@ -80,9 +81,10 @@ public class UploadController {
     }
 
     @PostMapping("/avatar")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public Result uploadAvatar(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return Result.<Map<String, String>>error("请选择要上传的头像");
+            return Result.error("请选择要上传的头像");
         }
 
         // 检查文件类型
@@ -93,12 +95,13 @@ public class UploadController {
 
         // 检查文件大小 (1MB)
         if (file.getSize() > 1024 * 1024) {
-            return Result.<Map<String, String>>error("头像文件大小不能超过1MB");
+            return Result.error("头像文件大小不能超过1MB");
         }
 
         try {
             // 创建头像上传目录
-            String uploadDir = uploadPath + "avatars";
+            String datePath = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+            String uploadDir = uploadPath + datePath;
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();
@@ -110,14 +113,14 @@ public class UploadController {
             if (originalFilename != null && originalFilename.contains(".")) {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
-            String filename = UUID.randomUUID().toString() + extension;
+            String filename = "avatar_" + UUID.randomUUID().toString() + extension;
 
             // 保存文件
             File targetFile = new File(dir, filename);
             file.transferTo(targetFile);
 
             // 返回文件访问URL
-            String fileUrl = uploadUrl + "avatars/" + filename;
+            String fileUrl = uploadUrl + datePath + "/" + filename;
             
             Map<String, String> result = new HashMap<>();
             result.put("url", fileUrl);
@@ -129,7 +132,7 @@ public class UploadController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            return Result.<Map<String, String>>error("头像上传失败: " + e.getMessage());
+            return Result.error("头像上传失败: " + e.getMessage());
         }
     }
 }

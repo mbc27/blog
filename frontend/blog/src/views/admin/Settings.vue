@@ -68,6 +68,24 @@
               <el-input v-model="settingsForm.siteWechat" placeholder="请输入微信号"></el-input>
             </el-form-item>
             
+            <el-form-item label="微信二维码" prop="wechat_qr_code">
+              <el-input v-model="settingsForm.wechat_qr_code" placeholder="请输入微信二维码图片地址">
+                <el-button slot="append" @click="uploadWechatQr">上传</el-button>
+              </el-input>
+              <div v-if="settingsForm.wechat_qr_code" class="qr-preview">
+                <img :src="settingsForm.wechat_qr_code" alt="微信二维码预览" class="qr-image">
+              </div>
+            </el-form-item>
+            
+            <el-form-item label="微信公众号二维码" prop="wechat_official_qr_code">
+              <el-input v-model="settingsForm.wechat_official_qr_code" placeholder="请输入微信公众号二维码图片地址">
+                <el-button slot="append" @click="uploadWechatOfficialQr">上传</el-button>
+              </el-input>
+              <div v-if="settingsForm.wechat_official_qr_code" class="qr-preview">
+                <img :src="settingsForm.wechat_official_qr_code" alt="微信公众号二维码预览" class="qr-image">
+              </div>
+            </el-form-item>
+            
             <el-form-item label="GitHub" prop="siteGithub">
               <el-input v-model="settingsForm.siteGithub" placeholder="请输入GitHub地址"></el-input>
             </el-form-item>
@@ -135,7 +153,7 @@
 </template>
 
 <script>
-import { adminSettings } from '@/api'
+import api from '@/api'
 
 export default {
   name: 'Settings',
@@ -155,6 +173,8 @@ export default {
         siteEmail: '',
         siteQq: '',
         siteWechat: '',
+        wechat_qr_code: '',
+        wechat_official_qr_code: '',
         siteGithub: '',
         siteGitee: '',
         commentEnabled: true,
@@ -192,7 +212,7 @@ export default {
   methods: {
     async loadSettings() {
       try {
-        const response = await adminSettings.getSettings()
+        const response = await api.system.getSettings()
         if (response.code === 200) {
           this.settingsForm = { ...response.data }
         }
@@ -207,7 +227,7 @@ export default {
         if (valid) {
           this.saving = true
           try {
-            const response = await adminSettings.updateSettings(this.settingsForm)
+            const response = await api.system.updateSettings(this.settingsForm)
             if (response.code === 200) {
               this.$message.success('系统设置保存成功')
             } else {
@@ -235,7 +255,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          const response = await adminSettings.initSettings()
+          const response = await api.system.initSettings()
           if (response.code === 200) {
             this.$message.success('恢复默认设置成功')
             this.loadSettings()
@@ -255,6 +275,14 @@ export default {
     
     uploadFavicon() {
       this.$message.info('文件上传功能待实现')
+    },
+    
+    uploadWechatQr() {
+      this.$message.info('微信二维码上传功能待实现')
+    },
+    
+    uploadWechatOfficialQr() {
+      this.$message.info('微信公众号二维码上传功能待实现')
     }
   }
 }
@@ -298,5 +326,19 @@ export default {
 
 .el-tab-pane {
   padding: 20px;
+}
+
+.qr-preview {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.qr-image {
+  max-width: 150px;
+  max-height: 150px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  padding: 5px;
+  background-color: #fff;
 }
 </style>

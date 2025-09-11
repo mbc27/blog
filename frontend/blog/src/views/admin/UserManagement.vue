@@ -46,14 +46,9 @@
         v-loading="loading"
         style="width: 100%"
         :current-page="currentPage"
-        :page-size="pageSize">
-        <el-table-column 
-          label="序号" 
-          width="80"
-          :formatter="(row, column, cellValue, index) => {
-            return (currentPage - 1) * pageSize + index + 1;
-          }">
-        </el-table-column>
+        :page-size="pageSize"
+        :default-sort="{prop: 'id', order: 'ascending'}">
+        <el-table-column prop="id" label="ID" width="80" sortable></el-table-column>
         <el-table-column prop="username" label="用户名" width="120"></el-table-column>
         <el-table-column prop="nickname" label="昵称" width="120"></el-table-column>
         <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
@@ -71,7 +66,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="180"></el-table-column>
+        <el-table-column prop="createTime" label="创建时间" width="180" sortable></el-table-column>
         <el-table-column label="操作" width="300">
           <template slot-scope="scope">
             <el-button size="mini" @click="editUser(scope.row)">编辑</el-button>
@@ -171,7 +166,9 @@ export default {
         // 过滤空值参数
         const params = {
           page: this.currentPage,
-          size: this.pageSize
+          size: this.pageSize,
+          orderBy: 'id',
+          orderDirection: 'asc'
         }
         
         // 只添加非空的搜索条件

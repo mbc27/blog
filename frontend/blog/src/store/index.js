@@ -148,10 +148,19 @@ const store = new Vuex.Store({
     },
     
     // 更新用户信息
-    async updateUserInfo({ commit }, userData) {
+    async updateUserInfo({ dispatch }, userData) {
       const response = await api.user.updateInfo(userData)
       if (response.code === 200) {
-        commit('SET_USER', response.data)
+        // 更新成功后重新获取用户信息，确保数据同步
+        try {
+          const updatedUser = await dispatch('getUserInfo')
+          if (updatedUser) {
+            console.log('用户信息更新并重新获取成功:', updatedUser)
+          }
+        } catch (error) {
+          console.error('重新获取用户信息失败:', error)
+          // 即使重新获取失败，也不影响更新操作的成功
+        }
         return true
       } else {
         throw new Error(response.message || '更新用户信息失败')

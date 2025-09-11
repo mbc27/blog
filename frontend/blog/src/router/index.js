@@ -42,6 +42,11 @@ const routes = [
     component: () => import('../views/Friends.vue')
   },
   {
+    path: '/contact',
+    name: 'Contact',
+    component: () => import('../views/Contact.vue')
+  },
+  {
     path: '/write',
     name: 'WriteArticle',
     component: () => import('../views/WriteArticle.vue'),
@@ -51,6 +56,12 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: () => import('../views/Login.vue'),
+    meta: { guest: true }
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import('../views/ForgotPassword.vue'),
     meta: { guest: true }
   },
   {
@@ -136,6 +147,12 @@ const routes = [
         component: () => import('../views/admin/SystemSetting.vue'),
         meta: { title: '系统设置' }
       },
+      {
+        path: 'about',
+        name: 'AdminAbout',
+        component: () => import('../views/admin/AboutManagement.vue'),
+        meta: { title: '关于我管理' }
+      },
         {
           path: 'friend-links',
           name: 'FriendLinkManagement',
@@ -194,6 +211,13 @@ router.beforeEach(async (to, from, next) => {
       console.log('Accessing login page')
       next()
     }
+    return
+  }
+  
+  // 如果访问忘记密码页面，直接允许访问
+  if (to.path === '/forgot-password') {
+    console.log('Accessing forgot password page')
+    next()
     return
   }
   

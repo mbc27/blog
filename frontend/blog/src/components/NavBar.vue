@@ -11,6 +11,7 @@
           <router-link to="/message" class="nav-item">留言</router-link>
         </template>
         <router-link to="/friends" class="nav-item">友链</router-link>
+        <router-link to="/contact" class="nav-item">联系我</router-link>
         <router-link to="/about" class="nav-item">关于</router-link>
         <router-link v-if="isAdmin" to="/admin" class="nav-item admin-link">
           <i class="el-icon-setting"></i> 管理
@@ -18,7 +19,13 @@
       </div>
       <div class="user-section">
         <div v-if="isAuthenticated && user" class="user-avatar">
-          <el-dropdown trigger="click" @command="handleCommand">
+          <el-dropdown 
+            trigger="click" 
+            @command="handleCommand" 
+            placement="bottom-end"
+            :hide-on-click="true"
+            :popper-class="'navbar-dropdown'"
+          >
             <img :src="user.avatar" alt="用户头像" class="avatar" />
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
@@ -58,6 +65,14 @@ export default {
   },
   created() {
     this.loadSiteSettings()
+    // 监听用户信息更新事件
+    this.$root.$on('user-updated', () => {
+      this.$forceUpdate();
+    });
+  },
+  beforeDestroy() {
+    // 清理事件监听器
+    this.$root.$off('user-updated');
   },
   methods: {
     ...mapActions(['logout']),
@@ -95,7 +110,7 @@ export default {
   position: fixed;
   width: 100%;
   top: 0;
-  z-index: 1000;
+  z-index: 10000;
   transition: all 0.3s ease;
 }
 
@@ -174,16 +189,25 @@ export default {
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.3s ease;
+  border: 2px solid #e1e8ed;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .user-avatar:hover {
   transform: scale(1.1);
+  border-color: #667eea;
 }
 
 .avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+/* 下拉菜单样式 */
+.navbar-dropdown {
+  z-index: 10001 !important;
 }
 
 @media (max-width: 768px) {

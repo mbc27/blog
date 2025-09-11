@@ -10,7 +10,12 @@
       <div class="friends-grid">
         <div class="friend-card" v-for="(friend, index) in friends" :key="index">
           <div class="friend-avatar">
-            <img :src="friend.avatar" :alt="friend.name">
+            <div v-if="isValidImageUrl(friend.avatar)" class="avatar-image">
+              <img :src="friend.avatar" :alt="friend.name" @error="handleImageError($event, friend)">
+            </div>
+            <div class="avatar-text" :style="{ display: isValidImageUrl(friend.avatar) ? 'none' : 'flex' }">
+              {{ getAvatarText(friend.name) }}
+            </div>
           </div>
           <div class="friend-info">
             <h3>{{ friend.name }}</h3>
@@ -95,33 +100,83 @@ export default {
   created() {
     this.fetchFriendLinks()
   },
+  mounted() {
+    // 确保组件完全挂载
+    this.$nextTick(() => {
+      console.log('Friends component mounted')
+    })
+  },
   methods: {
+    // 检查是否为有效的图片URL
+    isValidImageUrl(url) {
+      if (!url || url.trim() === '') {
+        return false
+      }
+      
+      // 只有以http://或https://开头的完整URL才被认为是有效的图片URL
+      return url.startsWith('http://') || url.startsWith('https://')
+    },
+    
+    // 获取文字头像显示内容
+    getAvatarText(name) {
+      if (!name || name.trim() === '') {
+        return '?'
+      }
+      
+      // 如果是中文，取前两个字符
+      if (/[\u4e00-\u9fa5]/.test(name)) {
+        return name.substring(0, 2)
+      }
+      
+      // 如果是英文，取前两个字母并转大写
+      return name.substring(0, 2).toUpperCase()
+    },
+    
+    // 处理头像URL（保留原方法以防需要）
+    processAvatarUrl(avatar) {
+      return avatar
+    },
+    
     async fetchFriendLinks() {
       try {
         this.loading = true
+        console.log('开始获取友链列表...')
         const response = await api.friendLink.getList()
+        console.log('友链列表响应:', response)
         if (response.code === 200) {
           this.friends = response.data.map(link => ({
             id: link.id,
             name: link.name,
             description: link.description,
-            avatar: link.avatar || 'https://via.placeholder.com/80',
+            avatar: this.processAvatarUrl(link.avatar),
             url: link.url
           }))
+          console.log('友链列表处理完成:', this.friends)
+        } else {
+          console.error('获取友链列表失败，响应码:', response.code)
+          this.$message.error(response.message || '获取友链列表失败')
         }
       } catch (error) {
         console.error('获取友链列表失败:', error)
-        this.$message.error('获取友链列表失败')
+        this.$message.error('获取友链列表失败: ' + (error.message || '网络错误'))
+        // 设置一些默认的友链数据以防止页面空白
+        this.friends = []
       } finally {
         this.loading = false
       }
     },
     
     submitLinkApplication() {
+      // 添加安全检查
+      if (!this.$refs.linkForm) {
+        this.$message.error('表单未准备就绪，请稍后再试')
+        return
+      }
+      
       this.$refs.linkForm.validate(async (valid) => {
         if (valid) {
           try {
-            const response = await api.friendLink.add(this.linkForm)
+            const response = await api.friendLink.apply(this.linkForm)
             if (response.code === 200) {
               this.$message.success('友链申请提交成功，请等待审核！')
               this.dialogVisible = false
@@ -143,6 +198,21 @@ export default {
           return false
         }
       })
+    },
+    
+    // 处理图片加载错误
+    handleImageError(event, friend) {
+      console.log('图片加载失败，切换到文字头像:', friend.name)
+      // 隐藏图片，显示文字头像
+      const avatarContainer = event.target.closest('.friend-avatar')
+      const imageDiv = avatarContainer.querySelector('.avatar-image')
+      const textDiv = avatarContainer.querySelector('.avatar-text')
+      
+      if (imageDiv && textDiv) {
+        imageDiv.style.display = 'none'
+        textDiv.style.display = 'flex'
+        textDiv.textContent = this.getAvatarText(friend.name)
+      }
     }
   }
 }
@@ -215,17 +285,42 @@ h1 {
   overflow: hidden;
   margin-right: 20px;
   border: 3px solid rgba(102, 126, 234, 0.2);
+  position: relative;
 }
 
-.friend-avatar img {
+.avatar-image {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease;
 }
 
-.friend-card:hover .friend-avatar img {
+.friend-card:hover .avatar-image img {
   transform: scale(1.1);
+}
+
+.avatar-text {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.friend-card:hover .avatar-text {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: scale(1.05);
 }
 
 .friend-info {
