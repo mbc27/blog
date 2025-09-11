@@ -1,5 +1,5 @@
 <template>
-  <div class="friends-page">
+  <div class="friends-page page-container">
     <div class="container">
       <h1>友情链接</h1>
       <div class="friends-intro">
@@ -31,7 +31,9 @@
       <el-dialog
         title="申请友链"
         :visible.sync="dialogVisible"
-        width="500px">
+        width="500px"
+        :close-on-click-modal="false"
+        :before-close="handleDialogClose">
         <el-form :model="linkForm" :rules="rules" ref="linkForm" label-width="100px">
           <el-form-item label="网站名称" prop="name">
             <el-input v-model="linkForm.name"></el-input>
@@ -198,6 +200,34 @@ export default {
           return false
         }
       })
+    },
+    
+    // 处理弹窗关闭
+    handleDialogClose(done) {
+      // 检查表单是否有内容
+      const hasContent = this.linkForm.name || this.linkForm.url || this.linkForm.description || this.linkForm.avatar || this.linkForm.contact
+      
+      if (hasContent) {
+        this.$confirm('表单中有未保存的内容，确定要关闭吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // 清空表单
+          this.linkForm = {
+            name: '',
+            url: '',
+            description: '',
+            avatar: '',
+            contact: ''
+          }
+          done()
+        }).catch(() => {
+          // 取消关闭
+        })
+      } else {
+        done()
+      }
     },
     
     // 处理图片加载错误

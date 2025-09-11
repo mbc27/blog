@@ -1,5 +1,5 @@
 <template>
-  <div class="photos-page">
+  <div class="photos-page page-container">
     <div class="container">
       <div class="page-header">
         <h1>我的相册</h1>
@@ -124,7 +124,8 @@
         center
         custom-class="photo-preview-dialog"
         :show-close="true"
-        @close="closePreview">
+        @close="closePreview"
+        :close-on-click-modal="true">
         <div class="photo-preview-container">
           <div class="preview-image">
             <img :src="previewPhoto.url" :alt="previewPhoto.title" />

@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="page-container login-container">
     <div class="login-background">
       <div class="background-shapes">
         <div class="shape shape-1"></div>

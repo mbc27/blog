@@ -212,7 +212,7 @@
     </el-card>
 
     <!-- 工作经历对话框 -->
-    <el-dialog :title="workDialogTitle" :visible.sync="workDialogVisible" width="600px">
+    <el-dialog :title="workDialogTitle" :visible.sync="workDialogVisible" width="600px" :close-on-click-modal="false" :before-close="handleWorkDialogClose">
       <el-form :model="currentWork" :rules="workRules" ref="workForm" label-width="120px">
         <el-form-item label="公司名称" prop="companyName">
           <el-input v-model="currentWork.companyName" placeholder="请输入公司名称"></el-input>
@@ -246,7 +246,7 @@
     </el-dialog>
 
     <!-- 教育背景对话框 -->
-    <el-dialog :title="educationDialogTitle" :visible.sync="educationDialogVisible" width="600px">
+    <el-dialog :title="educationDialogTitle" :visible.sync="educationDialogVisible" width="600px" :close-on-click-modal="false" :before-close="handleEducationDialogClose">
       <el-form :model="currentEducation" :rules="educationRules" ref="educationForm" label-width="120px">
         <el-form-item label="学校名称" prop="schoolName">
           <el-input v-model="currentEducation.schoolName" placeholder="请输入学校名称"></el-input>
@@ -282,7 +282,7 @@
     </el-dialog>
 
     <!-- 技能对话框 -->
-    <el-dialog :title="skillDialogTitle" :visible.sync="skillDialogVisible" width="500px">
+    <el-dialog :title="skillDialogTitle" :visible.sync="skillDialogVisible" width="500px" :close-on-click-modal="false" :before-close="handleSkillDialogClose">
       <el-form :model="currentSkill" :rules="skillRules" ref="skillForm" label-width="120px">
         <el-form-item label="技能名称" prop="name">
           <el-input v-model="currentSkill.name" placeholder="请输入技能名称"></el-input>
@@ -314,7 +314,7 @@
     </el-dialog>
 
     <!-- 兴趣爱好对话框 -->
-    <el-dialog :title="interestDialogTitle" :visible.sync="interestDialogVisible" width="500px">
+    <el-dialog :title="interestDialogTitle" :visible.sync="interestDialogVisible" width="500px" :close-on-click-modal="false" :before-close="handleInterestDialogClose">
       <el-form :model="currentInterest" :rules="interestRules" ref="interestForm" label-width="120px">
         <el-form-item label="兴趣名称" prop="name">
           <el-input v-model="currentInterest.name" placeholder="请输入兴趣名称"></el-input>
@@ -361,7 +361,7 @@
     </el-dialog>
 
     <!-- 项目对话框 -->
-    <el-dialog :title="projectDialogTitle" :visible.sync="projectDialogVisible" width="700px">
+    <el-dialog :title="projectDialogTitle" :visible.sync="projectDialogVisible" width="700px" :close-on-click-modal="false" :before-close="handleProjectDialogClose">
       <el-form :model="currentProject" :rules="projectRules" ref="projectForm" label-width="120px">
         <el-form-item label="项目名称" prop="name">
           <el-input v-model="currentProject.name" placeholder="请输入项目名称"></el-input>

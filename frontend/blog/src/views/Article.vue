@@ -1,5 +1,5 @@
 <template>
-  <div class="article-page">
+  <div class="article-page page-container">
     <div class="container">
       <div class="filter-container">
         <div class="article-header-container">

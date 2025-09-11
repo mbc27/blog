@@ -19,7 +19,7 @@ public class FileUtils {
     /**
      * 上传文件保存的本地目录
      */
-    @Value("${file.upload.path:D:/Trae-AI/Project/blog/backend/blog-api/src/main/resources/static/uploads/}")
+    @Value("${file.upload.path:./uploads/}")
     private String uploadPath;
 
     /**

@@ -104,7 +104,7 @@
     </el-card>
 
     <!-- 评论详情对话框 -->
-    <el-dialog title="评论详情" :visible.sync="dialogVisible" width="600px">
+    <el-dialog title="评论详情" :visible.sync="dialogVisible" width="600px" :close-on-click-modal="true">
       <div class="comment-detail">
         <div class="comment-item">
           <div class="comment-header">

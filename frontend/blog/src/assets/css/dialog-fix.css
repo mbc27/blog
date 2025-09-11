@@ -1,0 +1,342 @@
+/* Element UI 弹窗修复样式 */
+
+/* 自定义蒙版样式 */
+.el-dialog__wrapper {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 2000 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(3px) !important;
+  pointer-events: auto !important;
+}
+
+/* 移除 Element UI 默认的遮罩层，使用我们自定义的 */
+.el-dialog__wrapper .el-overlay,
+.v-modal {
+  display: none !important;
+}
+
+/* 让弹窗本身可以接收点击事件 */
+.el-dialog {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 2001 !important;
+}
+
+/* 修复弹窗定位问题 */
+.el-dialog {
+  position: relative !important;
+  margin: 15vh auto 50px !important;
+  background: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  box-sizing: border-box !important;
+  width: 50% !important;
+}
+
+/* 修复大尺寸弹窗的定位 */
+.el-dialog[style*="width: 80%"] {
+  margin: 5vh auto 50px !important;
+}
+
+.el-dialog[style*="width: 70%"] {
+  margin: 8vh auto 50px !important;
+}
+
+.el-dialog[style*="width: 60%"] {
+  margin: 10vh auto 50px !important;
+}
+
+/* 修复弹窗头部样式 */
+.el-dialog__header {
+  padding: 20px 20px 10px !important;
+  background: #f5f7fa !important;
+  border-bottom: 1px solid #e4e7ed !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.el-dialog__title {
+  line-height: 24px !important;
+  font-size: 18px !important;
+  color: #303133 !important;
+  font-weight: 600 !important;
+}
+
+/* 修复弹窗内容区域 */
+.el-dialog__body {
+  padding: 20px !important;
+  color: #606266 !important;
+  font-size: 14px !important;
+  word-break: break-all !important;
+  max-height: 60vh !important;
+  overflow-y: auto !important;
+}
+
+/* 修复弹窗底部按钮区域 */
+.el-dialog__footer {
+  padding: 10px 20px 20px !important;
+  text-align: right !important;
+  box-sizing: border-box !important;
+  background: #f5f7fa !important;
+  border-top: 1px solid #e4e7ed !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+/* 修复关闭按钮 */
+.el-dialog__headerbtn {
+  position: absolute !important;
+  top: 20px !important;
+  right: 20px !important;
+  padding: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  border: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+  font-size: 16px !important;
+  z-index: 2002 !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 特殊处理图片预览弹窗的关闭按钮 */
+.photo-preview-dialog .el-dialog__headerbtn {
+  position: fixed !important;
+  top: 80px !important; /* 避开固定导航栏 */
+  right: 20px !important;
+  z-index: 10000 !important; /* 确保在最顶层 */
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 45px !important;
+  height: 45px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.photo-preview-dialog .el-dialog__headerbtn:hover {
+  background: rgba(0, 0, 0, 0.9) !important;
+  transform: scale(1.1) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.photo-preview-dialog .el-dialog__close {
+  color: white !important;
+  font-size: 20px !important;
+  font-weight: bold !important;
+}
+
+/* 隐藏图片预览弹窗的默认标题栏 */
+.photo-preview-dialog .el-dialog__header {
+  display: none !important;
+}
+
+/* 优化图片预览弹窗的内容区域 */
+.photo-preview-dialog .el-dialog__body {
+  padding: 0 !important;
+  text-align: center !important;
+  background: transparent !important;
+}
+
+/* 确保图片预览弹窗全屏显示 */
+.photo-preview-dialog .el-dialog {
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.el-dialog__close {
+  color: #909399 !important;
+}
+
+.el-dialog__close:hover {
+  color: #409eff !important;
+}
+
+/* 修复表单样式 */
+.el-dialog .el-form {
+  margin: 0 !important;
+}
+
+.el-dialog .el-form-item {
+  margin-bottom: 22px !important;
+}
+
+.el-dialog .el-form-item__label {
+  color: #606266 !important;
+  font-weight: 500 !important;
+}
+
+/* 修复按钮样式 */
+.dialog-footer .el-button {
+  margin-left: 10px !important;
+}
+
+/* 修复上传组件样式 */
+.el-dialog .el-upload {
+  border: 1px dashed #d9d9d9 !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.el-dialog .el-upload:hover {
+  border-color: #409eff !important;
+}
+
+/* 修复文章编辑弹窗特殊样式 */
+.article-management .el-dialog {
+  width: 80% !important;
+  margin: 3vh auto 50px !important;
+}
+
+.article-management .el-dialog__body {
+  max-height: 70vh !important;
+}
+
+/* 修复编辑器容器 */
+.editor-container {
+  border: 1px solid #dcdfe6 !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+}
+
+.editor-container .el-textarea__inner {
+  border: none !important;
+  resize: vertical !important;
+}
+
+/* 修复头像上传样式 */
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9 !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  width: 178px !important;
+  height: 178px !important;
+  display: block !important;
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff !important;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px !important;
+  color: #8c939d !important;
+  width: 178px !important;
+  height: 178px !important;
+  line-height: 178px !important;
+  text-align: center !important;
+}
+
+.avatar {
+  width: 178px !important;
+  height: 178px !important;
+  display: block !important;
+  object-fit: cover !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .el-dialog {
+    width: 90% !important;
+    margin: 5vh auto 50px !important;
+  }
+  
+  .article-management .el-dialog {
+    width: 95% !important;
+    margin: 2vh auto 50px !important;
+  }
+  
+  .el-dialog__body {
+    max-height: 50vh !important;
+  }
+}
+
+/* 修复特定页面的弹窗问题 */
+.category-management .el-dialog,
+.tag-management .el-dialog,
+.photo-management .el-dialog,
+.photo-category-management .el-dialog,
+.friend-management .el-dialog,
+.user-management .el-dialog,
+.message-management .el-dialog,
+.comment-management .el-dialog {
+  width: 500px !important;
+  margin: 15vh auto 50px !important;
+}
+
+/* 修复预览弹窗 */
+.photo-preview-dialog,
+.preview-dialog {
+  .el-dialog {
+    margin: 5vh auto 50px !important;
+  }
+}
+
+/* 修复关于我页面的多个弹窗 */
+.about-management .el-dialog {
+  margin: 10vh auto 50px !important;
+}
+
+/* 确保弹窗在最顶层 */
+.el-dialog__wrapper {
+  z-index: 2001 !important;
+}
+
+/* 确保弹窗层级正确 */
+.el-dialog {
+  z-index: 2002 !important;
+}
+
+/* 确保弹窗关闭按钮在最顶层 */
+.el-dialog__headerbtn {
+  z-index: 2003 !important;
+}
+
+/* 防止页面滚动被锁定 */
+body.el-popup-parent--hidden {
+  overflow: auto !important;
+  padding-right: 0 !important;
+}
+
+/* 移除Element UI默认的v-modal遮罩 */
+.v-modal {
+  display: none !important;
+}
+
+/* 修复弹窗内滚动条样式 */
+.el-dialog__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.el-dialog__body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.el-dialog__body::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.el-dialog__body::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

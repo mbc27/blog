@@ -123,7 +123,7 @@
     </el-card>
 
     <!-- 查看留言对话框 -->
-    <el-dialog title="留言详情" :visible.sync="viewDialogVisible" width="60%">
+    <el-dialog title="留言详情" :visible.sync="viewDialogVisible" width="60%" :close-on-click-modal="true">
       <div v-if="currentMessage">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="ID">{{ currentMessage.id }}</el-descriptions-item>
@@ -147,7 +147,7 @@
     </el-dialog>
 
     <!-- 编辑留言对话框 -->
-    <el-dialog title="编辑留言" :visible.sync="editDialogVisible" width="50%">
+    <el-dialog title="编辑留言" :visible.sync="editDialogVisible" width="50%" :close-on-click-modal="false" :before-close="handleEditDialogClose">
       <el-form :model="editForm" label-width="80px">
         <el-form-item label="昵称">
           <el-input v-model="editForm.nickname"></el-input>
@@ -353,6 +353,27 @@ export default {
       if (!dateString) return ''
       const date = new Date(dateString)
       return date.toLocaleString('zh-CN')
+    },
+
+    // 处理编辑弹窗关闭
+    handleEditDialogClose(done) {
+      const hasChanges = this.editForm.content !== (this.originalContent || '')
+      
+      if (hasChanges) {
+        this.$confirm('表单中有未保存的修改，确定要关闭吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.editForm = {}
+          this.originalContent = ''
+          done()
+        }).catch(() => {
+          // 取消关闭
+        })
+      } else {
+        done()
+      }
     }
   }
 }

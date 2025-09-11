@@ -55,7 +55,7 @@
     </el-card>
 
     <!-- 标签编辑对话框 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" :close-on-click-modal="false" :before-close="handleDialogClose">
       <el-form :model="tagForm" :rules="tagRules" ref="tagForm" label-width="100px">
         <el-form-item label="标签名称" prop="name">
           <el-input v-model="tagForm.name" placeholder="请输入标签名称"></el-input>
@@ -223,6 +223,26 @@ export default {
           return false
         }
       })
+    },
+
+    // 处理弹窗关闭
+    handleDialogClose(done) {
+      const hasContent = this.tagForm.name || this.tagForm.color
+      
+      if (hasContent && !this.tagForm.id) {
+        this.$confirm('表单中有未保存的内容，确定要关闭吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.resetForm()
+          done()
+        }).catch(() => {
+          // 取消关闭
+        })
+      } else {
+        done()
+      }
     }
   }
 }

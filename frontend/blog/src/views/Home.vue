@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <!-- 顶部导航栏 -->
-    <header class="header">
+    <!-- 移除重复的导航栏，使用全局NavBar组件 -->
+    <!-- <header class="header">
       <div class="nav-container">
         <div class="logo">{{ siteSettings.site_title || '博客系统' }}</div>
         <div class="nav-links">
@@ -42,7 +42,7 @@
           </div>
         </div>
       </div>
-    </header>
+    </header> -->
 
     <!-- 主横幅区域 -->
     <section class="hero-section">

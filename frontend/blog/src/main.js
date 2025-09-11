@@ -6,8 +6,11 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import './assets/css/global.css'
 import './assets/css/emoji-popover.css'
+import './assets/css/dialog-fix.css'
+import ScrollReset from './utils/scrollReset'
 
 Vue.use(ElementUI)
+Vue.use(ScrollReset)
 Vue.config.productionTip = false
 
 // 全局错误处理器

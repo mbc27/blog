@@ -1,5 +1,5 @@
 <template>
-  <div class="write-container">
+  <div class="write-container page-container">
     <div class="write-header">
       <h1>{{ isEdit ? '编辑文章' : '写文章' }}</h1>
       <div class="header-actions">
@@ -138,7 +138,7 @@
     </div>
 
     <!-- 新建分类对话框 -->
-    <el-dialog title="新建分类" :visible.sync="showCategoryDialog" width="400px">
+    <el-dialog title="新建分类" :visible.sync="showCategoryDialog" width="400px" :close-on-click-modal="false" :before-close="handleCategoryDialogClose">
       <el-form :model="newCategory" :rules="categoryRules" ref="categoryForm">
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="newCategory.name" placeholder="请输入分类名称" />
@@ -154,7 +154,7 @@
     </el-dialog>
 
     <!-- 图片上传对话框 -->
-    <el-dialog title="上传图片" :visible.sync="showImageDialog" width="500px">
+    <el-dialog title="上传图片" :visible.sync="showImageDialog" width="500px" :close-on-click-modal="false" :before-close="handleImageDialogClose">
       <el-upload
         class="image-uploader"
         :action="uploadUrl"
@@ -475,6 +475,39 @@ export default {
       } finally {
         this.creatingCategory = false
       }
+    },
+
+    // 处理分类弹窗关闭
+    handleCategoryDialogClose(done) {
+      const hasContent = this.newCategory.name || this.newCategory.description
+      
+      if (hasContent) {
+        this.$confirm('表单中有未保存的内容，确定要关闭吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.newCategory = { name: '', description: '' }
+          done()
+        }).catch(() => {
+          // 取消关闭
+        })
+      } else {
+        done()
+      }
+    },
+
+    // 处理图片上传弹窗关闭
+    handleImageDialogClose(done) {
+      this.$confirm('确定要关闭图片上传窗口吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        done()
+      }).catch(() => {
+        // 取消关闭
+      })
     }
   }
 }

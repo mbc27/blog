@@ -86,7 +86,7 @@
     </el-card>
 
     <!-- 文章预览对话框 -->
-    <el-dialog title="文章预览" :visible.sync="previewVisible" width="80%">
+    <el-dialog title="文章预览" :visible.sync="previewVisible" width="80%" :close-on-click-modal="true">
       <div v-if="previewArticle">
         <h2>{{ previewArticle.title }}</h2>
         <div class="article-meta">

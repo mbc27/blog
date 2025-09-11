@@ -5,6 +5,8 @@
       <router-view/>
     </div>
     <Footer v-if="!isAdminRoute" />
+    <!-- 回到顶部按钮 - 只在非管理端显示 -->
+    <back-to-top v-if="!isAdminRoute" />
   </div>
 </template>
 
@@ -12,12 +14,14 @@
 import { mapGetters } from 'vuex'
 import NavBar from './components/NavBar.vue'
 import Footer from './components/Footer.vue'
+import BackToTop from './components/BackToTop.vue'
 
 export default {
   name: 'App',
   components: {
     NavBar,
-    Footer
+    Footer,
+    BackToTop
   },
   computed: {
     ...mapGetters(['isAuthenticated', 'isAdmin']),
@@ -30,6 +34,15 @@ export default {
     this.checkAuthStatus()
     
     // 注意：这里不需要再添加路由守卫，因为已经在router/index.js中添加了全局前置守卫
+  },
+  watch: {
+    // 监听路由变化，立即重置滚动位置到顶部
+    '$route'() {
+      // 立即重置滚动位置，不使用任何延迟或动画
+      window.scrollTo(0, 0)
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }
   },
   methods: {
     // 检查用户登录状态

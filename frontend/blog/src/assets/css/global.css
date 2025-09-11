@@ -6,6 +6,53 @@ html, body {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: auto; /* 禁用平滑滚动，确保立即跳转 */
+  overflow-x: hidden;
+}
+
+/* 隐藏浏览器默认滚动条 */
+html {
+  overflow: hidden;
+}
+
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 页面切换时的滚动重置 */
+.router-view {
+  position: relative;
+}
+
+/* 为固定导航栏预留空间 */
+body {
+  padding-top: 80px; /* 导航栏高度 */
+}
+
+/* 页面容器样式 */
+.page-container {
+  min-height: calc(100vh - 80px);
+  padding-top: 20px;
 }
 
 .container {

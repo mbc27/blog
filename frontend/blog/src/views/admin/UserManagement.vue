@@ -94,7 +94,7 @@
     </div>
 
     <!-- 编辑用户对话框 -->
-    <el-dialog title="编辑用户" :visible.sync="editDialogVisible" width="500px">
+    <el-dialog title="编辑用户" :visible.sync="editDialogVisible" width="500px" :close-on-click-modal="false" :before-close="handleEditDialogClose">
       <el-form :model="editForm" label-width="80px">
         <el-form-item label="用户名">
           <el-input v-model="editForm.username" disabled></el-input>
@@ -337,6 +337,27 @@ export default {
           console.error('删除用户失败:', error)
           this.$message.error('删除用户失败: ' + (error.message || '网络错误'))
         }
+      }
+    },
+
+    // 处理编辑弹窗关闭
+    handleEditDialogClose(done) {
+      const hasChanges = JSON.stringify(this.editForm) !== JSON.stringify(this.originalEditForm || {})
+      
+      if (hasChanges) {
+        this.$confirm('表单中有未保存的修改，确定要关闭吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.editForm = {}
+          this.originalEditForm = {}
+          done()
+        }).catch(() => {
+          // 取消关闭
+        })
+      } else {
+        done()
       }
     }
   }

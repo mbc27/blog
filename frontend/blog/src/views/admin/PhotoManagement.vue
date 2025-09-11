@@ -58,7 +58,7 @@
     </el-card>
 
     <!-- 照片上传/编辑对话框 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" :close-on-click-modal="false" :before-close="handleDialogClose">
       <el-form :model="photoForm" :rules="photoRules" ref="photoForm" label-width="100px">
         <el-form-item label="相册分类" prop="categoryId">
           <el-select v-model="photoForm.categoryId" placeholder="请选择相册分类">
@@ -97,7 +97,7 @@
     </el-dialog>
 
     <!-- 照片预览 -->
-    <el-dialog :visible.sync="previewVisible" append-to-body width="800px">
+    <el-dialog :visible.sync="previewVisible" append-to-body width="800px" :close-on-click-modal="true">
       <img :src="previewUrl" alt="Preview Image" style="width: 100%;">
     </el-dialog>
   </div>

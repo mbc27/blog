@@ -1,5 +1,5 @@
 <template>
-  <div class="about-container">
+  <div class="about-container page-container">
     <!-- 个人基本信息 -->
     <el-card class="basic-info-card" shadow="hover">
       <div class="basic-info">

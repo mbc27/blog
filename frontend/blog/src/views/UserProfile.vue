@@ -1,5 +1,5 @@
 <template>
-  <div class="user-profile-container">
+  <div class="page-container user-profile-container">
     <el-card class="profile-card">
       <div slot="header" class="header">
         <span>个人信息</span>

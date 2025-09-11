@@ -1,5 +1,5 @@
 <template>
-  <div class="contact-container">
+  <div class="contact-container page-container">
     <div class="contact-content">
       <div class="page-header">
         <h1 class="page-title">联系我</h1>
@@ -139,7 +139,8 @@
       title="微信二维码"
       :visible.sync="wechatQRVisible"
       width="400px"
-      center>
+      center
+      :close-on-click-modal="true">
       <div class="qr-container">
         <div class="qr-image" v-if="contactInfo.wechatQrCode">
           <img :src="contactInfo.wechatQrCode" alt="微信二维码" />
@@ -158,7 +159,8 @@
       title="微信公众号二维码"
       :visible.sync="wechatPublicQRVisible"
       width="400px"
-      center>
+      center
+      :close-on-click-modal="true">
       <div class="qr-container">
         <div class="qr-image" v-if="contactInfo.wechatPublicQrCode">
           <img :src="contactInfo.wechatPublicQrCode" alt="微信公众号二维码" />

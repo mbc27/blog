@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequestMapping("/api")
 public class FileUploadController {
 
-    @Value("${file.upload.path:uploads/}")
+    @Value("${file.upload.path:./uploads/}")
     private String uploadPath;
 
     @PostMapping("/upload")

@@ -1,5 +1,5 @@
 <template>
-  <div class="message-page">
+  <div class="message-page page-container">
     <div class="container">
       <h1>留言板</h1>
       

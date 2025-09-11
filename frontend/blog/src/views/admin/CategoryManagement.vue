@@ -64,7 +64,7 @@
     </el-card>
 
     <!-- 分类编辑对话框 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" :close-on-click-modal="false" :before-close="handleDialogClose">
       <el-form :model="categoryForm" :rules="categoryRules" ref="categoryForm" label-width="100px">
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="categoryForm.name" placeholder="请输入分类名称"></el-input>

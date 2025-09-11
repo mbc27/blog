@@ -177,8 +177,21 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
-  scrollBehavior() {
-    // 始终滚动到顶部
+  scrollBehavior(to, from, savedPosition) {
+    // 如果有保存的位置（比如浏览器前进后退），使用保存的位置
+    if (savedPosition) {
+      return savedPosition
+    }
+    
+    // 如果是锚点链接，立即跳转到对应位置
+    if (to.hash) {
+      return {
+        selector: to.hash,
+        behavior: 'auto' // 使用auto确保立即跳转，不使用平滑滚动
+      }
+    }
+    
+    // 否则立即跳转到页面顶部
     return { x: 0, y: 0 }
   }
 })

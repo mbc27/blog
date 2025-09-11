@@ -47,7 +47,9 @@
       :title="dialogTitle" 
       :visible.sync="dialogVisible" 
       width="500px"
-      @closed="handleDialogClosed">
+      @closed="handleDialogClosed"
+      :close-on-click-modal="false"
+      :before-close="handleDialogClose">
       <el-form :model="form" :rules="rules" ref="form" label-width="80px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入友链名称"></el-input>

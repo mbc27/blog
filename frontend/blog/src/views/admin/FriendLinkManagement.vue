@@ -137,7 +137,7 @@
     </el-card>
 
     <!-- 查看友链对话框 -->
-    <el-dialog title="友链详情" :visible.sync="viewDialogVisible" width="50%">
+    <el-dialog title="友链详情" :visible.sync="viewDialogVisible" width="50%" :close-on-click-modal="true">
       <div v-if="currentFriendLink">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="ID">{{ currentFriendLink.id }}</el-descriptions-item>
@@ -171,7 +171,7 @@
     </el-dialog>
 
     <!-- 编辑友链对话框 -->
-    <el-dialog :title="editForm.id ? '编辑友链' : '新增友链'" :visible.sync="editDialogVisible" width="50%">
+    <el-dialog :title="editForm.id ? '编辑友链' : '新增友链'" :visible.sync="editDialogVisible" width="50%" :close-on-click-modal="false" :before-close="handleEditDialogClose">
       <el-form :model="editForm" :rules="editRules" ref="editForm" label-width="100px">
         <el-form-item label="友链名称" prop="name">
           <el-input v-model="editForm.name" placeholder="请输入友链名称"></el-input>

@@ -19,7 +19,7 @@ import java.util.UUID;
 @CrossOrigin
 public class UploadController {
 
-    @Value("${file.upload.path:d:/Trae-AI/Project/blog/uploads/}")
+    @Value("${file.upload.path:./uploads/}")
     private String uploadPath;
 
     @Value("${file.upload.url:http://localhost:8080/uploads/}")

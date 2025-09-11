@@ -1,5 +1,5 @@
 <template>
-  <div class="write-article-page">
+  <div class="write-article-page page-container">
     <div class="container">
       <div class="article-editor-card">
         <div class="editor-header">
@@ -258,7 +258,8 @@
       :visible.sync="previewVisible" 
       width="70%" 
       class="preview-dialog"
-      top="5vh">
+      top="5vh"
+      :close-on-click-modal="true">
       <div class="preview-content">
         <div class="preview-header">
           <h2>{{ articleForm.title }}</h2>
@@ -660,7 +661,7 @@ export default {
 
 <style scoped>
 .write-article-page {
-  padding: 100px 0;
+  padding: 20px 0;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   min-height: 100vh;
 }

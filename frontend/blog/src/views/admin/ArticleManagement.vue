@@ -105,7 +105,7 @@
     </el-card>
 
     <!-- 文章编辑对话框 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="80%" :before-close="handleDialogClose">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="80%" :before-close="handleDialogClose" :close-on-click-modal="false">
       <el-form :model="articleForm" :rules="articleRules" ref="articleForm" label-width="100px">
         <el-form-item label="文章标题" prop="title">
           <el-input v-model="articleForm.title" placeholder="请输入文章标题"></el-input>
