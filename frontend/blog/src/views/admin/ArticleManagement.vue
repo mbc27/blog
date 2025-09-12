@@ -1,6 +1,6 @@
 <template>
   <div class="article-management">
-    <el-card shadow="hover">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>文章管理</span>
         <el-button style="float: right" type="primary" size="small" @click="handleAddArticle">新增文章</el-button>

@@ -1,6 +1,6 @@
 <template>
   <div class="message-management">
-    <el-card shadow="hover">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>留言管理</span>
         <el-button

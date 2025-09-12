@@ -1,6 +1,6 @@
 <template>
   <div class="category-management">
-    <el-card shadow="hover">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>分类管理</span>
         <el-button style="float: right" type="primary" size="small" @click="handleAddCategory">新增分类</el-button>

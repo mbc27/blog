@@ -1,6 +1,6 @@
 <template>
   <div class="comment-management">
-    <el-card shadow="hover">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>评论管理</span>
       </div>

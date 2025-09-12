@@ -1,7 +1,11 @@
 <template>
   <div class="user-management">
-    <div class="search-form">
-      <el-form :model="searchForm" inline class="search-form-inline">
+    <el-card class="el-card is-hover-shadow">
+      <div slot="header" class="clearfix">
+        <span>用户管理</span>
+      </div>
+      
+      <el-form :model="searchForm" inline class="search-form">
         <el-form-item label="用户名">
           <el-input 
             v-model="searchForm.username" 
@@ -35,12 +39,9 @@
         <el-form-item>
           <el-button type="primary" @click="searchUsers" icon="el-icon-search">搜索</el-button>
           <el-button @click="resetSearch" icon="el-icon-refresh">重置</el-button>
-          <el-button type="success" @click="exportUsers" icon="el-icon-download">导出</el-button>
         </el-form-item>
       </el-form>
-    </div>
-
-    <div class="table-container">
+      
       <el-table 
         :data="userList" 
         v-loading="loading"
@@ -91,7 +92,7 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
       </el-pagination>
-    </div>
+    </el-card>
 
     <!-- 编辑用户对话框 -->
     <el-dialog title="编辑用户" :visible.sync="editDialogVisible" width="500px" :close-on-click-modal="false" :before-close="handleEditDialogClose">
@@ -218,9 +219,7 @@ export default {
       this.loadUsers()
     },
 
-    exportUsers() {
-      this.$message.info('导出功能开发中...')
-    },
+
 
     handleSizeChange(val) {
       this.pageSize = val
@@ -342,23 +341,7 @@ export default {
 
     // 处理编辑弹窗关闭
     handleEditDialogClose(done) {
-      const hasChanges = JSON.stringify(this.editForm) !== JSON.stringify(this.originalEditForm || {})
-      
-      if (hasChanges) {
-        this.$confirm('表单中有未保存的修改，确定要关闭吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.editForm = {}
-          this.originalEditForm = {}
-          done()
-        }).catch(() => {
-          // 取消关闭
-        })
-      } else {
-        done()
-      }
+      done()
     }
   }
 }
@@ -370,31 +353,12 @@ export default {
 }
 
 .search-form {
-  background: #f5f5f5;
-  padding: 20px;
-  border-radius: 4px;
   margin-bottom: 20px;
 }
 
-.search-form-inline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.search-form-inline .el-form-item {
+.search-form .el-form-item {
   margin-right: 15px;
   margin-bottom: 10px;
-}
-
-.search-form-inline .el-form-item:last-child {
-  margin-left: auto;
-}
-
-.table-container {
-  background: white;
-  padding: 20px;
-  border-radius: 4px;
 }
 
 .el-pagination {

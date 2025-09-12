@@ -1,6 +1,6 @@
 <template>
   <div class="friend-management">
-    <el-card>
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="header">
         <span>友链管理</span>
         <el-button type="primary" size="small" @click="handleCreate">
@@ -216,6 +216,10 @@ export default {
 </script>
 
 <style scoped>
+.friend-management {
+  padding: 20px;
+}
+
 .header {
   display: flex;
   justify-content: space-between;

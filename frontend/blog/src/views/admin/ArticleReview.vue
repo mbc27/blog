@@ -1,6 +1,6 @@
 <template>
   <div class="article-review">
-    <el-card shadow="hover">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>文章审核</span>
       </div>

@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <!-- 统计卡片 -->
       <el-col :span="6" v-for="stat in stats" :key="stat.key">
-        <el-card class="stat-card">
+        <el-card class="el-card is-hover-shadow stat-card">
           <div class="stat-content">
             <div class="stat-icon" :style="{ backgroundColor: stat.color }">
               <i :class="stat.icon"></i>
@@ -20,7 +20,7 @@
     <el-row :gutter="20" style="margin-top: 20px;">
       <!-- 最近文章 -->
       <el-col :span="12">
-        <el-card>
+        <el-card class="el-card is-hover-shadow">
           <div slot="header">
             <span>最近文章</span>
             <el-button style="float: right; padding: 3px 0" type="text" @click="$router.push('/admin/article')">
@@ -41,7 +41,7 @@
 
       <!-- 最近评论 -->
       <el-col :span="12">
-        <el-card>
+        <el-card class="el-card is-hover-shadow">
           <div slot="header">
             <span>最近评论</span>
             <el-button style="float: right; padding: 3px 0" type="text" @click="$router.push('/admin/comment')">
@@ -64,7 +64,7 @@
     <el-row :gutter="20" style="margin-top: 20px;">
       <!-- 最近留言 -->
       <el-col :span="12">
-        <el-card>
+        <el-card class="el-card is-hover-shadow">
           <div slot="header">
             <span>最近留言</span>
             <el-button style="float: right; padding: 3px 0" type="text" @click="$router.push('/admin/message')">
@@ -85,7 +85,7 @@
 
       <!-- 最近用户 -->
       <el-col :span="12">
-        <el-card>
+        <el-card class="el-card is-hover-shadow">
           <div slot="header">
             <span>最近用户</span>
             <el-button style="float: right; padding: 3px 0" type="text" @click="$router.push('/admin/user')">
@@ -297,7 +297,7 @@ export default {
 
 <style scoped>
 .admin-home {
-  padding: 0;
+  padding: 20px;
 }
 
 .stat-card {

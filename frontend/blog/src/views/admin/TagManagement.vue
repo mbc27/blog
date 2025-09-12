@@ -1,6 +1,6 @@
 <template>
   <div class="tag-management">
-    <el-card shadow="hover">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>标签管理</span>
         <el-button style="float: right" type="primary" size="small" @click="handleAddTag">新增标签</el-button>

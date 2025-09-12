@@ -1,6 +1,6 @@
 <template>
   <div class="system-setting">
-    <el-card class="box-card">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>系统设置</span>
       </div>

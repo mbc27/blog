@@ -2,7 +2,15 @@
   <header class="header">
     <div class="nav-container">
       <div class="logo">{{ siteSettings.site_title || '博客系统' }}</div>
-      <div class="nav-links">
+      
+      <!-- 移动端汉堡菜单按钮 -->
+      <div class="mobile-menu-toggle" @click="toggleMobileMenu">
+        <i class="el-icon-s-unfold" v-if="!mobileMenuOpen"></i>
+        <i class="el-icon-s-fold" v-else></i>
+      </div>
+      
+      <!-- 桌面端导航链接 -->
+      <div class="nav-links desktop-nav">
         <router-link to="/" class="nav-item" exact>首页</router-link>
         <router-link to="/article" class="nav-item">文章</router-link>
         <template v-if="isAuthenticated">
@@ -17,6 +25,7 @@
           <i class="el-icon-setting"></i> 管理
         </router-link>
       </div>
+      
       <div class="user-section">
         <div v-if="isAuthenticated && user" class="user-avatar">
           <el-dropdown 
@@ -33,13 +42,35 @@
             </el-dropdown-menu>
           </el-dropdown>
         </div>
-        <div v-else>
+        <div v-else class="login-btn-container">
           <router-link to="/login">
             <el-button type="primary" size="small" round>登录</el-button>
           </router-link>
         </div>
       </div>
     </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div class="mobile-nav" :class="{ 'mobile-nav-open': mobileMenuOpen }">
+      <div class="mobile-nav-content">
+        <router-link to="/" class="mobile-nav-item" exact @click="closeMobileMenu">首页</router-link>
+        <router-link to="/article" class="mobile-nav-item" @click="closeMobileMenu">文章</router-link>
+        <template v-if="isAuthenticated">
+          <router-link to="/write" class="mobile-nav-item" @click="closeMobileMenu">写作</router-link>
+          <router-link to="/photos" class="mobile-nav-item" @click="closeMobileMenu">相册</router-link>
+          <router-link to="/message" class="mobile-nav-item" @click="closeMobileMenu">留言</router-link>
+        </template>
+        <router-link to="/friends" class="mobile-nav-item" @click="closeMobileMenu">友链</router-link>
+        <router-link to="/contact" class="mobile-nav-item" @click="closeMobileMenu">联系我</router-link>
+        <router-link to="/about" class="mobile-nav-item" @click="closeMobileMenu">关于</router-link>
+        <router-link v-if="isAdmin" to="/admin" class="mobile-nav-item admin-link" @click="closeMobileMenu">
+          <i class="el-icon-setting"></i> 管理
+        </router-link>
+      </div>
+    </div>
+    
+    <!-- 移动端遮罩层 -->
+    <div class="mobile-nav-overlay" :class="{ 'mobile-nav-overlay-show': mobileMenuOpen }" @click="closeMobileMenu"></div>
   </header>
 </template>
 
@@ -54,7 +85,8 @@ export default {
       siteSettings: {
         site_title: '博客系统',
         site_description: '记录生活，分享思考'
-      }
+      },
+      mobileMenuOpen: false
     }
   },
   computed: {
@@ -73,6 +105,10 @@ export default {
   beforeDestroy() {
     // 清理事件监听器
     this.$root.$off('user-updated');
+    // 清理移动端菜单状态
+    if (this.mobileMenuOpen) {
+      document.body.style.overflow = '';
+    }
   },
   methods: {
     ...mapActions(['logout']),
@@ -96,6 +132,23 @@ export default {
         this.$message.success('已退出登录')
         this.$router.push('/').catch(() => {})
       }
+    },
+    
+    // 切换移动端菜单
+    toggleMobileMenu() {
+      this.mobileMenuOpen = !this.mobileMenuOpen
+      // 防止背景滚动
+      if (this.mobileMenuOpen) {
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.body.style.overflow = ''
+      }
+    },
+    
+    // 关闭移动端菜单
+    closeMobileMenu() {
+      this.mobileMenuOpen = false
+      document.body.style.overflow = ''
     }
   }
 }
@@ -210,29 +263,148 @@ export default {
   z-index: 10001 !important;
 }
 
+/* 移动端汉堡菜单按钮 */
+.mobile-menu-toggle {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #2c3e50;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+/* 移动端导航菜单 */
+.mobile-nav {
+  position: fixed;
+  top: 70px;
+  left: -100%;
+  width: 280px;
+  height: calc(100vh - 70px);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+  transition: left 0.3s ease;
+  z-index: 9999;
+  overflow-y: auto;
+}
+
+.mobile-nav-open {
+  left: 0;
+}
+
+.mobile-nav-content {
+  padding: 20px 0;
+}
+
+.mobile-nav-item {
+  display: block;
+  color: #2c3e50;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 15px 30px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.mobile-nav-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.mobile-nav-item.router-link-active {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.15);
+}
+
+.mobile-nav-item.router-link-exact-active {
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.mobile-nav-item.admin-link {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white !important;
+  margin: 10px 20px;
+  border-radius: 25px;
+  border-bottom: none;
+}
+
+/* 移动端遮罩层 */
+.mobile-nav-overlay {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 70px);
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 9998;
+}
+
+.mobile-nav-overlay-show {
+  opacity: 1;
+  visibility: visible;
+}
+
 @media (max-width: 768px) {
   .nav-container {
     padding: 15px 20px;
-    flex-wrap: wrap;
+    position: relative;
   }
   
-  .nav-links {
-    order: 3;
-    width: 100%;
-    overflow-x: auto;
-    padding: 10px 0;
-    justify-content: flex-start;
-    gap: 15px;
+  .desktop-nav {
+    display: none;
   }
   
-  .nav-item {
-    font-size: 14px;
-    padding: 6px 12px;
-    white-space: nowrap;
+  .mobile-menu-toggle {
+    display: block;
   }
   
   .logo {
     font-size: 22px;
+  }
+  
+  .user-section {
+    position: relative;
+    z-index: 10001;
+  }
+  
+  .login-btn-container .el-button {
+    font-size: 12px;
+    padding: 8px 16px;
+  }
+  
+  .user-avatar {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 12px 15px;
+  }
+  
+  .logo {
+    font-size: 20px;
+  }
+  
+  .mobile-nav {
+    width: 100%;
+    left: -100%;
+  }
+  
+  .mobile-nav-open {
+    left: 0;
   }
 }
 </style>

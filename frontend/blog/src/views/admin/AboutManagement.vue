@@ -1,6 +1,6 @@
 <template>
   <div class="about-management">
-    <el-card class="box-card">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>关于我管理</span>
       </div>

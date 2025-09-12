@@ -1,0 +1,303 @@
+/* 移动端修复样式 - 简化版 */
+
+/* 基础移动端适配 */
+@media screen and (max-width: 768px) {
+  /* 确保页面正常显示 */
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    overflow-x: hidden !important;
+    background-color: #fff !important;
+  }
+  
+  #app {
+    width: 100% !important;
+    min-height: 100vh !important;
+    background-color: #fff !important;
+  }
+  
+  /* 导航栏移动端适配 */
+  .header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+  
+  .nav-container {
+    padding: 12px 15px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  
+  .logo {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+  }
+  
+  /* 移动端菜单按钮 */
+  .mobile-menu-toggle {
+    display: block !important;
+    font-size: 20px !important;
+    color: #333 !important;
+    cursor: pointer !important;
+    padding: 8px !important;
+    border-radius: 4px !important;
+    background: none !important;
+    border: none !important;
+  }
+  
+  .mobile-menu-toggle:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* 桌面端导航隐藏 */
+  .desktop-nav {
+    display: none !important;
+  }
+  
+  /* 移动端导航菜单 */
+  .mobile-nav {
+    position: fixed !important;
+    top: 60px !important;
+    left: -100% !important;
+    width: 280px !important;
+    height: calc(100vh - 60px) !important;
+    background: #fff !important;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1) !important;
+    transition: left 0.3s ease !important;
+    z-index: 999 !important;
+    overflow-y: auto !important;
+  }
+  
+  .mobile-nav-open {
+    left: 0 !important;
+  }
+  
+  .mobile-nav-content {
+    padding: 20px 0 !important;
+  }
+  
+  .mobile-nav-item {
+    display: block !important;
+    padding: 15px 20px !important;
+    color: #333 !important;
+    text-decoration: none !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    transition: background-color 0.2s !important;
+  }
+  
+  .mobile-nav-item:hover {
+    background-color: #f8f9fa !important;
+  }
+  
+  .mobile-nav-item.router-link-active {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+  }
+  
+  /* 遮罩层 */
+  .mobile-nav-overlay {
+    position: fixed !important;
+    top: 60px !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: calc(100vh - 60px) !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s ease !important;
+    z-index: 998 !important;
+  }
+  
+  .mobile-nav-overlay-show {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* 主内容区域 */
+  .main-content {
+    padding-top: 60px !important;
+    width: 100% !important;
+    min-height: calc(100vh - 60px) !important;
+  }
+  
+  /* 用户头像区域 */
+  .user-section {
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  .user-avatar {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  
+  .login-btn-container .el-button {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+  
+  /* 管理后台适配 */
+  .admin-dashboard {
+    width: 100% !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+  
+  .admin-dashboard .el-aside {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100vh !important;
+    z-index: 1000 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
+  }
+  
+  .admin-dashboard .el-aside:not(.sidebar-collapsed) {
+    transform: translateX(0) !important;
+  }
+  
+  .admin-dashboard .el-container.is-vertical {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  
+  .admin-dashboard .el-header {
+    height: 50px !important;
+    line-height: 50px !important;
+    padding: 0 10px !important;
+  }
+  
+  .admin-dashboard .el-main {
+    padding: 10px !important;
+    height: calc(100vh - 50px) !important;
+  }
+  
+  /* Element UI 组件移动端适配 */
+  .el-dialog {
+    width: 95% !important;
+    max-width: 400px !important;
+    margin: 0 auto !important;
+    border-radius: 8px !important;
+  }
+  
+  .el-dialog__header {
+    padding: 15px !important;
+  }
+  
+  .el-dialog__body {
+    padding: 15px !important;
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+  }
+  
+  .el-dialog__footer {
+    padding: 10px 15px !important;
+  }
+  
+  .el-message-box {
+    width: 90% !important;
+    max-width: 350px !important;
+  }
+  
+  .el-table {
+    font-size: 12px !important;
+  }
+  
+  .el-table th,
+  .el-table td {
+    padding: 8px 5px !important;
+  }
+  
+  .el-button {
+    font-size: 13px !important;
+    padding: 8px 15px !important;
+  }
+  
+  .el-button--small {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+  
+  /* 卡片适配 */
+  .el-card {
+    margin: 10px !important;
+    border-radius: 8px !important;
+  }
+  
+  .el-card__header {
+    padding: 15px !important;
+  }
+  
+  .el-card__body {
+    padding: 15px !important;
+  }
+  
+  /* 文章详情适配 */
+  .article-detail-page {
+    padding: 10px !important;
+  }
+  
+  .article-title {
+    font-size: 20px !important;
+    line-height: 1.4 !important;
+  }
+  
+  .article-meta {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  
+  .article-content {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  
+  .article-content img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* 超小屏幕适配 */
+@media screen and (max-width: 480px) {
+  .mobile-nav {
+    width: 100% !important;
+  }
+  
+  .el-dialog {
+    width: 98% !important;
+  }
+  
+  .article-title {
+    font-size: 18px !important;
+  }
+  
+  .el-button {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+}
+
+/* 横屏适配 */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .mobile-nav {
+    height: calc(100vh - 50px) !important;
+    top: 50px !important;
+  }
+  
+  .mobile-nav-overlay {
+    height: calc(100vh - 50px) !important;
+    top: 50px !important;
+  }
+  
+  .main-content {
+    padding-top: 50px !important;
+  }
+}

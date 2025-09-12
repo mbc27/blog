@@ -1,6 +1,6 @@
 <template>
   <div class="photo-management">
-    <el-card shadow="hover">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>照片管理</span>
         <el-button style="float: right" type="primary" size="small" @click="handleAddPhoto">上传照片</el-button>
@@ -27,7 +27,7 @@
         <el-empty description="暂无照片" v-if="photos.length === 0"></el-empty>
         <div class="photo-grid" v-else>
           <div class="photo-item" v-for="(photo, index) in photos" :key="photo.id">
-            <el-card :body-style="{ padding: '0px' }" shadow="hover">
+            <el-card class="el-card is-hover-shadow" :body-style="{ padding: '0px' }">
               <div class="photo-img-container">
                 <img :src="photo.url" class="photo-img" @click="previewPhoto(index)">
               </div>

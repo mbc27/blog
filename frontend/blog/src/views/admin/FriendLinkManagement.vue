@@ -1,6 +1,6 @@
 <template>
   <div class="friend-link-management">
-    <el-card shadow="hover">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span>友链管理</span>
         <el-button

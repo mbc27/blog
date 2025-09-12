@@ -1,6 +1,6 @@
 <template>
   <div class="settings-container">
-    <el-card class="box-card">
+    <el-card class="el-card is-hover-shadow">
       <div slot="header" class="clearfix">
         <span class="card-title">
           <i class="el-icon-setting"></i>

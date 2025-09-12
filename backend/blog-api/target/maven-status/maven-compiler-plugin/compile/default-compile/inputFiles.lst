@@ -6,6 +6,7 @@ D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\Cat
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\dao\CommentMapper.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\mapper\SkillMapper.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\entity\SkillCategory.java
+D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\UniversalEmailServiceImpl.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\FriendLinkService.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\ProjectService.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\entity\Tag.java
@@ -83,7 +84,6 @@ D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\controller\Conta
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\mapper\InterestMapper.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\controller\AdminPhotoController.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\entity\Interest.java
-D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\EmailServiceImpl.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\util\FileUtils.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\entity\Message.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\controller\AdminFriendLinkController.java
