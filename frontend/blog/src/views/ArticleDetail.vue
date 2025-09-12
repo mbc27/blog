@@ -229,6 +229,7 @@ export default {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  min-height: calc(100vh - 70px);
 }
 
 .article-card {

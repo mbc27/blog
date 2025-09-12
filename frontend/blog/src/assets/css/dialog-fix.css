@@ -322,21 +322,3 @@ body.el-popup-parent--hidden {
   display: none !important;
 }
 
-/* 修复弹窗内滚动条样式 */
-.el-dialog__body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.el-dialog__body::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.el-dialog__body::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.el-dialog__body::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}

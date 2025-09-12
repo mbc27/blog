@@ -329,9 +329,9 @@ export default {
 
 <style scoped>
 .contact-container {
-  min-height: calc(100vh - 140px);
+  min-height: calc(100vh - 70px);
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 40px 20px;
+  padding: 20px 20px 40px;
 }
 
 .contact-content {
@@ -345,13 +345,15 @@ export default {
 }
 
 .page-title {
-  font-size: 48px;
-  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  font-weight: 600;
+  text-align: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 0 0 15px 0;
 }
 
 .page-subtitle {

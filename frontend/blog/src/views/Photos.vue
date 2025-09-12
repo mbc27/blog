@@ -426,9 +426,9 @@ export default {
 
 <style scoped>
 .photos-page {
-  padding: 40px 0 80px;
+  padding: 20px 0 80px;
   background: linear-gradient(135deg, #f6f9fc 0%, #eef1f5 100%);
-  min-height: 100vh;
+  min-height: calc(100vh - 70px);
 }
 
 .container {
@@ -445,17 +445,14 @@ export default {
 
 h1 {
   color: #2c3e50;
-  margin-bottom: 15px;
-  font-size: 3rem;
-  font-weight: 700;
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  font-weight: 600;
   text-align: center;
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: 1px;
-  position: relative;
-  display: inline-block;
 }
 
 .header-decoration {

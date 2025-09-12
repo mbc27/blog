@@ -1,5 +1,5 @@
 <template>
-  <div class="write-container page-container">
+  <div class="write-container page-container mobile-write-form">
     <div class="write-header">
       <h1>{{ isEdit ? '编辑文章' : '写文章' }}</h1>
       <div class="header-actions">
@@ -11,7 +11,7 @@
     </div>
 
     <div class="write-content">
-      <el-form :model="article" :rules="rules" ref="articleForm" label-width="100px">
+      <el-form :model="article" :rules="rules" ref="articleForm" :label-width="isMobile ? '0px' : '100px'" :class="{ 'mobile-form': isMobile }">
         <!-- 文章标题 -->
         <el-form-item label="文章标题" prop="title">
           <el-input
@@ -65,42 +65,50 @@
 
         <!-- 文章分类 -->
         <el-form-item label="文章分类" prop="categoryId">
-          <el-select v-model="article.categoryId" placeholder="请选择分类" style="width: 200px;">
-            <el-option
-              v-for="category in categories"
-              :key="category.id"
-              :label="category.name"
-              :value="category.id"
-            />
-          </el-select>
-          <el-button @click="showCategoryDialog = true" type="text" style="margin-left: 10px;">
-            <i class="el-icon-plus"></i> 新建分类
-          </el-button>
+          <div class="category-selection">
+            <el-select v-model="article.categoryId" placeholder="请选择分类" class="category-select">
+              <el-option
+                v-for="category in categories"
+                :key="category.id"
+                :label="category.name"
+                :value="category.id"
+              />
+            </el-select>
+            <el-button @click="showCategoryDialog = true" type="text" class="new-category-btn">
+              <i class="el-icon-plus"></i> 新建分类
+            </el-button>
+          </div>
         </el-form-item>
 
         <!-- 文章标签 -->
         <el-form-item label="文章标签">
-          <el-tag
-            v-for="tag in article.tags"
-            :key="tag"
-            closable
-            @close="removeTag(tag)"
-            style="margin-right: 10px;"
-          >
-            {{ tag }}
-          </el-tag>
-          <el-input
-            v-if="inputVisible"
-            v-model="inputValue"
-            ref="saveTagInput"
-            size="small"
-            @keyup.enter.native="handleInputConfirm"
-            @blur="handleInputConfirm"
-            style="width: 90px;"
-          />
-          <el-button v-else @click="showInput" size="small">
-            <i class="el-icon-plus"></i> 添加标签
-          </el-button>
+          <div class="tags-container">
+            <div class="tags-list">
+              <el-tag
+                v-for="tag in article.tags"
+                :key="tag"
+                closable
+                @close="removeTag(tag)"
+                class="tag-item"
+              >
+                {{ tag }}
+              </el-tag>
+            </div>
+            <div class="tag-input-container">
+              <el-input
+                v-if="inputVisible"
+                v-model="inputValue"
+                ref="saveTagInput"
+                size="small"
+                @keyup.enter.native="handleInputConfirm"
+                @blur="handleInputConfirm"
+                class="tag-input"
+              />
+              <el-button v-else @click="showInput" size="small" class="add-tag-btn">
+                <i class="el-icon-plus"></i> 添加标签
+              </el-button>
+            </div>
+          </div>
         </el-form-item>
 
         <!-- 文章内容 -->
@@ -131,8 +139,10 @@
 
         <!-- 发布设置 -->
         <el-form-item label="发布设置">
-          <el-checkbox v-model="article.isTop">置顶文章</el-checkbox>
-          <el-checkbox v-model="article.allowComment" style="margin-left: 20px;">允许评论</el-checkbox>
+          <div class="publish-settings">
+            <el-checkbox v-model="article.isTop" class="setting-checkbox">置顶文章</el-checkbox>
+            <el-checkbox v-model="article.allowComment" class="setting-checkbox">允许评论</el-checkbox>
+          </div>
         </el-form-item>
       </el-form>
     </div>
@@ -180,6 +190,7 @@ export default {
   name: 'Write',
   data() {
     return {
+      isMobile: false,
       isEdit: false,
       article: {
         id: null,
@@ -229,6 +240,10 @@ export default {
     }
   },
   async created() {
+    // 检查是否是移动端
+    this.checkMobile()
+    window.addEventListener('resize', this.checkMobile)
+    
     // 检查是否是编辑模式
     if (this.$route.params.id) {
       this.isEdit = true
@@ -240,7 +255,15 @@ export default {
     // 更新上传头部的token
     this.updateUploadHeaders()
   },
+  
+  beforeDestroy() {
+    window.removeEventListener('resize', this.checkMobile)
+  },
   methods: {
+    checkMobile() {
+      this.isMobile = window.innerWidth <= 768
+    },
+    
     updateUploadHeaders() {
       const token = localStorage.getItem('token')
       if (token) {
@@ -519,7 +542,7 @@ export default {
   margin: 0 auto;
   padding: 20px;
   background: #f5f5f5;
-  min-height: 100vh;
+  min-height: calc(100vh - 70px);
 }
 
 .write-header {
@@ -653,25 +676,541 @@ export default {
   margin-bottom: 10px;
 }
 
+/* 桌面端分类选择样式 */
+.category-selection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.category-select {
+  width: 200px;
+}
+
+.new-category-btn {
+  white-space: nowrap;
+}
+
+/* 标签容器样式 */
+.tags-container {
+  width: 100%;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tag-item {
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.tag-input-container {
+  margin-top: 10px;
+}
+
+.tag-input {
+  width: 120px;
+}
+
+.add-tag-btn {
+  margin-left: 0;
+}
+
+/* 发布设置样式 */
+.publish-settings {
+  display: flex;
+  gap: 20px;
+}
+
+.setting-checkbox {
+  margin-left: 0 !important;
+}
+
+/* 移动端表单专用样式 */
+.mobile-form {
+  width: 100% !important;
+}
+
+.mobile-form >>> .el-form-item {
+  display: flex !important;
+  flex-direction: column !important;
+  margin-bottom: 25px !important;
+}
+
+.mobile-form >>> .el-form-item__label {
+  width: 100% !important;
+  text-align: left !important;
+  line-height: 1.5 !important;
+  padding: 0 0 10px 0 !important;
+  margin-bottom: 8px !important;
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  font-size: 15px !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.mobile-form >>> .el-form-item__content {
+  margin-left: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.mobile-form >>> .el-input,
+.mobile-form >>> .el-textarea,
+.mobile-form >>> .el-select {
+  width: 100% !important;
+}
+
+.mobile-form >>> .el-input__inner,
+.mobile-form >>> .el-textarea__inner {
+  font-size: 16px !important;
+  padding: 12px 15px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e1e8ed !important;
+}
+
+.mobile-form >>> .el-textarea__inner {
+  line-height: 1.6 !important;
+  min-height: 100px !important;
+}
+
+/* 移动端分类选择优化 */
+.mobile-form .category-selection {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+.mobile-form .category-select {
+  width: 100% !important;
+  order: 1;
+}
+
+.mobile-form .new-category-btn {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+  justify-content: center !important;
+  padding: 12px 15px !important;
+  border: 1px dashed #d9d9d9 !important;
+  border-radius: 8px !important;
+  background: #fafafa !important;
+  color: #666 !important;
+  order: 2;
+  font-size: 14px !important;
+}
+
+/* 移动端标签区域优化 */
+.mobile-form .tags-container {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+}
+
+.mobile-form .tags-list {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  width: 100% !important;
+  margin-bottom: 15px !important;
+}
+
+.mobile-form .tag-input-container {
+  width: 100% !important;
+  margin-top: 10px !important;
+}
+
+.mobile-form .tag-input {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.mobile-form .add-tag-btn {
+  width: 100% !important;
+  margin-left: 0 !important;
+  justify-content: center !important;
+  padding: 10px !important;
+}
+
+/* 移动端发布设置优化 */
+.mobile-form .publish-settings {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 15px !important;
+  width: 100% !important;
+}
+
+.mobile-form .setting-checkbox {
+  display: block !important;
+  margin-bottom: 0 !important;
+  margin-left: 0 !important;
+  width: 100% !important;
+  padding: 10px !important;
+  background: #f8f9fa !important;
+  border-radius: 8px !important;
+}
+
+/* 移动端封面上传优化 */
+.mobile-form .cover-upload {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.mobile-form .cover-uploader {
+  width: 100% !important;
+  max-width: none !important;
+  height: 220px !important;
+  order: 1;
+}
+
+.mobile-form .cover-tips {
+  font-size: 12px !important;
+  padding: 8px 12px !important;
+  background: #f8f9fa !important;
+  border-radius: 6px !important;
+  color: #666 !important;
+  line-height: 1.4 !important;
+  order: 2;
+}
+
+/* 移动端编辑器优化 */
+.mobile-form .editor-container {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.mobile-form .editor-toolbar {
+  padding: 10px !important;
+  order: 1;
+  background: #f8f9fa !important;
+}
+
+.mobile-form .editor-toolbar >>> .el-button-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.mobile-form .editor-toolbar >>> .el-button {
+  font-size: 13px !important;
+  padding: 10px 15px !important;
+  width: 100% !important;
+  justify-content: center !important;
+  border-radius: 6px !important;
+}
+
+.mobile-form .content-editor {
+  order: 2;
+  width: 100% !important;
+}
+
+.mobile-form .content-editor >>> .el-textarea__inner {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  padding: 15px !important;
+  min-height: 350px !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .write-container {
     padding: 10px;
+    background: #f8f9fa;
   }
   
   .write-header {
     flex-direction: column;
     gap: 15px;
     text-align: center;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+  }
+  
+  .write-header h1 {
+    font-size: 20px;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .header-actions .el-button {
+    flex: 1;
+    max-width: 120px;
   }
   
   .write-content {
-    padding: 20px;
+    padding: 15px;
+  }
+  
+  /* 移动端表单已通过动态类处理，这里保留其他样式 */
+  
+  /* 分类选择区域优化 - 移动端垂直布局 */
+  .category-selection {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+  
+  .category-select {
+    width: 100% !important;
+    order: 1;
+  }
+  
+  .new-category-btn {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    justify-content: center !important;
+    padding: 12px 15px !important;
+    border: 1px dashed #d9d9d9 !important;
+    border-radius: 8px !important;
+    background: #fafafa !important;
+    color: #666 !important;
+    transition: all 0.3s ease !important;
+    order: 2;
+    font-size: 14px !important;
+  }
+  
+  .new-category-btn:hover {
+    border-color: #409eff !important;
+    color: #409eff !important;
+    background: #f0f9ff !important;
+  }
+  
+  /* 标签区域优化 - 垂直布局 */
+  .tags-container {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  .tags-list {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 15px !important;
+  }
+  
+  .tag-item {
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+    border-radius: 6px !important;
+  }
+  
+  .tag-input-container {
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+  
+  .tag-input {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  .add-tag-btn {
+    width: 100% !important;
+    margin-left: 0 !important;
+    justify-content: center !important;
+    padding: 10px !important;
+  }
+  
+  /* 复选框优化 - 垂直排列 */
+  .publish-settings {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+    width: 100% !important;
+  }
+  
+  .setting-checkbox {
+    display: block !important;
+    margin-bottom: 0 !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 10px !important;
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+  }
+  
+  .setting-checkbox + .setting-checkbox {
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+  }
+  
+  .write-content >>> .el-checkbox__label {
+    font-size: 14px !important;
+    padding-left: 8px !important;
+  }
+  
+  /* 封面上传优化 - 垂直布局 */
+  .cover-upload {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
   }
   
   .cover-uploader {
-    width: 100%;
-    max-width: 300px;
+    width: 100% !important;
+    max-width: none !important;
+    height: 220px !important;
+    order: 1;
+  }
+  
+  .cover-tips {
+    font-size: 12px !important;
+    padding: 8px 12px !important;
+    background: #f8f9fa !important;
+    border-radius: 6px !important;
+    color: #666 !important;
+    line-height: 1.4 !important;
+    order: 2;
+  }
+  
+  .cover-tips p {
+    margin: 0 0 8px 0 !important;
+  }
+  
+  .cover-tips .el-button {
+    margin-top: 8px !important;
+    font-size: 12px !important;
+  }
+  
+  /* 编辑器区域优化 - 垂直布局 */
+  .editor-container {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .editor-toolbar {
+    padding: 10px !important;
+    order: 1;
+    background: #f8f9fa !important;
+  }
+  
+  .editor-toolbar >>> .el-button-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  
+  .editor-toolbar >>> .el-button {
+    font-size: 13px !important;
+    padding: 10px 15px !important;
+    width: 100% !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+  }
+  
+  /* 内容编辑器优化 */
+  .content-editor {
+    order: 2;
+    width: 100% !important;
+  }
+  
+  .content-editor >>> .el-textarea__inner {
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+    padding: 15px !important;
+    min-height: 350px !important;
+    border-radius: 0 0 8px 8px !important;
+  }
+}
+
+/* 小屏幕进一步优化 */
+@media (max-width: 480px) {
+  .write-container {
+    padding: 8px;
+  }
+  
+  .write-header {
+    padding: 12px 15px;
+    margin-bottom: 12px;
+  }
+  
+  .write-header h1 {
+    font-size: 18px;
+  }
+  
+  .write-content {
+    padding: 12px;
+  }
+  
+  .write-content >>> .el-form-item {
+    margin-bottom: 18px;
+  }
+  
+  .write-content >>> .el-form-item__label {
+    font-size: 14px;
+    padding-bottom: 6px !important;
+  }
+  
+  .write-content >>> .el-input__inner,
+  .write-content >>> .el-textarea__inner {
+    font-size: 16px !important;
+    padding: 10px 12px !important;
+  }
+  
+  .cover-uploader {
+    height: 180px;
+  }
+  
+  .cover-tips {
+    font-size: 10px;
+  }
+  
+  .editor-toolbar >>> .el-button {
+    font-size: 11px;
+    padding: 5px 8px;
+    min-width: 70px;
+  }
+  
+  .content-editor >>> .el-textarea__inner {
+    font-size: 13px !important;
+    padding: 12px !important;
+    min-height: 250px !important;
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 360px) {
+  .write-container {
+    padding: 5px;
+  }
+  
+  .write-header {
+    padding: 10px 12px;
+  }
+  
+  .write-content {
+    padding: 10px;
+  }
+  
+  .header-actions .el-button {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  
+  .editor-toolbar >>> .el-button {
+    min-width: 60px;
+    font-size: 10px;
   }
 }
 </style>

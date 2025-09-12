@@ -173,6 +173,7 @@ export default {
 <style scoped>
 .user-profile-container {
   padding: 20px;
+  min-height: calc(100vh - 70px);
 }
 
 .profile-card {

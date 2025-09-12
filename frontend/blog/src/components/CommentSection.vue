@@ -697,19 +697,7 @@ export default {
   gap: 5px;
 }
 
-.emoji-categories::-webkit-scrollbar {
-  height: 4px;
-}
 
-.emoji-categories::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 2px;
-}
-
-.emoji-categories::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 2px;
-}
 
 .emoji-category {
   padding: 8px 12px;
@@ -749,23 +737,7 @@ export default {
   flex: 1;
 }
 
-.emoji-list::-webkit-scrollbar {
-  width: 6px;
-}
 
-.emoji-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.emoji-list::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.emoji-list::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
-}
 
 .emoji-item {
   display: flex;

@@ -97,7 +97,7 @@ html, body {
 }
 
 .main-content {
-  padding-top: 70px; /* 为固定导航栏留出空间 */
+  padding-top: 0; /* 移除顶部padding，让内容紧贴导航栏 */
   flex: 1; /* 让主内容区域占据剩余空间 */
 }
 

@@ -20,39 +20,17 @@ body {
   overflow-x: hidden;
 }
 
-/* 自定义滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
-}
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
 
 /* 页面切换时的滚动重置 */
 .router-view {
   position: relative;
 }
 
-/* 为固定导航栏预留空间 */
-body {
-  padding-top: 80px; /* 导航栏高度 */
-}
-
 /* 页面容器样式 */
 .page-container {
-  min-height: calc(100vh - 80px);
-  padding-top: 20px;
+  min-height: 100vh;
+  padding-top: 0;
 }
 
 .container {
@@ -209,6 +187,10 @@ body {
 
 /* 移动端弹窗适配 */
 @media screen and (max-width: 768px) {
+  .page-container {
+    padding-top: 0;
+  }
+  
   .container {
     padding: 0 10px;
   }
@@ -385,6 +367,10 @@ body {
 
 @media screen and (max-width: 480px) {
   /* 超小屏幕适配 */
+  .page-container {
+    padding-top: 0;
+  }
+  
   .el-dialog {
     width: 98% !important;
     margin-top: 2vh !important;

@@ -481,7 +481,8 @@ export default {
 
 /* 主横幅样式 */
 .hero-section {
-  height: 100vh;
+  height: calc(100vh - 70px); /* 减去导航栏高度 */
+  margin-top: 0; /* 移除固定导航栏的空间 */
   position: relative;
   display: flex;
   align-items: center;
@@ -875,6 +876,11 @@ export default {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .hero-section {
+    height: 100vh;
+    margin-top: 0;
+  }
+  
   .nav-container {
     padding: 15px 20px;
   }
@@ -920,6 +926,11 @@ export default {
 }
 
 @media (max-width: 480px) {
+  .hero-section {
+    height: 100vh;
+    margin-top: 0;
+  }
+  
   .hero-title {
     font-size: 2rem;
   }

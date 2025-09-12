@@ -134,7 +134,7 @@
           ></el-input>
         </el-form-item>
         
-        <!-- 联系信息设置 -->\n        <el-divider content-position="left">联系信息设置</el-divider>
+        <!-- 联系信息设置 -->        <el-divider content-position="left">联系信息设置</el-divider>
         
         <el-form-item label="联系邮箱" prop="aboutEmail">
           <el-input v-model="settings.aboutEmail" placeholder="请输入联系邮箱"></el-input>

@@ -250,9 +250,9 @@ export default {
 
 <style scoped>
 .friends-page {
-  padding: 100px 0;
+  padding: 20px 0;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
+  min-height: calc(100vh - 70px);
 }
 
 h1 {
