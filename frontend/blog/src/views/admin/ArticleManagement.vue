@@ -1,108 +1,66 @@
 <template>
   <div class="article-management">
-    <el-card class="el-card is-hover-shadow">
-      <div slot="header" class="clearfix">
-        <span>文章管理</span>
-        <el-button style="float: right" type="primary" size="small" @click="handleAddArticle">新增文章</el-button>
-      </div>
-      
-      <el-form :inline="true" :model="searchForm" class="search-form">
-        <el-form-item label="标题">
-          <el-input v-model="searchForm.title" placeholder="文章标题" clearable></el-input>
-        </el-form-item>
-        <el-form-item label="分类">
-          <el-select v-model="searchForm.categoryId" placeholder="选择分类" clearable>
-            <el-option
-              v-for="item in categories"
-              :key="item.id"
-              :label="item.categoryName || item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="文章状态" clearable>
-            <el-option label="已发布" :value="1"></el-option>
-            <el-option label="草稿" :value="0"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="searchArticles">查询</el-button>
-          <el-button @click="resetSearch">重置</el-button>
-        </el-form-item>
-      </el-form>
-      
-      <el-table
-        :data="articles"
-        style="width: 100%"
-        v-loading="loading">
-        <el-table-column
-          prop="title"
-          label="标题"
-          min-width="200">
-          <template slot-scope="scope">
-            <el-tooltip :content="scope.row.title" placement="top" :disabled="scope.row.title.length < 30">
-              <span>{{ scope.row.title | ellipsis(30) }}</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="categoryName"
-          label="分类"
-          width="120">
-        </el-table-column>
-        <el-table-column
-          prop="viewCount"
-          label="浏览量"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="commentCount"
-          label="评论数"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="status"
-          label="状态"
-          width="100">
-          <template slot-scope="scope">
-            <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
-              {{ scope.row.status === 1 ? '已发布' : '草稿' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="createTime"
-          label="创建时间"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          label="操作"
-          width="200">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button
-              size="mini"
-              type="danger"
-              @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      
-      <div class="pagination-container">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="pagination.current"
-          :page-sizes="[10, 20, 30, 50]"
-          :page-size="pagination.size"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="pagination.total">
-        </el-pagination>
-      </div>
-    </el-card>
+    <!-- 搜索和操作栏 -->
+    <div class="search-bar">
+      <el-input
+        v-model="searchKeyword"
+        placeholder="请输入文章标题搜索"
+        style="width: 300px; margin-right: 10px;"
+        @keyup.enter="searchArticles"
+      >
+        <el-button slot="append" icon="el-icon-search" @click="searchArticles"></el-button>
+      </el-input>
+      <el-button type="primary" @click="openAddDialog">新增文章</el-button>
+    </div>
+
+    <!-- 文章列表 -->
+    <el-table :data="articleList" style="width: 100%" v-loading="loading">
+      <el-table-column prop="id" label="ID" width="80"></el-table-column>
+      <el-table-column prop="title" label="标题" min-width="200"></el-table-column>
+      <el-table-column prop="categoryName" label="分类" width="120"></el-table-column>
+      <el-table-column prop="tags" label="标签" width="150">
+        <template slot-scope="scope">
+          <el-tag v-for="(tag, index) in scope.row.tags" :key="index" size="mini" style="margin-right: 5px;">
+            {{ tag }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="viewCount" label="浏览量" width="100"></el-table-column>
+      <el-table-column prop="isTop" label="置顶" width="80">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.isTop ? 'success' : 'info'" size="mini">
+            {{ scope.row.isTop ? '是' : '否' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="status" label="状态" width="80">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.status === 1 ? 'success' : 'warning'" size="mini">
+            {{ scope.row.status === 1 ? '发布' : '草稿' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="createTime" label="创建时间" width="180"></el-table-column>
+      <el-table-column label="操作" width="200" fixed="right">
+        <template slot-scope="scope">
+          <el-button size="mini" @click="editArticle(scope.row)">编辑</el-button>
+          <el-button size="mini" type="danger" @click="deleteArticle(scope.row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 分页 -->
+    <div class="pagination">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[10, 20, 50, 100]"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+      </el-pagination>
+    </div>
 
     <!-- 文章编辑对话框 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="80%" :before-close="handleDialogClose" :close-on-click-modal="false">
@@ -111,39 +69,65 @@
           <el-input v-model="articleForm.title" placeholder="请输入文章标题"></el-input>
         </el-form-item>
         <el-form-item label="文章分类" prop="categoryId">
-          <el-select v-model="articleForm.categoryId" placeholder="请选择文章分类">
+          <el-select v-model="articleForm.categoryId" placeholder="请选择分类" style="width: 100%;">
             <el-option
-              v-for="item in categories"
-              :key="item.id"
-              :label="item.categoryName || item.name"
-              :value="item.id">
+              v-for="category in categoryList"
+              :key="category.id"
+              :label="category.name"
+              :value="category.id">
             </el-option>
           </el-select>
         </el-form-item>
-        <!-- 暂时移除标签选择功能 -->
-        <el-form-item label="文章摘要" prop="summary">
-          <el-input type="textarea" v-model="articleForm.summary" :rows="3" placeholder="请输入文章摘要"></el-input>
+        <el-form-item label="文章标签">
+          <el-select
+            v-model="articleForm.tags"
+            multiple
+            filterable
+            allow-create
+            default-first-option
+            placeholder="请选择或输入标签"
+            style="width: 100%;">
+            <el-option
+              v-for="(tag, index) in tagList"
+              :key="index"
+              :label="tag.name || tag"
+              :value="tag.name || tag">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="文章摘要">
+          <el-input
+            type="textarea"
+            :rows="3"
+            placeholder="请输入文章摘要"
+            v-model="articleForm.summary">
+          </el-input>
         </el-form-item>
         <el-form-item label="文章内容" prop="content">
-          <div class="editor-container">
-            <!-- 这里可以集成Markdown编辑器，如mavon-editor或其他编辑器 -->
-            <el-input type="textarea" v-model="articleForm.content" :rows="15" placeholder="请输入文章内容（支持Markdown格式）"></el-input>
-          </div>
+          <el-input
+            type="textarea"
+            v-model="articleForm.content"
+            :rows="15"
+            placeholder="请输入文章内容（支持Markdown格式）">
+          </el-input>
         </el-form-item>
         <el-form-item label="文章封面">
           <el-upload
             class="avatar-uploader"
-            action="/api/upload"
-            :headers="uploadHeaders"
+            :action="uploadUrl"
             :show-file-list="false"
             :on-success="handleCoverSuccess"
-            :before-upload="beforeCoverUpload">
-            <img v-if="articleForm.cover" :src="articleForm.cover" class="avatar">
+            :before-upload="beforeCoverUpload"
+            :headers="uploadHeaders"
+            :on-error="handleUploadError"
+            :http-request="customUpload">
+            <img v-if="articleForm.coverImage" :src="getImageUrl(articleForm.coverImage)" class="avatar" @error="handleImageError" ref="coverImage">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
+          <div v-if="imageError" class="image-error-tip">图片加载失败，请检查图片链接是否有效</div>
         </el-form-item>
         <el-form-item label="是否置顶">
-          <el-switch v-model="articleForm.isTop"></el-switch>
+          <el-switch v-model="articleForm.isTop" :active-value="1" :inactive-value="0"></el-switch>
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="articleForm.status">
@@ -161,45 +145,46 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { mapGetters } from 'vuex'
+import api from '@/api'
+import { getImageUrl, handleImageError } from '@/utils/imageUtils'
 
 export default {
   name: 'ArticleManagement',
   data() {
     return {
-      searchForm: {
-        title: '',
-        categoryId: '',
-        status: ''
-      },
-      articles: [],
-      categories: [],
-      tags: [],
+      // 搜索关键词
+      searchKeyword: '',
+      // 文章列表
+      articleList: [],
+      // 分页信息
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
       loading: false,
-      pagination: {
-        current: 1,
-        size: 10,
-        total: 0
-      },
+      // 对话框
       dialogVisible: false,
       dialogTitle: '新增文章',
+      isEdit: false,
+      // 图片错误状态
+      imageError: false,
+      // 保存最后一次上传响应
+      lastUploadResponse: null,
+      // 文章表单
       articleForm: {
         id: null,
         title: '',
-        categoryId: '',
-        tagIds: [],
+        categoryId: null,
+        tags: [],
         summary: '',
         content: '',
-        cover: '',
-        isTop: false,
-        isRecommend: false,
+        coverImage: '',
+        isTop: 0,
         status: 1
       },
+      // 表单验证规则
       articleRules: {
         title: [
-          { required: true, message: '请输入文章标题', trigger: 'blur' },
-          { max: 100, message: '长度不能超过100个字符', trigger: 'blur' }
+          { required: true, message: '请输入文章标题', trigger: 'blur' }
         ],
         categoryId: [
           { required: true, message: '请选择文章分类', trigger: 'change' }
@@ -208,435 +193,239 @@ export default {
           { required: true, message: '请输入文章内容', trigger: 'blur' }
         ]
       },
-      submitLoading: false
-    }
-  },
-  computed: {
-    ...mapGetters(['token']),
-    uploadHeaders() {
-      return {
-        'Authorization': this.token
+      // 分类列表
+      categoryList: [],
+      // 标签列表
+      tagList: [],
+      // 提交loading
+      submitLoading: false,
+      // 上传相关
+      uploadUrl: '/upload/image',
+      uploadHeaders: {
+        'Authorization': 'Bearer ' + this.$store.getters.token
       }
     }
   },
-  filters: {
-    ellipsis(value, maxLength) {
-      if (!value) return ''
-      if (value.length <= maxLength) return value
-      return value.slice(0, maxLength) + '...'
-    }
-  },
   created() {
-    this.fetchCategories()
-    this.fetchTags()
-    this.fetchArticles()
+    this.getArticleList()
+    this.getCategoryList()
+    this.getTagList()
   },
   methods: {
-    fetchCategories() {
-      axios.get('/api/category/list', {
-        headers: {
-          'Authorization': this.token
-        }
-      })
-        .then(response => {
-          console.log('分类列表响应:', response)
-          if (response.data && response.data.code === 200) {
-            this.categories = response.data.data || []
-          } else if (response.code === 200) {
-            this.categories = response.data || []
-          }
-        })
-        .catch(error => {
-          console.error('获取分类列表失败', error)
-          this.$message.error('获取分类列表失败')
-        })
-    },
-    fetchTags() {
-      // 根据需求暂时不获取标签
-      this.tags = []
-      /*
-      axios.get('/api/tag/list', {
-        headers: {
-          'Authorization': this.token
-        }
-      })
-        .then(response => {
-          console.log('标签列表响应:', response)
-          if (response.data && response.data.code === 200) {
-            this.tags = response.data.data || []
-          } else if (response.code === 200) {
-            this.tags = response.data || []
-          }
-        })
-        .catch(error => {
-          console.error('获取标签列表失败', error)
-          this.$message.error('获取标签列表失败')
-        })
-      */
-    },
-    async fetchArticles() {
-      this.loading = true
+    // 自定义上传方法
+    customUpload(options) {
+      const formData = new FormData()
+      formData.append('file', options.file)
       
+      // 使用axios实例发送请求
+      this.$axios.post('/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': 'Bearer ' + this.$store.getters.token
+        }
+      }).then(response => {
+        if (response.data && response.data.code === 200) {
+          options.onSuccess(response.data, options.file)
+        } else {
+          options.onError(new Error(response.data?.message || '上传失败'))
+        }
+      }).catch(error => {
+        console.error('上传错误:', error)
+        options.onError(error)
+      })
+    },
+    
+    // 获取文章列表
+    async getArticleList() {
+      this.loading = true
       try {
-        // 先获取已发布的文章
-        const publishedArticles = await this.fetchPublishedArticles()
-        
-        // 再获取待审核的文章
-        const pendingArticles = await this.fetchPendingArticles()
-        
-        // 合并文章列表
-        const allArticles = [...publishedArticles, ...pendingArticles]
-        
-        // 为文章添加分类名称
-        const articlesWithCategory = await this.addCategoryNames(allArticles)
-        
-        // 根据搜索条件过滤
-        let filteredArticles = articlesWithCategory
-        if (this.searchForm.title) {
-          filteredArticles = articlesWithCategory.filter(article => 
-            article.title && article.title.includes(this.searchForm.title)
-          )
+        const params = {
+          page: this.currentPage,
+          size: this.pageSize,
+          keyword: this.searchKeyword
         }
-        if (this.searchForm.categoryId) {
-          filteredArticles = filteredArticles.filter(article => 
-            article.categoryId === this.searchForm.categoryId
-          )
-        }
-        if (this.searchForm.status !== '') {
-          filteredArticles = filteredArticles.filter(article => 
-            article.status === this.searchForm.status
-          )
-        }
-        
-        // 分页处理
-        const startIndex = (this.pagination.current - 1) * this.pagination.size
-        const endIndex = startIndex + this.pagination.size
-        this.articles = filteredArticles.slice(startIndex, endIndex)
-        this.pagination.total = filteredArticles.length
-        
+        const response = await api.article.getList(params)
+        this.articleList = response.data.records
+        this.total = response.data.total
       } catch (error) {
-        console.error('获取文章列表失败', error)
         this.$message.error('获取文章列表失败')
       } finally {
         this.loading = false
       }
     },
     
-    // 为文章添加分类名称和评论数
-    async addCategoryNames(articles) {
-      // 创建分类ID到分类名称的映射
-      const categoryMap = {}
-      this.categories.forEach(category => {
-        categoryMap[category.id] = category.categoryName || category.name
-      })
-      
-      // 批量获取所有文章的评论数
-      const commentCountMap = await this.getBatchCommentCounts(articles.map(a => a.id))
-      
-      // 为每篇文章添加分类名称和评论数
-      return articles.map(article => ({
-        ...article,
-        categoryName: categoryMap[article.categoryId] || '未分类',
-        commentCount: commentCountMap[article.id] || 0
-      }))
-    },
-    
-    // 批量获取文章的评论数
-    async getBatchCommentCounts(articleIds) {
-      const commentCountMap = {}
-      
-      // 限制并发请求数量，避免服务器压力过大
-      const batchSize = 5
-      for (let i = 0; i < articleIds.length; i += batchSize) {
-        const batch = articleIds.slice(i, i + batchSize)
-        const promises = batch.map(async (articleId) => {
-          try {
-            const response = await axios.get('/api/comment/list', {
-              params: {
-                articleId: articleId,
-                current: 1,
-                size: 1 // 只需要获取总数，不需要具体数据
-              },
-              headers: {
-                'Authorization': this.token
-              }
-            })
-            
-            let total = 0
-            if (response.data && response.data.code === 200) {
-              total = response.data.data.total || 0
-            } else if (response.code === 200) {
-              total = response.data.total || 0
-            }
-            
-            return { articleId, total }
-          } catch (error) {
-            console.error(`获取文章${articleId}的评论数失败:`, error)
-            return { articleId, total: 0 }
-          }
-        })
-        
-        const results = await Promise.all(promises)
-        results.forEach(({ articleId, total }) => {
-          commentCountMap[articleId] = total
-        })
-      }
-      
-      return commentCountMap
-    },
-    
-    // 获取已发布的文章
-    async fetchPublishedArticles() {
+    // 获取分类列表
+    async getCategoryList() {
       try {
-        const response = await axios.get('/api/article/list', {
-          params: { current: 1, size: 1000 }, // 获取大量数据
-          headers: { 'Authorization': this.token }
-        })
-        
-        console.log('已发布文章响应:', response)
-        
-        if (response.data && response.data.code === 200) {
-          return response.data.data.records || []
-        } else if (response.code === 200) {
-          return response.data.records || []
-        }
-        return []
+        const response = await api.category.getAll()
+        this.categoryList = response.data
       } catch (error) {
-        console.error('获取已发布文章失败', error)
-        return []
+        console.error('获取分类列表失败:', error)
       }
     },
     
-    // 获取待审核的文章
-    async fetchPendingArticles() {
+    // 获取标签列表
+    async getTagList() {
       try {
-        const response = await axios.get('/api/article/pending', {
-          params: { current: 1, size: 1000 }, // 获取大量数据
-          headers: { 'Authorization': this.token }
-        })
-        
-        console.log('待审核文章响应:', response)
-        
-        if (response.data && response.data.code === 200) {
-          return response.data.data.records || []
-        } else if (response.code === 200) {
-          return response.data.records || []
-        }
-        return []
+        const response = await api.tag.getAll()
+        this.tagList = response.data
       } catch (error) {
-        console.error('获取待审核文章失败', error)
-        return []
+        console.error('获取标签列表失败:', error)
       }
     },
+    
+    // 搜索文章
     searchArticles() {
-      this.pagination.current = 1
-      this.fetchArticles()
+      this.currentPage = 1
+      this.getArticleList()
     },
-    resetSearch() {
-      this.searchForm = {
-        title: '',
-        categoryId: '',
-        status: ''
-      }
-      this.searchArticles()
-    },
+    
+    // 分页大小改变
     handleSizeChange(val) {
-      this.pagination.size = val
-      this.fetchArticles()
+      this.pageSize = val
+      this.getArticleList()
     },
+    
+    // 当前页改变
     handleCurrentChange(val) {
-      this.pagination.current = val
-      this.fetchArticles()
+      this.currentPage = val
+      this.getArticleList()
     },
-    handleAddArticle() {
+    
+    // 打开新增对话框
+    openAddDialog() {
       this.dialogTitle = '新增文章'
+      this.isEdit = false
+      this.resetForm()
+      this.dialogVisible = true
+    },
+    
+    // 编辑文章
+    editArticle(row) {
+      this.dialogTitle = '编辑文章'
+      this.isEdit = true
+      this.articleForm = { ...row }
+      this.dialogVisible = true
+    },
+    
+    // 删除文章
+    async deleteArticle(id) {
+      try {
+        await this.$confirm('此操作将永久删除该文章, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        
+        await api.article.delete(id)
+        this.$message.success('删除成功')
+        this.getArticleList()
+      } catch (error) {
+        if (error !== 'cancel') {
+          this.$message.error('删除失败')
+        }
+      }
+    },
+    
+    // 提交文章
+    async submitArticle() {
+      try {
+        // 检查分类是否已选择
+        if (!this.articleForm.categoryId) {
+          this.$message.error('请选择文章分类');
+          return;
+        }
+        
+        // 表单验证
+        await this.$refs.articleForm.validate();
+        
+        if (!this.articleForm.content) {
+          this.$message.error('请输入文章内容');
+          return;
+        }
+        
+        this.submitLoading = true;
+        console.log('提交文章数据:', JSON.stringify(this.articleForm));
+        
+        if (this.isEdit) {
+          await api.article.update(this.articleForm.id, this.articleForm);
+          this.$message.success('更新成功');
+        } else {
+          await api.article.add(this.articleForm);
+          this.$message.success('添加成功');
+        }
+        
+        this.dialogVisible = false;
+        this.getArticleList();
+      } catch (error) {
+        console.error('提交文章失败:', error);
+        if (error.message) {
+          this.$message.error(error.message);
+        } else {
+          this.$message.error('提交失败，请检查表单');
+        }
+      } finally {
+        this.submitLoading = false;
+      }
+    },
+    
+    // 重置表单
+    resetForm() {
       this.articleForm = {
         id: null,
         title: '',
-        categoryId: '',
-        tagIds: [], // 保留字段但不使用
+        categoryId: null,
+        tags: [],
         summary: '',
         content: '',
-        cover: '',
-        isTop: false,
-        status: 1,
-        userId: null // 新增时不设置用户ID，让后端自动设置
+        coverImage: '',
+        isTop: 0,
+        status: 1
       }
-      this.dialogVisible = true
-      this.$nextTick(() => {
-        this.$refs.articleForm && this.$refs.articleForm.clearValidate()
-      })
+      if (this.$refs.articleForm) {
+        this.$refs.articleForm.resetFields()
+      }
     },
-    handleEdit(row) {
-      this.dialogTitle = '编辑文章'
-      this.loading = true
-      
-      axios.get(`/api/article/${row.id}`, {
-        headers: {
-          'Authorization': this.token
-        }
-      })
-        .then(response => {
-          console.log('文章详情响应:', response)
-          let article
-          if (response.data && response.data.code === 200) {
-            article = response.data.data
-          } else if (response.code === 200) {
-            article = response.data
-          }
-          
-          if (article) {
-            this.articleForm = {
-              id: article.id,
-              title: article.title,
-              categoryId: article.categoryId,
-              tagIds: [], // 暂时不使用标签
-              summary: article.summary,
-              content: article.content,
-              cover: article.cover,
-              isTop: article.isTop === 1,
-              status: article.status,
-              userId: article.userId // 保存原始用户ID
-            }
-            this.dialogVisible = true
-            this.$nextTick(() => {
-              this.$refs.articleForm && this.$refs.articleForm.clearValidate()
-            })
-          }
-        })
-        .catch(error => {
-          console.error('获取文章详情失败', error)
-          this.$message.error('获取文章详情失败')
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-    handleDelete(row) {
-      this.$confirm('确认删除该文章吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        axios.delete(`/api/article/${row.id}`, {
-          headers: {
-            'Authorization': this.token
-          }
-        })
-          .then(response => {
-            console.log('删除文章响应:', response)
-            // 检查不同的响应格式
-            if (response.data && response.data.code === 200) {
-              this.$message.success('删除成功')
-              this.fetchArticles()
-            } else if (response.code === 200 || response.status === 200) {
-              this.$message.success('删除成功')
-              this.fetchArticles()
-            } else {
-              const errorMsg = (response.data && response.data.message) || response.message || '删除文章失败'
-              this.$message.error(errorMsg)
-            }
-          })
-          .catch(error => {
-            console.error('删除文章失败', error)
-            
-            // 检查是否实际删除成功但返回了错误状态
-            if (error.response && error.response.status === 200) {
-              this.$message.success('删除成功')
-              this.fetchArticles()
-            } else {
-              let errorMsg = '删除文章失败'
-              if (error.response && error.response.data && error.response.data.message) {
-                errorMsg = error.response.data.message
-              } else if (error.message) {
-                errorMsg = error.message
-              }
-              this.$message.error(errorMsg)
-              
-              // 即使出错也刷新列表，因为可能实际已经删除成功
-              setTimeout(() => {
-                this.fetchArticles()
-              }, 1000)
-            }
-          })
-      }).catch(() => {})
-    },
-    submitArticle() {
-      this.$refs.articleForm.validate(valid => {
-        if (valid) {
-          this.submitLoading = true
-          
-          // 转换布尔值为数字，移除不需要的字段
-          const formData = {
-            ...this.articleForm,
-            isTop: this.articleForm.isTop ? 1 : 0
-          }
-          
-          // 移除前端特有的字段
-          delete formData.tagIds
-          
-          let promise
-          if (this.articleForm.id) {
-            // 更新文章
-            promise = axios.put(`/api/article/${this.articleForm.id}`, formData, {
-              headers: {
-                'Authorization': this.token
-              }
-            })
-          } else {
-            // 新增文章
-            promise = axios.post('/api/article', formData, {
-              headers: {
-                'Authorization': this.token
-              }
-            })
-          }
-          
-          promise
-            .then(response => {
-              console.log('文章提交响应:', response)
-              if (response.data && response.data.code === 200) {
-                this.$message.success(`${this.articleForm.id ? '更新' : '添加'}文章成功`)
-                this.dialogVisible = false
-                this.fetchArticles()
-              } else if (response.code === 200) {
-                this.$message.success(`${this.articleForm.id ? '更新' : '添加'}文章成功`)
-                this.dialogVisible = false
-                this.fetchArticles()
-              } else {
-                const errorMsg = (response.data && response.data.message) || response.message || `${this.articleForm.id ? '更新' : '添加'}文章失败`
-                this.$message.error(errorMsg)
-              }
-            })
-            .catch(error => {
-              console.error(`${this.articleForm.id ? '更新' : '添加'}文章失败`, error)
-              let errorMsg = `${this.articleForm.id ? '更新' : '添加'}文章失败`
-              if (error.response && error.response.data && error.response.data.message) {
-                errorMsg = error.response.data.message
-              } else if (error.message) {
-                errorMsg = error.message
-              }
-              this.$message.error(errorMsg)
-            })
-            .finally(() => {
-              this.submitLoading = false
-            })
-        } else {
-          return false
-        }
-      })
-    },
+    
+    // 对话框关闭前的回调
     handleDialogClose(done) {
-      if (this.submitLoading) {
-        this.$message.warning('正在提交，请稍候...')
-        return
-      }
-      done()
+      this.$confirm('确认关闭？')
+        .then(() => {
+          done()
+        })
+        .catch(() => {})
     },
+    
+    // 封面上传成功
     handleCoverSuccess(res) {
-      this.articleForm.cover = res.data
-      this.$message.success('封面上传成功')
+      console.log('上传响应:', JSON.stringify(res));
+      
+      if (res.code === 200) {
+        // 重置图片错误状态
+        this.imageError = false;
+        
+        // 获取URL并使用工具函数处理
+        let imageUrl = res.data.url;
+        console.log('原始图片URL:', imageUrl);
+        
+        // 使用统一的图片URL处理函数
+        this.articleForm.coverImage = this.getImageUrl(imageUrl);
+        console.log('处理后的图片URL:', this.articleForm.coverImage);
+        
+        this.$message.success('封面上传成功');
+      } else {
+        this.$message.error(res.message || '上传失败');
+      }
     },
+    
+    // 上传错误处理
+    handleUploadError(err) {
+      console.error('上传错误:', err)
+      this.$message.error('图片上传失败，请重试')
+      this.imageError = true
+    },
+    
+    // 封面上传前的校验
     beforeCoverUpload(file) {
       const isImage = file.type.startsWith('image/')
       const isLt2M = file.size / 1024 / 1024 < 2
@@ -648,6 +437,17 @@ export default {
         this.$message.error('上传封面大小不能超过 2MB!')
       }
       return isImage && isLt2M
+    },
+    
+    // 图片加载错误处理
+    handleImageError(event) {
+      this.imageError = true;
+      handleImageError(event);
+    },
+    
+    // 获取图片URL
+    getImageUrl(url) {
+      return getImageUrl(url);
     }
   }
 }
@@ -657,16 +457,16 @@ export default {
 .article-management {
   padding: 20px;
 }
-.search-form {
+
+.search-bar {
   margin-bottom: 20px;
 }
-.pagination-container {
+
+.pagination {
   margin-top: 20px;
   text-align: right;
 }
-.editor-container {
-  min-height: 300px;
-}
+
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
@@ -674,9 +474,11 @@ export default {
   position: relative;
   overflow: hidden;
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
+
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -685,9 +487,20 @@ export default {
   line-height: 178px;
   text-align: center;
 }
+
 .avatar {
   width: 178px;
   height: 178px;
   display: block;
+}
+
+.dialog-footer {
+  text-align: right;
+}
+
+.image-error-tip {
+  color: #f56c6c;
+  font-size: 12px;
+  margin-top: 5px;
 }
 </style>

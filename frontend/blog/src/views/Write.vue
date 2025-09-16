@@ -216,7 +216,7 @@ export default {
         description: ''
       },
       creatingCategory: false,
-      uploadUrl: process.env.VUE_APP_BASE_API + '/upload/image',
+      uploadUrl: '/upload/image',
       uploadHeaders: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       },

@@ -8,8 +8,12 @@ import com.blog.dao.ArticleMapper;
 import com.blog.mapper.UserMapper;
 import com.blog.entity.Article;
 import com.blog.entity.ArticleLike;
+import com.blog.entity.Category;
+import com.blog.entity.Tag;
 import com.blog.entity.User;
 import com.blog.service.ArticleService;
+import com.blog.service.CategoryService;
+import com.blog.service.TagService;
 import com.blog.utils.SecurityUtils;
 import com.blog.vo.ArticleVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     
     @Autowired
     private ArticleLikeMapper articleLikeMapper;
+    
+    @Autowired
+    private CategoryService categoryService;
+    
+    @Autowired
+    private TagService tagService;
 
     @Override
     public Page<ArticleVo> listArticles(Page<Article> page, Long categoryId) {
@@ -86,7 +96,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<ArticleVo> voList = articlePage.getRecords().stream()
                 .map(article -> {
                     User user = userMap.get(article.getUserId());
-                    return ArticleVo.fromArticleAndUser(article, user);
+                    ArticleVo articleVo = ArticleVo.fromArticleAndUser(article, user);
+                    // 填充分类名称和标签信息
+                    fillCategoryAndTags(articleVo);
+                    return articleVo;
                 })
                 .collect(Collectors.toList());
         
@@ -136,7 +149,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         
         // 转换为ArticleVo
         List<ArticleVo> voList = articlePage.getRecords().stream()
-                .map(article -> ArticleVo.fromArticleAndUser(article, currentUser))
+                .map(article -> {
+                    ArticleVo articleVo = ArticleVo.fromArticleAndUser(article, currentUser);
+                    // 填充分类名称和标签信息
+                    fillCategoryAndTags(articleVo);
+                    return articleVo;
+                })
                 .collect(Collectors.toList());
         
         voPage.setRecords(voList);
@@ -179,7 +197,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<ArticleVo> voList = articlePage.getRecords().stream()
                 .map(article -> {
                     User user = userMap.get(article.getUserId());
-                    return ArticleVo.fromArticleAndUser(article, user);
+                    ArticleVo articleVo = ArticleVo.fromArticleAndUser(article, user);
+                    // 填充分类名称和标签信息
+                    fillCategoryAndTags(articleVo);
+                    return articleVo;
                 })
                 .collect(Collectors.toList());
         
@@ -198,7 +219,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         User user = userMapper.selectById(article.getUserId());
         
         // 转换为ArticleVo
-        return ArticleVo.fromArticleAndUser(article, user);
+        ArticleVo articleVo = ArticleVo.fromArticleAndUser(article, user);
+        
+        // 填充分类名称和标签信息
+        fillCategoryAndTags(articleVo);
+        
+        return articleVo;
     }
 
     @Override
@@ -340,6 +366,32 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         queryWrapper.eq(ArticleLike::getArticleId, id);
         queryWrapper.eq(ArticleLike::getUserId, currentUserId);
         return articleLikeMapper.selectCount(queryWrapper) > 0;
+    }
+    
+    /**
+     * 填充ArticleVo的分类名称和标签信息
+     *
+     * @param articleVo 文章视图对象
+     */
+    private void fillCategoryAndTags(ArticleVo articleVo) {
+        // 填充分类名称
+        if (articleVo.getCategoryId() != null) {
+            Category category = categoryService.getCategoryById(articleVo.getCategoryId());
+            if (category != null) {
+                articleVo.setCategoryName(category.getName());
+            }
+        }
+        
+        // 填充标签信息
+        List<Tag> tags = tagService.listTagsByArticleId(articleVo.getId());
+        if (tags != null && !tags.isEmpty()) {
+            List<String> tagNames = tags.stream()
+                    .map(Tag::getName)
+                    .collect(Collectors.toList());
+            articleVo.setTags(tagNames);
+        } else {
+            articleVo.setTags(new ArrayList<>());
+        }
     }
     
     /**

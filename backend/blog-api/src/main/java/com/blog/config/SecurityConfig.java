@@ -37,6 +37,7 @@ public class SecurityConfig {
             .authorizeRequests()
                 .antMatchers("/images/**").permitAll()
                 .antMatchers("/uploads/**").permitAll() // 允许访问上传的文件
+                .antMatchers("/api/upload/**").permitAll() // 允许文件上传接口
                 .antMatchers("/api/public/**").permitAll()
                 .antMatchers("/api/auth/**").permitAll() // 允许认证相关的API
                 .antMatchers("/api/about/**").permitAll() // 允许访问关于我页面
@@ -45,7 +46,7 @@ public class SecurityConfig {
                 .antMatchers("/api/article/list").permitAll() // 允许访问文章列表
                 .antMatchers("/api/article/{id}").permitAll() // 允许访问文章详情
                 .antMatchers("/api/category/list").permitAll() // 允许访问分类列表
-                .antMatchers("/api/tags").permitAll() // 允许访问标签列表
+                .antMatchers("/api/tag/list").permitAll() // 允许访问标签列表
                 .antMatchers("/api/photo/list").permitAll() // 允许访问照片列表
                 .antMatchers("/api/photo/category/list").permitAll() // 允许访问照片分类列表
                 .antMatchers("/api/friend-links").permitAll() // 允许访问友链列表

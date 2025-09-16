@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.blog.entity.Project;
 import com.blog.mapper.ProjectMapper;
+import com.blog.service.ProjectLikeService;
 import com.blog.service.ProjectService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +16,9 @@ import java.util.List;
  */
 @Service
 public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> implements ProjectService {
+
+    @Autowired
+    private ProjectLikeService projectLikeService;
 
     @Override
     public List<Project> getAllProjects() {
@@ -49,12 +54,13 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     }
 
     @Override
-    public void incrementViewCount(Long projectId) {
+    public boolean incrementViewCount(Long projectId) {
         Project project = this.getById(projectId);
         if (project != null) {
             project.setViewCount(project.getViewCount() + 1);
-            this.updateById(project);
+            return this.updateById(project);
         }
+        return false;
     }
 
     @Override
@@ -65,6 +71,16 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             return this.updateById(project);
         }
         return false;
+    }
+
+    @Override
+    public java.util.Map<String, Object> toggleLike(Long projectId, Long userId, String ipAddress) {
+        return projectLikeService.toggleProjectLike(projectId, userId, ipAddress);
+    }
+
+    @Override
+    public boolean isProjectLiked(Long projectId, Long userId, String ipAddress) {
+        return projectLikeService.isProjectLiked(projectId, userId, ipAddress);
     }
     
     @Override

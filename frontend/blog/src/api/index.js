@@ -295,23 +295,23 @@ export default {
   tag: {
     // 获取所有标签
     getAll() {
-      return service.get('/tags')
+      return service.get('/tag/list')
     },
     // 获取标签列表（管理员）
     getList(params) {
-      return service.get('/admin/tags', { params })
+      return service.get('/tag', { params })
     },
     // 添加标签（管理员）
     add(data) {
-      return service.post('/admin/tags', data)
+      return service.post('/tag', data)
     },
     // 更新标签（管理员）
     update(id, data) {
-      return service.put(`/admin/tags/${id}`, data)
+      return service.put(`/tag/${id}`, data)
     },
     // 删除标签（管理员）
     delete(id) {
-      return service.delete(`/admin/tags/${id}`)
+      return service.delete(`/tag/${id}`)
     }
   },
 
@@ -600,6 +600,38 @@ export default {
     // 发送联系消息
     sendMessage(data) {
       return service.post('/contact/send', data)
+    }
+  },
+
+  // 项目相关接口
+  project: {
+    // 获取所有公开项目
+    getList() {
+      return service.get('/about/projects')
+    },
+    // 获取精选项目
+    getFeatured() {
+      return service.get('/about/projects/featured')
+    },
+    // 获取项目详情
+    getDetail(id) {
+      return service.get(`/about/projects/${id}`)
+    },
+    // 项目点赞
+    like(id, data = {}) {
+      return service.post(`/about/projects/${id}/like`, null, { params: data })
+    },
+    // 切换项目点赞状态
+    toggleLike(id) {
+      return service.post(`/about/projects/${id}/like`)
+    },
+    // 增加项目浏览量
+    incrementView(id) {
+      return service.post(`/about/projects/${id}/view`)
+    },
+    // 根据分类获取项目
+    getByCategory(categoryId) {
+      return service.get(`/about/projects/category/${categoryId}`)
     }
   }
 }

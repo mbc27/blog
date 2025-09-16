@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -18,8 +19,20 @@ import java.util.UUID;
 @RequestMapping("/api")
 public class FileUploadController {
 
-    @Value("${file.upload.path:./uploads/}")
+    @Value("${file.upload.path:images/}")
     private String uploadPath;
+    
+    /**
+     * 获取项目根目录下的上传目录绝对路径
+     */
+    private String getUploadDirectory() {
+        String projectRoot = System.getProperty("user.dir");
+        // 如果当前在backend/blog-api目录，需要回到博客项目根目录
+        if (projectRoot.endsWith("backend" + File.separator + "blog-api")) {
+            projectRoot = Paths.get(projectRoot).getParent().getParent().toString();
+        }
+        return Paths.get(projectRoot, uploadPath).toString();
+    }
 
     @PostMapping("/upload")
     public Result uploadFile(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
@@ -57,8 +70,10 @@ public class FileUploadController {
             LocalDate now = LocalDate.now();
             String datePath = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
             
-            // 确保上传目录存在
-            File uploadDir = new File(uploadPath + datePath);
+            // 确保上传目录存在 - 使用项目根目录的绝对路径
+            String baseUploadDir = getUploadDirectory();
+            String fullUploadPath = Paths.get(baseUploadDir, datePath).toString();
+            File uploadDir = new File(fullUploadPath);
             if (!uploadDir.exists()) {
                 boolean created = uploadDir.mkdirs();
                 System.out.println("创建上传目录: " + uploadDir.getAbsolutePath() + ", 结果: " + created);
@@ -66,6 +81,7 @@ public class FileUploadController {
             
             // 保存文件
             File destFile = new File(uploadDir, fileName);
+            System.out.println("保存文件到: " + destFile.getAbsolutePath());
             file.transferTo(destFile);
             
             // 构建访问URL
@@ -80,7 +96,7 @@ public class FileUploadController {
             }
             baseUrl += contextPath;
             
-            String fileUrl = baseUrl + "/uploads/" + datePath + "/" + fileName;
+            String fileUrl = baseUrl + "/images/" + datePath + "/" + fileName;
             
             System.out.println("文件上传成功: " + destFile.getAbsolutePath());
             System.out.println("访问URL: " + fileUrl);

@@ -189,7 +189,7 @@ export default {
         ...this.searchForm
       }
       
-      axios.get('/api/admin/comments', { 
+      axios.get('/admin/comments', { 
         params,
         headers: {
           Authorization: this.$store.getters.token
@@ -241,7 +241,7 @@ export default {
       
       // 获取评论回复
       if (row.replyCount > 0) {
-        axios.get(`/api/admin/comments/${row.id}/replies`, {
+        axios.get(`/admin/comments/${row.id}/replies`, {
           headers: {
             Authorization: this.$store.getters.token
           }
@@ -263,7 +263,7 @@ export default {
         cancelButtonText: '取消',
         type: 'info'
       }).then(() => {
-        axios.put(`/api/admin/comments/${row.id}/approve`, {}, {
+        axios.put(`/admin/comments/${row.id}/approve`, {}, {
           headers: {
             Authorization: this.$store.getters.token
           }
@@ -287,7 +287,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        axios.delete(`/api/admin/comments/${row.id}`, {
+        axios.delete(`/admin/comments/${row.id}`, {
           headers: {
             Authorization: this.$store.getters.token
           }

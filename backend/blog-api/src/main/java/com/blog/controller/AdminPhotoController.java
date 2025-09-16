@@ -6,6 +6,7 @@ import com.blog.entity.PhotoCategory;
 import com.blog.service.PhotoService;
 import com.blog.service.PhotoCategoryService;
 import com.blog.dao.PhotoCategoryMapper;
+import com.blog.util.UrlDetectionUtils;
 import com.blog.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +28,9 @@ public class AdminPhotoController {
     
     @Autowired
     private PhotoCategoryMapper photoCategoryMapper;
+    
+    @Autowired
+    private UrlDetectionUtils urlDetectionUtils;
 
     /**
      * 管理员分页查询相册列表
@@ -139,10 +143,15 @@ public class AdminPhotoController {
     @PostMapping("/photos")
     public Result addPhoto(@RequestBody Photo photo) {
         try {
-            // 如果URL是相对路径，转换为完整的服务器地址
+            // 如果URL是相对路径，转换为完整的服务器地址 - 使用动态检测
             String url = photo.getUrl();
-            if (url != null && url.startsWith("/uploads/") && !url.startsWith("http")) {
-                photo.setUrl("http://localhost:8080" + url);
+            if (url != null && !url.startsWith("http")) {
+                if (url.startsWith("/uploads/") || url.startsWith("/images/")) {
+                    photo.setUrl(urlDetectionUtils.getCurrentBaseUrl() + url);
+                } else if (!url.startsWith("/")) {
+                    // 相对路径，添加images前缀
+                    photo.setUrl(urlDetectionUtils.getCurrentImageUrlPrefix() + url);
+                }
             }
             
             boolean result = photoService.addPhoto(photo);

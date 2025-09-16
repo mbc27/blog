@@ -116,7 +116,7 @@ export default {
         size: this.pagination.size
       }
       
-      axios.get('/api/tag', { 
+      axios.get('/tag', { 
         params,
         headers: {
           Authorization: this.$store.getters.token
@@ -180,7 +180,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        axios.delete(`/api/tag/${row.id}`, {
+        axios.delete(`/tag/${row.id}`, {
           headers: {
             Authorization: this.$store.getters.token
           }
@@ -200,7 +200,7 @@ export default {
         if (valid) {
           this.submitLoading = true
           const method = this.tagForm.id ? 'put' : 'post'
-          const url = this.tagForm.id ? `/api/tag/${this.tagForm.id}` : '/api/tag'
+          const url = this.tagForm.id ? `/tag/${this.tagForm.id}` : '/tag'
           
           axios[method](url, this.tagForm, {
             headers: {
@@ -227,7 +227,7 @@ export default {
 
     // 处理弹窗关闭
     handleDialogClose(done) {
-      const hasContent = this.tagForm.name || this.tagForm.color
+      const hasContent = this.tagForm.name || (this.tagForm.color && this.tagForm.color !== '#409EFF')
       
       if (hasContent && !this.tagForm.id) {
         this.$confirm('表单中有未保存的内容，确定要关闭吗？', '提示', {
@@ -235,7 +235,8 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.resetForm()
+          // 重置表单
+          this.$refs.tagForm && this.$refs.tagForm.resetFields()
           done()
         }).catch(() => {
           // 取消关闭

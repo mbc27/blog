@@ -171,6 +171,155 @@
             </article>
           </div>
         </div>
+
+        <!-- 精选项目区域 -->
+        <div class="projects-section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i class="el-icon-cpu"></i>
+              精选项目
+            </h2>
+            <div class="project-filters">
+              <el-button 
+                :type="selectedProjectFilter === 'all' ? 'primary' : 'default'" 
+                size="small" 
+                @click="filterProjects('all')"
+              >
+                全部
+              </el-button>
+              <el-button 
+                :type="selectedProjectFilter === 'completed' ? 'primary' : 'default'" 
+                size="small" 
+                @click="filterProjects('completed')"
+              >
+                已完成
+              </el-button>
+              <el-button 
+                :type="selectedProjectFilter === 'developing' ? 'primary' : 'default'" 
+                size="small" 
+                @click="filterProjects('developing')"
+              >
+                开发中
+              </el-button>
+              <el-button 
+                :type="selectedProjectFilter === 'planning' ? 'primary' : 'default'" 
+                size="small" 
+                @click="filterProjects('planning')"
+              >
+                规划中
+              </el-button>
+              <el-button 
+                :type="selectedProjectFilter === 'maintenance' ? 'primary' : 'default'" 
+                size="small" 
+                @click="filterProjects('maintenance')"
+              >
+                维护中
+              </el-button>
+            </div>
+          </div>
+          
+          <div v-if="projectsLoading" class="loading-container">
+            <el-skeleton :rows="2" animated />
+          </div>
+          
+          <div v-else-if="displayedProjects.length === 0" class="empty-state">
+            <i class="el-icon-cpu"></i>
+            <p>暂无项目</p>
+          </div>
+          
+          <div v-else class="projects-waterfall" ref="projectsWaterfall">
+            <div 
+              v-for="project in displayedProjects" 
+              :key="project.id" 
+              class="project-card"
+              @click="handleProjectCardClick(project)"
+            >
+              <div class="project-header">
+                <div class="project-status">
+                  <el-tag 
+                    :type="getStatusType(project.status)" 
+                    size="mini"
+                  >
+                    {{ getStatusText(project.status) }}
+                  </el-tag>
+                  <el-tag 
+                    v-if="project.isFeatured" 
+                    type="warning" 
+                    size="mini"
+                  >
+                    精选
+                  </el-tag>
+                </div>
+                <h3 class="project-title">{{ project.name }}</h3>
+                <p class="project-subtitle">{{ project.title }}</p>
+              </div>
+              
+              <div class="project-content">
+                <p class="project-description">{{ project.description || project.summary }}</p>
+                
+                <div v-if="project.technologies" class="project-technologies">
+                  <el-tag 
+                    v-for="tech in getTechnologies(project.technologies)" 
+                    :key="tech" 
+                    size="mini" 
+                    class="tech-tag"
+                  >
+                    {{ tech }}
+                  </el-tag>
+                </div>
+              </div>
+              
+              <div class="project-timeline">
+                <div class="timeline-item">
+                  <span class="timeline-label">开始时间:</span>
+                  <span class="timeline-value">{{ formatDate(project.startDate) || '未设置' }}</span>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-label">结束时间:</span>
+                  <span class="timeline-value">{{ formatDate(project.endDate) || '进行中' }}</span>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-label">项目周期:</span>
+                  <span class="timeline-value">{{ calculateProjectDuration(project.startDate, project.endDate) }}</span>
+                </div>
+              </div>
+              
+              <div class="project-footer">
+                <div class="project-stats">
+                  <div class="stat-item">
+                    <i class="el-icon-view"></i>
+                    <span>{{ project.viewCount || 0 }}</span>
+                  </div>
+                  <div class="stat-item like-item" :class="{ 'liked': project.isLiked }" @click.stop="handleProjectLike(project)">
+                    <i class="el-icon-star-off"></i>
+                    <span>{{ project.likeCount || 0 }}</span>
+                  </div>
+                </div>
+                
+                <div class="project-actions">
+                  <el-button 
+                    v-if="project.demoUrl" 
+                    type="primary" 
+                    size="mini" 
+                    @click.stop="handleProjectPreview(project)"
+                  >
+                    <i class="el-icon-link"></i>
+                    预览
+                  </el-button>
+                  <el-button 
+                    v-if="project.githubUrl" 
+                    type="default" 
+                    size="mini" 
+                    @click.stop="handleProjectSource(project)"
+                  >
+                    <i class="el-icon-document"></i>
+                    源码
+                  </el-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -190,6 +339,11 @@ export default {
       viewCount: 0,
       articles: [],
       loading: true,
+      // 项目相关数据
+      projects: [],
+      displayedProjects: [],
+      projectsLoading: true,
+      selectedProjectFilter: 'completed',
       siteSettings: {
         site_title: '博客系统',
         site_description: '记录生活，分享思考',
@@ -217,6 +371,7 @@ export default {
     
     await this.loadSiteSettings()
     await this.fetchData()
+    await this.fetchProjects()
   },
   methods: {
     ...mapActions(['logout']),
@@ -295,10 +450,6 @@ export default {
             let coverUrl = ''
             if (article.cover && article.cover.trim() !== '') {
               coverUrl = article.cover.trim()
-              // 如果是相对路径，转换为完整URL
-              if (!coverUrl.startsWith('http')) {
-                coverUrl = `http://localhost:8080${coverUrl.startsWith('/') ? '' : '/'}${coverUrl}`
-              }
             }
             
             return {
@@ -368,6 +519,171 @@ export default {
       event.target.style.display = 'none'
       // 或者设置默认图片
       // event.target.src = '/default-cover.jpg'
+    },
+
+    // 项目相关方法
+    async fetchProjects() {
+      try {
+        this.projectsLoading = true
+        const response = await api.project.getList()
+        if (response.code === 200) {
+          this.projects = response.data || []
+          this.filterProjects(this.selectedProjectFilter)
+        }
+      } catch (error) {
+        console.error('获取项目列表失败:', error)
+        this.projects = []
+        this.displayedProjects = []
+      } finally {
+        this.projectsLoading = false
+      }
+    },
+
+    filterProjects(filter) {
+      this.selectedProjectFilter = filter
+      
+      switch (filter) {
+        case 'completed':
+          this.displayedProjects = this.projects.filter(project => project.status === 'completed')
+          break
+        case 'developing':
+          this.displayedProjects = this.projects.filter(project => project.status === 'developing')
+          break
+        case 'planning':
+          this.displayedProjects = this.projects.filter(project => project.status === 'planning')
+          break
+        case 'maintenance':
+          this.displayedProjects = this.projects.filter(project => project.status === 'maintenance')
+          break
+        case 'all':
+        default:
+          this.displayedProjects = [...this.projects]
+          break
+      }
+      
+      // 限制显示数量，避免页面过长
+      if (this.displayedProjects.length > 8) {
+        this.displayedProjects = this.displayedProjects.slice(0, 8)
+      }
+    },
+
+    getTechnologies(techString) {
+      if (!techString) return []
+      return techString.split(',').map(tech => tech.trim()).filter(tech => tech)
+    },
+
+    viewProjectDetail(project) {
+      // 可以跳转到项目详情页面或显示详情弹窗
+      if (project.demoUrl) {
+        this.openProjectUrl(project.demoUrl)
+      } else if (project.githubUrl) {
+        this.openProjectUrl(project.githubUrl)
+      } else {
+        this.$message.info('项目详情功能开发中...')
+      }
+    },
+
+    openProjectUrl(url) {
+      if (url) {
+        window.open(url, '_blank')
+      }
+    },
+
+    getStatusType(status) {
+      const statusMap = {
+        'planning': 'info',
+        'developing': 'warning', 
+        'completed': 'success',
+        'maintenance': 'primary'
+      }
+      return statusMap[status] || 'info'
+    },
+
+    getStatusText(status) {
+      const statusMap = {
+        'planning': '规划中',
+        'developing': '开发中',
+        'completed': '已完成',
+        'maintenance': '维护中'
+      }
+      return statusMap[status] || '未知'
+    },
+
+    // 计算项目周期
+    calculateProjectDuration(startDate, endDate) {
+      if (!startDate) return '未知';
+      
+      const start = new Date(startDate);
+      const end = endDate ? new Date(endDate) : new Date();
+      
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 30) {
+        return `${diffDays}天`;
+      } else if (diffDays < 365) {
+        const months = Math.floor(diffDays / 30);
+        const remainingDays = diffDays % 30;
+        return remainingDays > 0 ? `${months}个月${remainingDays}天` : `${months}个月`;
+      } else {
+        const years = Math.floor(diffDays / 365);
+        const remainingDays = diffDays % 365;
+        const months = Math.floor(remainingDays / 30);
+        return months > 0 ? `${years}年${months}个月` : `${years}年`;
+      }
+    },
+
+    // 增加项目浏览量（静默增加，不显示消息）
+    async incrementProjectView(project) {
+      try {
+        await this.$api.project.incrementView(project.id);
+        project.viewCount = (project.viewCount || 0) + 1;
+      } catch (error) {
+        console.error('增加浏览量失败:', error);
+      }
+    },
+
+    // 处理项目点赞切换
+    async handleProjectLike(project) {
+      try {
+        const response = await this.$api.project.toggleLike(project.id);
+        if (response.data && response.data.success) {
+          project.likeCount = response.data.likeCount;
+          project.isLiked = response.data.liked;
+          
+          if (response.data.liked) {
+            this.$message.success('点赞成功');
+          } else {
+            this.$message.success('取消点赞');
+          }
+        }
+      } catch (error) {
+        console.error('点赞操作失败:', error);
+        this.$message.error('点赞操作失败');
+      }
+    },
+
+    // 处理项目卡片点击
+    async handleProjectCardClick(project) {
+      await this.incrementProjectView(project);
+      // 如果有预览链接，优先打开预览，否则打开源码
+      if (project.demoUrl) {
+        this.openProjectUrl(project.demoUrl);
+      } else if (project.githubUrl) {
+        this.openProjectUrl(project.githubUrl);
+      }
+    },
+
+    // 处理项目预览按钮点击
+    async handleProjectPreview(project) {
+      await this.incrementProjectView(project);
+      this.openProjectUrl(project.demoUrl);
+    },
+
+    // 处理项目源码按钮点击
+    async handleProjectSource(project) {
+      await this.incrementProjectView(project);
+      this.openProjectUrl(project.githubUrl);
     }
   }
 }
@@ -872,6 +1188,251 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* 项目区域样式 */
+.projects-section {
+  margin-bottom: 80px;
+}
+
+.project-filters {
+  display: flex;
+  gap: 10px;
+}
+
+.projects-waterfall {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.project-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.project-card:hover::before {
+  transform: scaleX(1);
+}
+
+.project-header {
+  margin-bottom: 16px;
+}
+
+.project-status {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.project-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.project-subtitle {
+  color: #667eea;
+  font-size: 0.95rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.project-content {
+  margin-bottom: 20px;
+}
+
+.project-description {
+  color: #5a6c7d;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.project-technologies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tech-tag {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.project-timeline {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+}
+
+.timeline-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.timeline-value {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.project-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.stat-item:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+.like-item {
+  color: #dc3545;
+}
+
+.like-item.liked {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.like-item.liked i {
+  color: #e74c3c;
+}
+
+.project-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #8492a6;
+}
+
+.project-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.project-actions .el-button {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.project-actions .el-button--primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+}
+
+.project-actions .el-button--default {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #6c757d;
+}
+
+.project-actions .el-button--default:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .projects-waterfall {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .projects-waterfall {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .project-card {
+    padding: 20px;
+  }
+  
+  .project-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .project-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .project-filters {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
 
 /* 响应式设计 */

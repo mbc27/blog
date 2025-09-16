@@ -43,6 +43,16 @@ public class ArticleVo {
     private Long categoryId;
 
     /**
+     * 分类名称
+     */
+    private String categoryName;
+
+    /**
+     * 文章标签
+     */
+    private java.util.List<String> tags;
+
+    /**
      * 作者ID
      */
     private Long userId;

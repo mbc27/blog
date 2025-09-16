@@ -125,7 +125,7 @@ export default {
           page: this.pagination.current,
           size: this.pagination.size
         }
-        const response = await this.$axios.get('/api/friend/list', { params })
+        const response = await this.$axios.get('/friend/list', { params })
         if (response.data.code === 200) {
           this.friendList = response.data.data.records
           this.pagination.total = response.data.data.total
@@ -164,7 +164,7 @@ export default {
           type: 'warning'
         })
         
-        const response = await this.$axios.delete(`/api/friend/${row.id}`)
+        const response = await this.$axios.delete(`/friend/${row.id}`)
         if (response.data.code === 200) {
           this.$message.success('删除成功')
           this.getFriendList()
@@ -181,7 +181,7 @@ export default {
         if (valid) {
           this.submitting = true
           try {
-            const url = this.form.id ? '/api/friend/update' : '/api/friend/create'
+            const url = this.form.id ? '/friend/update' : '/friend/create'
             const response = await this.$axios.post(url, this.form)
             if (response.data.code === 200) {
               this.$message.success(this.form.id ? '更新成功' : '添加成功')
@@ -199,6 +199,27 @@ export default {
 
     handleDialogClosed() {
       this.$refs.form.clearValidate()
+    },
+
+    handleDialogClose(done) {
+      // 检查表单是否有未保存的更改
+      const hasContent = this.form.name || this.form.url || this.form.avatar || this.form.description
+      
+      if (hasContent && !this.form.id) {
+        this.$confirm('确认关闭？未保存的更改将丢失', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // 重置表单
+          this.$refs.form && this.$refs.form.resetFields()
+          done()
+        }).catch(() => {
+          // 用户取消关闭
+        })
+      } else {
+        done()
+      }
     },
 
     handleSizeChange(size) {

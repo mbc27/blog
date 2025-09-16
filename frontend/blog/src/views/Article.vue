@@ -455,11 +455,11 @@ export default {
       let itemWidth = availableWidth
       const gap = 20
       
-      if (availableWidth >= 1200) {
+      if (availableWidth >= 900) {
         columns = 3
         // 重新计算，确保右侧紧贴
         itemWidth = Math.floor((availableWidth - gap * (columns - 1)) / columns)
-      } else if (availableWidth >= 700) {
+      } else if (availableWidth >= 600) {
         columns = 2
         // 重新计算，确保右侧紧贴
         itemWidth = Math.floor((availableWidth - gap * (columns - 1)) / columns)
@@ -602,6 +602,12 @@ export default {
   min-height: calc(100vh - 70px);
 }
 
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 .filter-container {
   background: white;
   border-radius: 15px;
@@ -708,7 +714,7 @@ h1:before {
 .articles-masonry-grid {
   position: relative;
   width: 100%;
-  padding: 20px 0 20px 20px;
+  padding: 20px 0;
   box-sizing: border-box;
 }
 
@@ -716,7 +722,7 @@ h1:before {
   background: white;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+  padding: 20px;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -741,12 +747,12 @@ h1:before {
 }
 
 .article-header {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .article-title {
-  margin: 0 0 15px 0;
-  font-size: 22px;
+  margin: 0 0 12px 0;
+  font-size: 18px;
   /* 标题文字溢出处理 */
   overflow: hidden;
   text-overflow: ellipsis;
@@ -754,7 +760,7 @@ h1:before {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   line-height: 1.4;
-  max-height: 62px;
+  max-height: 50px;
 }
 
 .article-title a {
@@ -782,10 +788,10 @@ h1:before {
 }
 
 .article-cover {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   border-radius: 10px;
   overflow: hidden;
-  height: 180px;
+  height: 150px;
   position: relative;
 }
 
@@ -818,8 +824,8 @@ h1:before {
 
 .article-summary {
   color: #666;
-  line-height: 1.8;
-  margin-bottom: 25px;
+  line-height: 1.6;
+  margin-bottom: 15px;
   /* 摘要文字溢出处理 */
   overflow: hidden;
   text-overflow: ellipsis;
@@ -827,6 +833,7 @@ h1:before {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   flex-grow: 1;
+  font-size: 14px;
 }
 
 .article-footer {
