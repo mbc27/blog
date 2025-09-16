@@ -166,7 +166,7 @@
               :headers="uploadHeaders"
               accept="image/*">
               <div class="qr-preview" v-if="settings.wechatQrCode">
-                <img :src="settings.wechatQrCode" alt="微信二维码">
+                <img :src="getImageUrl(settings.wechatQrCode)" alt="微信二维码" @error="handleImageError">
                 <div class="qr-overlay">
                   <i class="el-icon-edit"></i>
                   <span>更换二维码</span>
@@ -194,7 +194,7 @@
               :headers="uploadHeaders"
               accept="image/*">
               <div class="qr-preview" v-if="settings.wechatPublicQrCode">
-                <img :src="settings.wechatPublicQrCode" alt="微信公众号二维码">
+                <img :src="getImageUrl(settings.wechatPublicQrCode)" alt="微信公众号二维码" @error="handleImageError">
                 <div class="qr-overlay">
                   <i class="el-icon-edit"></i>
                   <span>更换二维码</span>
@@ -260,7 +260,7 @@ export default {
         wechatQrCode: '',
         wechatPublicQrCode: ''
       },
-      uploadUrl: (process.env.VUE_APP_BASE_API || 'http://localhost:8080/api') + '/upload',
+      uploadUrl: '/upload',
       uploadHeaders: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       },
@@ -431,9 +431,16 @@ export default {
     handleWechatQRSuccess(response) {
       console.log('微信二维码上传响应:', response)
       if (response.code === 200) {
-        this.settings.wechatQrCode = response.data.url
+        let qrUrl = response.data.url;
+        
+        // 如果返回的是完整URL，转换为相对路径以使用前端代理
+        if (qrUrl.startsWith('http://localhost:8080')) {
+          qrUrl = qrUrl.replace('http://localhost:8080', '');
+        }
+        
+        this.settings.wechatQrCode = qrUrl;
         this.$message.success('微信二维码上传成功')
-        console.log('设置微信二维码URL:', response.data.url)
+        console.log('设置微信二维码URL:', qrUrl)
         // 自动保存设置
         this.saveSettings()
       } else {
@@ -445,9 +452,16 @@ export default {
     handleWechatPublicQRSuccess(response) {
       console.log('微信公众号二维码上传响应:', response)
       if (response.code === 200) {
-        this.settings.wechatPublicQrCode = response.data.url
+        let qrUrl = response.data.url;
+        
+        // 如果返回的是完整URL，转换为相对路径以使用前端代理
+        if (qrUrl.startsWith('http://localhost:8080')) {
+          qrUrl = qrUrl.replace('http://localhost:8080', '');
+        }
+        
+        this.settings.wechatPublicQrCode = qrUrl;
         this.$message.success('微信公众号二维码上传成功')
-        console.log('设置微信公众号二维码URL:', response.data.url)
+        console.log('设置微信公众号二维码URL:', qrUrl)
         // 自动保存设置
         this.saveSettings()
       } else {
@@ -477,6 +491,39 @@ export default {
         this.settings.wechatPublicQrCode = ''
         this.$message.success('删除成功')
       }).catch(() => {})
+    },
+    
+    // 获取图片URL
+    getImageUrl(url) {
+      if (!url) return '';
+      
+      // 如果是完整URL，转换为相对路径
+      if (url.startsWith('http://localhost:8080')) {
+        return url.replace('http://localhost:8080', '');
+      }
+      
+      // 确保以/开头
+      if (!url.startsWith('/')) {
+        url = '/' + url;
+      }
+      
+      // 确保有正确的路径前缀
+      if (!url.startsWith('/images/') && !url.startsWith('/uploads/')) {
+        url = '/images' + url;
+      }
+      
+      return url;
+    },
+    
+    // 图片加载错误处理
+    handleImageError(event) {
+      console.error('图片加载失败:', event.target.src);
+      // 设置默认占位符
+      event.target.style.backgroundColor = '#f5f5f5';
+      event.target.style.display = 'flex';
+      event.target.style.alignItems = 'center';
+      event.target.style.justifyContent = 'center';
+      event.target.innerHTML = '<span style="color: #999;">图片加载失败</span>';
     }
   }
 }

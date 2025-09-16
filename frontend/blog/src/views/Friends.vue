@@ -255,6 +255,12 @@ export default {
   min-height: calc(100vh - 70px);
 }
 
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 h1 {
   color: #2c3e50;
   margin-bottom: 30px;

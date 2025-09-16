@@ -4,34 +4,49 @@ import router from './router'
 import store from './store'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import './assets/css/global.css'
-import './assets/css/mobile-fix.css'
-import './assets/css/admin-layout.css'
-import './assets/css/emoji-popover.css'
-import './assets/css/dialog-fix.css'
-import ScrollReset from './utils/scrollReset'
+import axios from 'axios'
+import api from './api'
+
+// 配置axios
+axios.defaults.baseURL = process.env.VUE_APP_BASE_API || 'http://localhost:8080/api'
+axios.defaults.timeout = 10000
+
+// 请求拦截器
+axios.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
+    return config
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
+
+// 响应拦截器
+axios.interceptors.response.use(
+  response => {
+    return response
+  },
+  error => {
+    if (error.response && error.response.status === 401) {
+      // 清除token并跳转到登录页
+      localStorage.removeItem('token')
+      store.dispatch('logout')
+      router.push('/login')
+    }
+    return Promise.reject(error)
+  }
+)
+
+Vue.prototype.$axios = axios
+Vue.prototype.$api = api
 
 Vue.use(ElementUI)
-Vue.use(ScrollReset)
-Vue.config.productionTip = false
 
-// 全局错误处理器
-Vue.config.errorHandler = (err, vm, info) => {
-  console.error('Vue Error:', err)
-  console.error('Component:', vm)
-  console.error('Info:', info)
-  
-  // 特别处理 getBoundingClientRect 错误
-  if (err.message && err.message.includes('getBoundingClientRect')) {
-    console.warn('DOM element access error caught and handled')
-    return
-  }
-  
-  // 其他错误可以选择性地显示给用户
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Unhandled Vue error:', err)
-  }
-}
+Vue.config.productionTip = false
 
 new Vue({
   router,

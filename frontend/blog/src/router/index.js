@@ -153,18 +153,30 @@ const routes = [
         component: () => import('../views/admin/AboutManagement.vue'),
         meta: { title: '关于我管理' }
       },
-        {
-          path: 'friend-links',
-          name: 'FriendLinkManagement',
-          component: () => import('@/views/admin/FriendLinkManagement.vue'),
-          meta: { title: '友链管理', requiresAuth: true, requiresAdmin: true }
-        },
-        {
-          path: 'users',
-          name: 'UserManagement',
-          component: () => import('@/views/admin/UserManagement.vue'),
-          meta: { title: '用户管理', requiresAuth: true, requiresAdmin: true }
-        }
+      {
+        path: 'friend-links',
+        name: 'FriendLinkManagement',
+        component: () => import('@/views/admin/FriendLinkManagement.vue'),
+        meta: { title: '友链管理', requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'users',
+        name: 'UserManagement',
+        component: () => import('@/views/admin/UserManagement.vue'),
+        meta: { title: '用户管理', requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'image-test',
+        name: 'ImageTest',
+        component: () => import('@/views/test/ImageTest.vue'),
+        meta: { title: '图片URL测试', requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'upload-test',
+        name: 'ImageUploadTest',
+        component: () => import('@/views/test/ImageUploadTest.vue'),
+        meta: { title: '图片上传测试', requiresAuth: true, requiresAdmin: true }
+      }
     ]
   },
   {

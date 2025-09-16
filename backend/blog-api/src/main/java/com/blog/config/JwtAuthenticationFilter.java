@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         // 如果是静态资源请求，直接放行
         String requestURI = request.getRequestURI();
-        if (requestURI.startsWith("/images/") || requestURI.startsWith("/uploads/")) {
+        if (isStaticResource(requestURI)) {
             chain.doFilter(request, response);
             return;
         }
@@ -99,5 +99,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         chain.doFilter(request, response);
+    }
+
+    /**
+     * 判断是否为静态资源请求
+     */
+    private boolean isStaticResource(String requestURI) {
+        // 常见的静态资源路径
+        if (requestURI.startsWith("/images/") || 
+            requestURI.startsWith("/uploads/") ||
+            requestURI.startsWith("/static/") ||
+            requestURI.startsWith("/css/") ||
+            requestURI.startsWith("/js/") ||
+            requestURI.startsWith("/favicon.ico")) {
+            return true;
+        }
+        
+        // 检查是否为图片文件扩展名
+        String lowerURI = requestURI.toLowerCase();
+        if (lowerURI.endsWith(".jpg") || 
+            lowerURI.endsWith(".jpeg") || 
+            lowerURI.endsWith(".png") || 
+            lowerURI.endsWith(".gif") || 
+            lowerURI.endsWith(".bmp") || 
+            lowerURI.endsWith(".webp") || 
+            lowerURI.endsWith(".svg") ||
+            lowerURI.endsWith(".ico")) {
+            return true;
+        }
+        
+        // 检查其他静态资源文件
+        if (lowerURI.endsWith(".css") || 
+            lowerURI.endsWith(".js") || 
+            lowerURI.endsWith(".html") || 
+            lowerURI.endsWith(".htm") ||
+            lowerURI.endsWith(".txt") ||
+            lowerURI.endsWith(".pdf")) {
+            return true;
+        }
+        
+        return false;
     }
 }

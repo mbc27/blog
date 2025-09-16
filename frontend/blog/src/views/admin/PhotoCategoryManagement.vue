@@ -154,7 +154,7 @@ export default {
       }
       
       const token = localStorage.getItem('token')
-      axios.get('/api/admin/photo/categories', { 
+      axios.get('/admin/photo/categories', { 
         params,
         headers: {
           'Authorization': token ? `Bearer ${token}` : ''
@@ -223,7 +223,7 @@ export default {
         type: 'warning'
       }).then(() => {
         const token = localStorage.getItem('token')
-        axios.delete(`/api/admin/photo/categories/${row.id}`, {
+        axios.delete(`/admin/photo/categories/${row.id}`, {
           headers: {
             'Authorization': token ? `Bearer ${token}` : ''
           }
@@ -259,7 +259,7 @@ export default {
         if (valid) {
           this.submitLoading = true
           const method = this.categoryForm.id ? 'put' : 'post'
-          const url = this.categoryForm.id ? `/api/admin/photo/categories/${this.categoryForm.id}` : '/api/admin/photo/categories'
+          const url = this.categoryForm.id ? `/admin/photo/categories/${this.categoryForm.id}` : '/admin/photo/categories'
           
           const token = localStorage.getItem('token')
           const config = {
@@ -285,6 +285,26 @@ export default {
           return false
         }
       })
+    },
+    handleDialogClose(done) {
+      // 检查表单是否有未保存的更改
+      const hasContent = this.categoryForm.categoryName || this.categoryForm.description
+      
+      if (hasContent && !this.categoryForm.id) {
+        this.$confirm('确认关闭？未保存的更改将丢失', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // 重置表单
+          this.$refs.categoryForm && this.$refs.categoryForm.resetFields()
+          done()
+        }).catch(() => {
+          // 用户取消关闭
+        })
+      } else {
+        done()
+      }
     }
   }
 }

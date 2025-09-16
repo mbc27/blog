@@ -147,7 +147,7 @@ export default {
       }
       
       try {
-        const response = await axios.get('/api/article/pending', { 
+        const response = await axios.get('/article/pending', { 
           params,
           headers: {
             'Authorization': this.token
@@ -204,7 +204,7 @@ export default {
         const batch = articleIds.slice(i, i + batchSize)
         const promises = batch.map(async (articleId) => {
           try {
-            const response = await axios.get('/api/comment/list', {
+            const response = await axios.get('/comment/list', {
               params: {
                 articleId: articleId,
                 current: 1,
@@ -255,7 +255,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        axios.put(`/api/article/approve/${row.id}`, {}, {
+        axios.put(`/article/approve/${row.id}`, {}, {
           headers: {
             'Authorization': this.token
           }
@@ -283,7 +283,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        axios.put(`/api/article/reject/${row.id}`, {}, {
+        axios.put(`/article/reject/${row.id}`, {}, {
           headers: {
             'Authorization': this.token
           }

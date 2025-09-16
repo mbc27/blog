@@ -68,7 +68,7 @@
           <template slot-scope="scope">
             <el-image
               v-if="scope.row.avatar"
-              :src="scope.row.avatar"
+              :src="getAvatarUrl(scope.row.avatar)"
               style="width: 30px; height: 30px; border-radius: 50%"
               fit="cover"
             ></el-image>
@@ -149,7 +149,7 @@
           <el-descriptions-item label="头像" :span="2">
             <el-image
               v-if="currentFriendLink.avatar"
-              :src="currentFriendLink.avatar"
+              :src="getAvatarUrl(currentFriendLink.avatar)"
               style="width: 60px; height: 60px; border-radius: 50%"
               fit="cover"
             ></el-image>
@@ -447,7 +447,32 @@ export default {
       })
     },
 
+    // 处理编辑对话框关闭
+    handleEditDialogClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
+    },
 
+    // 获取头像URL
+    getAvatarUrl(avatar) {
+      if (!avatar) return ''
+      
+      // 如果已经是完整的URL，直接返回
+      if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+        return avatar
+      }
+      
+      // 如果是相对路径，添加后端服务器地址
+      if (avatar.startsWith('/')) {
+        return `http://localhost:8080${avatar}`
+      }
+      
+      // 其他情况，添加images路径
+      return `http://localhost:8080/images/${avatar}`
+    }
   }
 }
 </script>

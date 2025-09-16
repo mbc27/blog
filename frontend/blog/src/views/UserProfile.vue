@@ -20,13 +20,13 @@
         <el-form-item label="头像">
           <el-upload
             class="avatar-uploader"
-            action="http://localhost:8080/api/upload/avatar"
+            :action="uploadActionUrl"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :on-error="handleAvatarError"
             :before-upload="beforeAvatarUpload"
             :headers="uploadHeaders">
-            <img v-if="userForm.avatar" :src="userForm.avatar" class="avatar">
+            <img v-if="userForm.avatar" :src="getImageUrl(userForm.avatar)" class="avatar" @error="handleImageError">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
@@ -40,6 +40,7 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import { getImageUrl, handleImageError } from '@/utils/imageUtils';
 
 export default {
   name: 'UserProfile',
@@ -71,6 +72,9 @@ export default {
   },
   computed: {
     ...mapGetters(['user']),
+    uploadActionUrl() {
+      return 'http://localhost:8080/api/upload'
+    },
     uploadHeaders() {
       const token = localStorage.getItem('token')
       return token ? { 'Authorization': `Bearer ${token}` } : {}
@@ -96,7 +100,7 @@ export default {
           this.userForm = { ...this.user };
         } else {
           // 否则从API获取
-          const response = await this.$axios.get('/api/user/profile/current');
+          const response = await this.$axios.get('/user/profile/current');
           if (response.data.code === 200) {
             this.userForm = response.data.data;
           }
@@ -139,9 +143,12 @@ export default {
     handleAvatarSuccess(res) {
       console.log('头像上传响应:', res);
       if (res.code === 200) {
-        // 后端返回的data是一个对象，包含url字段
-        this.userForm.avatar = res.data.url;
+        // 使用统一的图片URL处理函数
+        this.userForm.avatar = getImageUrl(res.data.url);
         this.$message.success('头像更新成功！');
+        
+        // 强制更新组件显示
+        this.$forceUpdate();
       } else {
         this.$message.error('头像上传失败，请重试');
       }
@@ -165,6 +172,16 @@ export default {
     handleAvatarError(err) {
       console.error('头像上传失败:', err);
       this.$message.error('头像上传失败，请检查网络连接后重试');
+    },
+    
+    // 获取图片URL
+    getImageUrl(url) {
+      return getImageUrl(url);
+    },
+    
+    // 图片加载错误处理
+    handleImageError(event) {
+      handleImageError(event);
     }
   }
 };

@@ -160,12 +160,60 @@ public class AboutMeController {
      * 项目点赞
      */
     @PostMapping("/projects/{id}/like")
-    public Result likeProject(@PathVariable Long id, @RequestParam(required = false) Long userId, 
-                             @RequestParam(required = false) String ipAddress) {
-        boolean success = projectService.likeProject(id, userId, ipAddress);
-        if (success) {
-            return Result.success("点赞成功");
+    public Result likeProject(@PathVariable Long id, 
+                             @RequestParam(required = false) Long userId, 
+                             @RequestParam(required = false) String ipAddress,
+                             javax.servlet.http.HttpServletRequest request) {
+        
+        // 如果没有传递IP地址，从请求中获取
+        if (ipAddress == null || ipAddress.trim().isEmpty()) {
+            ipAddress = getClientIpAddress(request);
         }
-        return Result.error("点赞失败");
+        
+        // 如果没有传递用户ID，尝试从当前认证用户获取
+        if (userId == null) {
+            try {
+                org.springframework.security.core.Authentication authentication = 
+                    org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                if (authentication != null && authentication.isAuthenticated() && 
+                    !authentication.getPrincipal().equals("anonymousUser")) {
+                    userId = Long.parseLong(authentication.getName());
+                }
+            } catch (Exception e) {
+                // 忽略异常，使用IP地址进行点赞
+            }
+        }
+        
+        Map<String, Object> result = projectService.toggleLike(id, userId, ipAddress);
+        return Result.success(result);
+    }
+    
+    /**
+     * 获取客户端真实IP地址
+     */
+    private String getClientIpAddress(javax.servlet.http.HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty() && !"unknown".equalsIgnoreCase(xForwardedFor)) {
+            return xForwardedFor.split(",")[0];
+        }
+        
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty() && !"unknown".equalsIgnoreCase(xRealIp)) {
+            return xRealIp;
+        }
+        
+        return request.getRemoteAddr();
+    }
+
+    /**
+     * 增加项目浏览量
+     */
+    @PostMapping("/projects/{id}/view")
+    public Result incrementProjectView(@PathVariable Long id) {
+        boolean success = projectService.incrementViewCount(id);
+        if (success) {
+            return Result.success("浏览量增加成功");
+        }
+        return Result.error("增加浏览量失败");
     }
 }

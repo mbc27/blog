@@ -33,12 +33,22 @@ public interface ProjectService extends IService<Project> {
     /**
      * 增加项目浏览量
      */
-    void incrementViewCount(Long projectId);
+    boolean incrementViewCount(Long projectId);
     
     /**
      * 项目点赞
      */
     boolean likeProject(Long projectId, Long userId, String ipAddress);
+    
+    /**
+     * 切换项目点赞状态
+     */
+    java.util.Map<String, Object> toggleLike(Long projectId, Long userId, String ipAddress);
+    
+    /**
+     * 检查用户是否已点赞项目
+     */
+    boolean isProjectLiked(Long projectId, Long userId, String ipAddress);
     
     /**
      * 添加项目

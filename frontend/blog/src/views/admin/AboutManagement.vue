@@ -22,7 +22,7 @@
                   :before-upload="beforeAvatarUpload"
                   accept="image/*"
                 >
-                  <img v-if="basicInfo.avatar" :src="getFullImageUrl(basicInfo.avatar)" class="avatar-preview">
+                  <img v-if="basicInfo.avatar" :src="getImageUrl(basicInfo.avatar)" class="avatar-preview" @error="handleImageError">
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
                 <div class="avatar-upload-tips">
@@ -188,8 +188,8 @@
             <el-table-column prop="title" label="项目标题" width="200"></el-table-column>
             <el-table-column prop="status" label="状态" width="100">
               <template slot-scope="scope">
-                <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
-                  {{ scope.row.status === 1 ? '进行中' : '已完成' }}
+                <el-tag :type="getStatusType(scope.row.status)">
+                  {{ getStatusText(scope.row.status) }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -372,14 +372,23 @@
         <el-form-item label="项目描述" prop="description">
           <el-input type="textarea" :rows="4" v-model="currentProject.description" placeholder="请输入项目描述"></el-input>
         </el-form-item>
+        <el-form-item label="项目简介" prop="summary">
+          <el-input type="textarea" :rows="2" v-model="currentProject.summary" placeholder="请输入项目简介"></el-input>
+        </el-form-item>
         <el-form-item label="技术栈" prop="technologies">
           <el-input v-model="currentProject.technologies" placeholder="请输入技术栈，用逗号分隔"></el-input>
         </el-form-item>
-        <el-form-item label="项目链接" prop="projectUrl">
-          <el-input v-model="currentProject.projectUrl" placeholder="请输入项目链接"></el-input>
+        <el-form-item label="演示链接" prop="demoUrl">
+          <el-input v-model="currentProject.demoUrl" placeholder="请输入演示链接"></el-input>
         </el-form-item>
-        <el-form-item label="源码链接" prop="sourceUrl">
-          <el-input v-model="currentProject.sourceUrl" placeholder="请输入源码链接"></el-input>
+        <el-form-item label="GitHub链接" prop="githubUrl">
+          <el-input v-model="currentProject.githubUrl" placeholder="请输入GitHub链接"></el-input>
+        </el-form-item>
+        <el-form-item label="我的角色" prop="myRole">
+          <el-input v-model="currentProject.myRole" placeholder="请输入在项目中的角色"></el-input>
+        </el-form-item>
+        <el-form-item label="团队规模" prop="teamSize">
+          <el-input-number v-model="currentProject.teamSize" :min="1" :max="100"></el-input-number>
         </el-form-item>
         <el-form-item label="开始时间" prop="startDate">
           <el-date-picker v-model="currentProject.startDate" type="date" placeholder="选择开始时间" format="yyyy-MM-dd" value-format="yyyy-MM-dd"></el-date-picker>
@@ -387,14 +396,42 @@
         <el-form-item label="结束时间" prop="endDate">
           <el-date-picker v-model="currentProject.endDate" type="date" placeholder="选择结束时间" format="yyyy-MM-dd" value-format="yyyy-MM-dd"></el-date-picker>
         </el-form-item>
-        <el-form-item>
-          <el-checkbox v-model="currentProject.isFeatured">精选项目</el-checkbox>
-        </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item>
+              <el-checkbox v-model="currentProject.isFeatured">精选项目</el-checkbox>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item>
+              <el-checkbox v-model="currentProject.isPublic">公开项目</el-checkbox>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="项目状态" prop="status">
           <el-select v-model="currentProject.status" placeholder="请选择状态">
-            <el-option label="进行中" :value="1"></el-option>
-            <el-option label="已完成" :value="0"></el-option>
+            <el-option label="规划中" value="planning"></el-option>
+            <el-option label="开发中" value="developing"></el-option>
+            <el-option label="已完成" value="completed"></el-option>
+            <el-option label="维护中" value="maintenance"></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="项目类型" prop="projectType">
+          <el-select v-model="currentProject.projectType" placeholder="请选择项目类型">
+            <el-option label="个人项目" value="personal"></el-option>
+            <el-option label="工作项目" value="work"></el-option>
+            <el-option label="学校项目" value="school"></el-option>
+            <el-option label="开源项目" value="open-source"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="主要功能" prop="features">
+          <el-input type="textarea" :rows="3" v-model="currentProject.features" placeholder="请输入主要功能特性"></el-input>
+        </el-form-item>
+        <el-form-item label="技术难点" prop="challenges">
+          <el-input type="textarea" :rows="3" v-model="currentProject.challenges" placeholder="请输入技术难点或挑战"></el-input>
+        </el-form-item>
+        <el-form-item label="项目成果" prop="achievements">
+          <el-input type="textarea" :rows="3" v-model="currentProject.achievements" placeholder="请输入项目成果或收获"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -431,7 +468,7 @@ export default {
       },
       
       // 头像上传相关
-      uploadUrl: 'http://localhost:8080/api/upload/avatar',
+      uploadUrl: '/upload/avatar',
       uploadHeaders: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       },
@@ -537,13 +574,24 @@ export default {
         name: '',
         title: '',
         description: '',
+        summary: '',
         technologies: '',
-        projectUrl: '',
-        sourceUrl: '',
+        demoUrl: '',
+        githubUrl: '',
         startDate: '',
         endDate: '',
         isFeatured: false,
-        status: 1
+        isPublic: true,
+        status: 'developing',
+        projectType: 'personal',
+        teamSize: 1,
+        myRole: '',
+        features: '',
+        challenges: '',
+        achievements: '',
+        viewCount: 0,
+        likeCount: 0,
+        sortOrder: 0
       },
       
       // 表单验证规则
@@ -591,7 +639,7 @@ export default {
     // 加载基本信息
     async loadBasicInfo() {
       try {
-        const response = await axios.get('/api/admin/about/basic')
+        const response = await axios.get('/admin/about/basic')
         if (response.data.code === 200) {
           this.basicInfo = response.data.data || {}
         }
@@ -605,7 +653,7 @@ export default {
       this.$refs.basicForm.validate(async (valid) => {
         if (valid) {
           try {
-            const response = await axios.put('/api/admin/about/basic', this.basicInfo)
+            const response = await axios.put('/admin/about/basic', this.basicInfo)
             if (response.data.code === 200) {
               this.$message.success('保存成功')
             } else {
@@ -622,7 +670,14 @@ export default {
     handleAvatarSuccess(response) {
       console.log('头像上传成功:', response)
       if (response.code === 200) {
-        this.basicInfo.avatar = response.data.url
+        let avatarUrl = response.data.url;
+        
+        // 如果返回的是完整URL，转换为相对路径以使用前端代理
+        if (avatarUrl.startsWith('http://localhost:8080')) {
+          avatarUrl = avatarUrl.replace('http://localhost:8080', '');
+        }
+        
+        this.basicInfo.avatar = avatarUrl;
         this.$message.success('头像上传成功')
         // 自动保存基本信息
         this.saveBasicInfo()
@@ -675,18 +730,67 @@ export default {
     },
     
     // 获取完整的图片URL
+    getImageUrl(url) {
+      if (!url) return ''
+      
+      // 如果是完整URL，转换为相对路径
+      if (url.startsWith('http://localhost:8080')) {
+        return url.replace('http://localhost:8080', '');
+      }
+      
+      // 确保以/开头
+      if (!url.startsWith('/')) {
+        url = '/' + url;
+      }
+      
+      // 确保有正确的路径前缀
+      if (!url.startsWith('/images/') && !url.startsWith('/uploads/')) {
+        url = '/images' + url;
+      }
+      
+      return url;
+    },
+    
+    // 图片加载错误处理
+    handleImageError(event) {
+      console.error('图片加载失败:', event.target.src);
+      event.target.style.backgroundColor = '#f5f5f5';
+      event.target.style.display = 'flex';
+      event.target.style.alignItems = 'center';
+      event.target.style.justifyContent = 'center';
+      event.target.style.color = '#999';
+      event.target.innerHTML = '<span>图片加载失败</span>';
+    },
+    
+    // 向后兼容的方法
     getFullImageUrl(url) {
       if (!url) return ''
-      if (url.startsWith('http')) {
+      
+      // 如果已经是完整URL，转换为相对路径
+      if (url.startsWith('http://localhost:8080')) {
         return url
       }
-      return process.env.VUE_APP_API_BASE_URL + url
+      
+      // 如果是相对路径，添加基础URL
+      const baseURL = process.env.VUE_APP_BASE_API?.replace('/api', '') || 'http://localhost:8080'
+      
+      // 确保URL以/开头
+      if (!url.startsWith('/')) {
+        url = '/' + url
+      }
+      
+      // 如果URL不包含images或uploads路径，添加images前缀
+      if (!url.includes('/images/') && !url.includes('/uploads/')) {
+        url = '/images' + url
+      }
+      
+      return baseURL + url
     },
     
     // 加载工作经历
     async loadWorkExperiences() {
       try {
-        const response = await axios.get('/api/admin/about/work-experience')
+        const response = await axios.get('/admin/about/work-experience')
         if (response.data.code === 200) {
           this.workExperiences = response.data.data || []
         }
@@ -725,9 +829,9 @@ export default {
           try {
             let response
             if (this.currentWork.id) {
-              response = await axios.put(`/api/admin/about/work-experience/${this.currentWork.id}`, this.currentWork)
+              response = await axios.put(`/admin/about/work-experience/${this.currentWork.id}`, this.currentWork)
             } else {
-              response = await axios.post('/api/admin/about/work-experience', this.currentWork)
+              response = await axios.post('/admin/about/work-experience', this.currentWork)
             }
             
             if (response.data.code === 200) {
@@ -752,7 +856,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          const response = await axios.delete(`/api/admin/about/work-experience/${id}`)
+          const response = await axios.delete(`/admin/about/work-experience/${id}`)
           if (response.data.code === 200) {
             this.$message.success('删除成功')
             this.loadWorkExperiences()
@@ -768,7 +872,7 @@ export default {
     // 加载教育背景
     async loadEducations() {
       try {
-        const response = await axios.get('/api/admin/about/education')
+        const response = await axios.get('/admin/about/education')
         if (response.data.code === 200) {
           this.educations = response.data.data || []
         }
@@ -806,9 +910,9 @@ export default {
           try {
             let response
             if (this.currentEducation.id) {
-              response = await axios.put(`/api/admin/about/education/${this.currentEducation.id}`, this.currentEducation)
+              response = await axios.put(`/admin/about/education/${this.currentEducation.id}`, this.currentEducation)
             } else {
-              response = await axios.post('/api/admin/about/education', this.currentEducation)
+              response = await axios.post('/admin/about/education', this.currentEducation)
             }
             
             if (response.data.code === 200) {
@@ -833,7 +937,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          const response = await axios.delete(`/api/admin/about/education/${id}`)
+          const response = await axios.delete(`/admin/about/education/${id}`)
           if (response.data.code === 200) {
             this.$message.success('删除成功')
             this.loadEducations()
@@ -849,7 +953,7 @@ export default {
     // 加载技能
     async loadSkills() {
       try {
-        const response = await axios.get('/api/admin/about/skills')
+        const response = await axios.get('/admin/about/skills')
         if (response.data.code === 200) {
           this.skills = response.data.data || []
         }
@@ -885,9 +989,9 @@ export default {
           try {
             let response
             if (this.currentSkill.id) {
-              response = await axios.put(`/api/admin/about/skills/${this.currentSkill.id}`, this.currentSkill)
+              response = await axios.put(`/admin/about/skills/${this.currentSkill.id}`, this.currentSkill)
             } else {
-              response = await axios.post('/api/admin/about/skills', this.currentSkill)
+              response = await axios.post('/admin/about/skills', this.currentSkill)
             }
             
             if (response.data.code === 200) {
@@ -912,7 +1016,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          const response = await axios.delete(`/api/admin/about/skills/${id}`)
+          const response = await axios.delete(`/admin/about/skills/${id}`)
           if (response.data.code === 200) {
             this.$message.success('删除成功')
             this.loadSkills()
@@ -928,7 +1032,7 @@ export default {
     // 加载兴趣爱好
     async loadInterests() {
       try {
-        const response = await axios.get('/api/admin/about/interests')
+        const response = await axios.get('/admin/about/interests')
         if (response.data.code === 200) {
           this.interests = response.data.data || []
         }
@@ -963,9 +1067,9 @@ export default {
           try {
             let response
             if (this.currentInterest.id) {
-              response = await axios.put(`/api/admin/about/interests/${this.currentInterest.id}`, this.currentInterest)
+              response = await axios.put(`/admin/about/interests/${this.currentInterest.id}`, this.currentInterest)
             } else {
-              response = await axios.post('/api/admin/about/interests', this.currentInterest)
+              response = await axios.post('/admin/about/interests', this.currentInterest)
             }
             
             if (response.data.code === 200) {
@@ -990,7 +1094,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          const response = await axios.delete(`/api/admin/about/interests/${id}`)
+          const response = await axios.delete(`/admin/about/interests/${id}`)
           if (response.data.code === 200) {
             this.$message.success('删除成功')
             this.loadInterests()
@@ -1006,7 +1110,7 @@ export default {
     // 加载项目
     async loadProjects() {
       try {
-        const response = await axios.get('/api/admin/about/projects')
+        const response = await axios.get('/admin/about/projects')
         if (response.data.code === 200) {
           this.projects = response.data.data || []
         }
@@ -1022,13 +1126,24 @@ export default {
         name: '',
         title: '',
         description: '',
+        summary: '',
         technologies: '',
-        projectUrl: '',
-        sourceUrl: '',
+        demoUrl: '',
+        githubUrl: '',
         startDate: '',
         endDate: '',
         isFeatured: false,
-        status: 1
+        isPublic: true,
+        status: 'developing',
+        projectType: 'personal',
+        teamSize: 1,
+        myRole: '',
+        features: '',
+        challenges: '',
+        achievements: '',
+        viewCount: 0,
+        likeCount: 0,
+        sortOrder: 0
       }
       this.projectDialogVisible = true
     },
@@ -1047,9 +1162,9 @@ export default {
           try {
             let response
             if (this.currentProject.id) {
-              response = await axios.put(`/api/admin/about/projects/${this.currentProject.id}`, this.currentProject)
+              response = await axios.put(`/admin/about/projects/${this.currentProject.id}`, this.currentProject)
             } else {
-              response = await axios.post('/api/admin/about/projects', this.currentProject)
+              response = await axios.post('/admin/about/projects', this.currentProject)
             }
             
             if (response.data.code === 200) {
@@ -1074,7 +1189,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          const response = await axios.delete(`/api/admin/about/projects/${id}`)
+          const response = await axios.delete(`/admin/about/projects/${id}`)
           if (response.data.code === 200) {
             this.$message.success('删除成功')
             this.loadProjects()
@@ -1085,6 +1200,15 @@ export default {
           this.$message.error('删除失败')
         }
       })
+    },
+    
+    // 处理项目对话框关闭
+    handleProjectDialogClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
     },
     
     // 获取分类名称
@@ -1098,6 +1222,69 @@ export default {
         6: '其他技能'
       }
       return categories[categoryId] || '未知分类'
+    },
+    
+    // 获取项目状态类型
+    getStatusType(status) {
+      const statusMap = {
+        'planning': 'warning',
+        'developing': 'primary',
+        'completed': 'success',
+        'maintenance': 'info'
+      }
+      return statusMap[status] || 'info'
+    },
+
+    // 获取项目状态文本
+    getStatusText(status) {
+      const statusMap = {
+        'planning': '规划中',
+        'developing': '开发中',
+        'completed': '已完成',
+        'maintenance': '维护中'
+      }
+      return statusMap[status] || '未知'
+    },
+    
+    // 对话框关闭处理方法
+    handleWorkDialogClose(done) {
+      this.$confirm('确认关闭？')
+        .then(() => {
+          done();
+        })
+        .catch(() => {});
+    },
+    
+    handleEducationDialogClose(done) {
+      this.$confirm('确认关闭？')
+        .then(() => {
+          done();
+        })
+        .catch(() => {});
+    },
+    
+    handleSkillDialogClose(done) {
+      this.$confirm('确认关闭？')
+        .then(() => {
+          done();
+        })
+        .catch(() => {});
+    },
+    
+    handleInterestDialogClose(done) {
+      this.$confirm('确认关闭？')
+        .then(() => {
+          done();
+        })
+        .catch(() => {});
+    },
+    
+    handleProjectDialogClose(done) {
+      this.$confirm('确认关闭？')
+        .then(() => {
+          done();
+        })
+        .catch(() => {});
     }
   }
 }

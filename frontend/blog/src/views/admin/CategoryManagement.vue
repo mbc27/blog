@@ -132,7 +132,7 @@ export default {
         size: this.pagination.size
       }
       
-      axios.get('/api/category', { 
+      axios.get('/category', { 
         params,
         headers: {
           Authorization: this.$store.getters.token
@@ -201,7 +201,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        axios.delete(`/api/category/${row.id}`, {
+        axios.delete(`/category/${row.id}`, {
           headers: {
             Authorization: this.$store.getters.token
           }
@@ -221,7 +221,7 @@ export default {
         if (valid) {
           this.submitLoading = true
           const method = this.categoryForm.id ? 'put' : 'post'
-          const url = this.categoryForm.id ? `/api/category/${this.categoryForm.id}` : '/api/category'
+          const url = this.categoryForm.id ? `/category/${this.categoryForm.id}` : '/category'
           
           axios[method](url, this.categoryForm, {
             headers: {
@@ -243,6 +243,20 @@ export default {
         } else {
           return false
         }
+      })
+    },
+    handleDialogClose(done) {
+      // 检查表单是否有未保存的更改
+      this.$confirm('确认关闭？未保存的更改将丢失', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 重置表单
+        this.$refs.categoryForm && this.$refs.categoryForm.resetFields()
+        done()
+      }).catch(() => {
+        // 用户取消关闭
       })
     }
   }

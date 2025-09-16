@@ -297,16 +297,23 @@ export default {
     // 获取完整的图片URL
     getFullImageUrl(url) {
       if (!url) return ''
-      // 如果已经是完整URL，直接返回
-      if (url.startsWith('http')) {
-        return url
+      
+      // 如果是完整URL，转换为相对路径
+      if (url.startsWith('http://localhost:8080')) {
+        return url.replace('http://localhost:8080', '');
       }
-      // 如果是相对路径，添加服务器地址
-      if (url.startsWith('/')) {
-        return `http://localhost:8080${url}`
+      
+      // 确保以/开头
+      if (!url.startsWith('/')) {
+        url = '/' + url;
       }
-      // 如果不是以/开头，也添加服务器地址和/uploads/前缀
-      return `http://localhost:8080/uploads/${url}`
+      
+      // 确保有正确的路径前缀
+      if (!url.startsWith('/images/') && !url.startsWith('/uploads/')) {
+        url = '/images' + url;
+      }
+      
+      return url;
     },
     
     async fetchCategories() {

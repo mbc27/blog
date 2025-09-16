@@ -1,11 +1,13 @@
 package com.blog.util;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -19,14 +21,23 @@ public class FileUtils {
     /**
      * 上传文件保存的本地目录
      */
-    @Value("${file.upload.path:./uploads/}")
+    @Value("${file.upload.path:images/}")
     private String uploadPath;
 
+    @Autowired
+    private UrlDetectionUtils urlDetectionUtils;
+    
     /**
-     * 上传文件的访问URL前缀
+     * 获取博客项目根目录下的上传目录绝对路径
      */
-    @Value("${upload.url-prefix:http://localhost:8080/uploads/}")
-    private String urlPrefix;
+    private String getUploadDirectory() {
+        String projectRoot = System.getProperty("user.dir");
+        // 如果当前在backend/blog-api目录，需要回到博客项目根目录
+        if (projectRoot.endsWith("backend" + File.separator + "blog-api")) {
+            projectRoot = Paths.get(projectRoot).getParent().getParent().toString();
+        }
+        return Paths.get(projectRoot, uploadPath).toString();
+    }
 
     /**
      * 删除文件
@@ -45,28 +56,28 @@ public class FileUtils {
             // 如果是完整URL，提取相对路径
             if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
                 // 从URL中提取文件路径
-                if (fileUrl.contains("/uploads/")) {
-                    filePath = fileUrl.substring(fileUrl.indexOf("/uploads/") + 9); // 去掉 "/uploads/"
+                if (fileUrl.contains("/images/")) {
+                    filePath = fileUrl.substring(fileUrl.indexOf("/images/") + 8); // 去掉 "/images/"
+                } else if (fileUrl.contains("/uploads/")) {
+                    filePath = fileUrl.substring(fileUrl.indexOf("/uploads/") + 9); // 去掉 "/uploads/" (向后兼容)
                 } else if (fileUrl.contains("/upload/")) {
                     filePath = fileUrl.substring(fileUrl.indexOf("/upload/") + 8); // 去掉 "/upload/"
                 } else {
                     return false;
                 }
+            } else if (fileUrl.startsWith("/images/")) {
+                filePath = fileUrl.substring(8); // 去掉 "/images/"
             } else if (fileUrl.startsWith("/uploads/")) {
-                filePath = fileUrl.substring(9); // 去掉 "/uploads/"
+                filePath = fileUrl.substring(9); // 去掉 "/uploads/" (向后兼容)
             } else if (fileUrl.startsWith("/upload/")) {
                 filePath = fileUrl.substring(8); // 去掉 "/upload/"
             } else {
                 filePath = fileUrl;
             }
             
-            // 构建完整的文件路径，确保路径分隔符正确
-            String fullPath;
-            if (uploadPath.endsWith("/") || uploadPath.endsWith("\\")) {
-                fullPath = uploadPath + filePath;
-            } else {
-                fullPath = uploadPath + File.separator + filePath;
-            }
+            // 构建完整的文件路径 - 使用项目根目录的绝对路径
+            String baseUploadDir = getUploadDirectory();
+            String fullPath = Paths.get(baseUploadDir, filePath).toString();
             
             File file = new File(fullPath);
             
@@ -109,18 +120,22 @@ public class FileUtils {
         // 使用UUID重命名文件
         String fileName = UUID.randomUUID().toString().replace("-", "") + suffix;
         
-        // 按日期生成目录
+        // 按日期生成目录 - 使用项目根目录的绝对路径
         String dateDir = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
-        File targetDir = new File(uploadPath + dateDir);
+        String baseUploadDir = getUploadDirectory();
+        String targetDirPath = Paths.get(baseUploadDir, dateDir).toString();
+        File targetDir = new File(targetDirPath);
         if (!targetDir.exists()) {
-            targetDir.mkdirs();
+            boolean created = targetDir.mkdirs();
+            System.out.println("创建上传目录: " + targetDir.getAbsolutePath() + ", 结果: " + created);
         }
         
         // 保存文件
         File targetFile = new File(targetDir, fileName);
+        System.out.println("保存文件到: " + targetFile.getAbsolutePath());
         file.transferTo(targetFile);
         
-        // 返回文件访问URL
-        return urlPrefix + dateDir + "/" + fileName;
+        // 返回文件访问URL - 使用动态检测的URL
+        return urlDetectionUtils.getCurrentUploadUrlPrefix() + dateDir + "/" + fileName;
     }
 }

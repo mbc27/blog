@@ -29,7 +29,7 @@
           <div class="photo-item" v-for="(photo, index) in photos" :key="photo.id">
             <el-card class="el-card is-hover-shadow" :body-style="{ padding: '0px' }">
               <div class="photo-img-container">
-                <img :src="photo.url" class="photo-img" @click="previewPhoto(index)">
+                <img :src="getFullImageUrl(photo.url)" class="photo-img" @click="previewPhoto(index)" @error="handleImageError">
               </div>
               <div class="photo-info">
                 <div class="photo-title">{{ photo.description || '无描述' }}</div>
@@ -76,18 +76,18 @@
         <el-form-item label="照片" prop="url" v-if="!photoForm.id">
           <el-upload
             class="upload-container"
-            action="http://localhost:8080/api/upload/image"
+            :action="uploadActionUrl"
             :headers="uploadHeaders"
             :show-file-list="false"
             :on-success="handleUploadSuccess"
             :before-upload="beforePhotoUpload">
-            <img v-if="photoForm.url" :src="photoForm.url" class="upload-img">
+            <img v-if="photoForm.url" :src="getFullImageUrl(photoForm.url)" class="upload-img" @error="handleImageError">
             <i v-else class="el-icon-plus upload-icon"></i>
             <div class="upload-tip" v-if="!photoForm.url">点击上传照片</div>
           </el-upload>
         </el-form-item>
         <el-form-item label="照片" v-else>
-          <img :src="photoForm.url" class="preview-img">
+          <img :src="getFullImageUrl(photoForm.url)" class="preview-img" @error="handleImageError">
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -104,8 +104,9 @@
 </template>
 
 <script>
-import axios from 'axios'
+import api from '@/api'
 import { mapGetters } from 'vuex'
+import { getImageUrl, handleImageError } from '@/utils/imageUtils'
 
 export default {
   name: 'PhotoManagement',
@@ -140,7 +141,8 @@ export default {
       },
       submitLoading: false,
       previewVisible: false,
-      previewUrl: ''
+      previewUrl: '',
+      uploadActionUrl: ''
     }
   },
   computed: {
@@ -155,30 +157,30 @@ export default {
     this.fetchCategories()
     this.fetchPhotos()
   },
+  mounted() {
+    this.uploadActionUrl = process.env.VUE_APP_BASE_API + '/upload/image'
+    this.fetchCategories()
+    this.fetchPhotos()
+  },
   methods: {
     // 获取完整的图片URL
     getFullImageUrl(url) {
       if (!url) return ''
-      // 如果已经是完整URL，直接返回
-      if (url.startsWith('http')) {
-        return url
-      }
-      // 如果是相对路径，添加服务器地址
-      if (url.startsWith('/')) {
-        return `http://localhost:8080${url}`
-      }
-      // 如果不是以/开头，也添加服务器地址和/uploads/前缀
-      return `http://localhost:8080/uploads/${url}`
+      
+      // 使用统一的图片URL处理函数
+      const processedUrl = getImageUrl(url)
+      
+      // 添加随机参数防止缓存
+      const timestamp = new Date().getTime()
+      const separator = processedUrl.includes('?') ? '&' : '?'
+      
+      return processedUrl + separator + 't=' + timestamp
     },
     fetchCategories() {
-      axios.get('/api/photo/category/list', {
-        headers: {
-          Authorization: this.token
-        }
-      })
+      api.photo.getCategories()
         .then(response => {
-          console.log('Categories response:', response.data)
-          const data = response.data.data || response.data
+          console.log('Categories response:', response)
+          const data = response.data || []
           this.categories = Array.isArray(data) ? data.map(item => ({
             ...item,
             categoryName: item.categoryName || item.name
@@ -199,45 +201,33 @@ export default {
       
       console.log('获取管理员照片列表，参数:', params)
       
-      axios.get('/api/admin/photos', { 
-        params,
-        headers: {
-          Authorization: `Bearer ${this.token}`
-        }
-      })
+      api.photo.getAdminList(params)
         .then(response => {
-          console.log('管理员照片列表响应:', response.data)
+          console.log('管理员照片列表响应:', response)
           
-          if (response.data && response.data.code === 200) {
-            let photoData = []
-            let totalCount = 0
-            
-            if (response.data.data) {
-              if (Array.isArray(response.data.data.records)) {
-                // 分页数据格式
-                photoData = response.data.data.records
-                totalCount = response.data.data.total || 0
-              } else if (Array.isArray(response.data.data)) {
-                // 直接数组格式
-                photoData = response.data.data
-                totalCount = photoData.length
-              }
+          let photoData = []
+          let totalCount = 0
+          
+          if (response.data) {
+            if (Array.isArray(response.data.records)) {
+              // 分页数据格式
+              photoData = response.data.records
+              totalCount = response.data.total || 0
+            } else if (Array.isArray(response.data)) {
+              // 直接数组格式
+              photoData = response.data
+              totalCount = photoData.length
             }
-            
-            // 确保照片URL指向后端服务器
-            this.photos = photoData.map(photo => ({
-              ...photo,
-              url: this.getFullImageUrl(photo.url)
-            }))
-            this.pagination.total = totalCount
-            
-            console.log('处理后的管理员照片数据:', this.photos)
-          } else {
-            console.error('获取照片列表失败:', response.data.message)
-            this.$message.error('获取照片列表失败: ' + (response.data.message || '未知错误'))
-            this.photos = []
-            this.pagination.total = 0
           }
+          
+          // 确保照片URL指向后端服务器
+          this.photos = photoData.map(photo => ({
+            ...photo,
+            url: photo.url // URL会在模板中通过getFullImageUrl处理
+          }))
+          this.pagination.total = totalCount
+          
+          console.log('处理后的管理员照片数据:', this.photos)
         })
         .catch(error => {
           console.error('获取照片列表失败', error)
@@ -303,12 +293,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        const token = localStorage.getItem('token')
-        axios.delete(`/api/admin/photos/${photo.id}`, {
-          headers: {
-            'Authorization': token ? `Bearer ${token}` : ''
-          }
-        })
+        api.photo.delete(photo.id)
           .then(() => {
             this.$message.success('删除成功')
             this.fetchPhotos()
@@ -322,21 +307,9 @@ export default {
     handleUploadSuccess(res) {
       console.log('上传响应:', res);
       if (res.code === 200) {
-        // 后端返回的是一个对象，包含url字段
-        let imageUrl = '';
-        if (res.data && typeof res.data === 'object') {
-          // 如果data是对象，提取url字段
-          imageUrl = res.data.url || '';
-        } else if (typeof res.data === 'string') {
-          // 如果data是字符串，直接使用
-          imageUrl = res.data;
-        } else {
-          // 兜底处理
-          imageUrl = res.message || '';
-        }
-        
-        // 确保URL是字符串类型
-        this.photoForm.url = typeof imageUrl === 'string' ? imageUrl : '';
+        // 使用统一的图片URL处理函数
+        let imageUrl = res.data?.url || res.data || '';
+        this.photoForm.url = getImageUrl(imageUrl);
         this.$message.success('上传成功');
       } else {
         this.$message.error('上传失败: ' + (res.message || '未知错误'));
@@ -358,18 +331,16 @@ export default {
       this.$refs.photoForm.validate((valid) => {
         if (valid) {
           this.submitLoading = true
-          const method = this.photoForm.id ? 'put' : 'post'
-          const url = this.photoForm.id ? `/api/admin/photos/${this.photoForm.id}` : '/api/admin/photos'
           
           console.log('提交照片数据:', this.photoForm)
           
-          axios[method](url, this.photoForm, {
-            headers: {
-              'Authorization': `Bearer ${this.token}`
-            }
-          })
+          const promise = this.photoForm.id 
+            ? api.photo.update(this.photoForm.id, this.photoForm)
+            : api.photo.add(this.photoForm)
+            
+          promise
             .then(response => {
-              console.log('提交照片响应:', response.data)
+              console.log('提交照片响应:', response)
               this.$message.success(this.photoForm.id ? '更新成功' : '添加成功')
               this.dialogVisible = false
               // 重置分页到第一页以确保能看到新添加的照片
@@ -391,8 +362,16 @@ export default {
       })
     },
     previewPhoto(index) {
-      this.previewUrl = this.photos[index].url
+      this.previewUrl = this.getFullImageUrl(this.photos[index].url)
       this.previewVisible = true
+    },
+    
+    // 图片加载错误处理
+    handleImageError(event) {
+      handleImageError(event);
+    },
+    handleDialogClose() {
+      this.dialogVisible = false
     }
   }
 }
