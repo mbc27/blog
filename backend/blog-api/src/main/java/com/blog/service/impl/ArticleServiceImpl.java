@@ -66,7 +66,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (categoryId != null && categoryId > 0) {
             wrapper.eq(Article::getCategoryId, categoryId);
         }
-        // 按创建时间倒序
+        // 按置顶状态倒序（置顶文章在前），然后按创建时间倒序（新文章在前）
         wrapper.orderByDesc(Article::getIsTop);
         wrapper.orderByDesc(Article::getCreateTime);
 
@@ -129,7 +129,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (categoryId != null && categoryId > 0) {
             wrapper.eq(Article::getCategoryId, categoryId);
         }
-        // 按创建时间倒序
+        // 按置顶状态倒序（置顶文章在前），然后按创建时间倒序（新文章在前）
         wrapper.orderByDesc(Article::getIsTop);
         wrapper.orderByDesc(Article::getCreateTime);
 
@@ -168,7 +168,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         // 只查询待审核的文章
         wrapper.eq(Article::getStatus, 2);
         
-        // 按创建时间倒序
+        // 按创建时间倒序（新文章在前）
         wrapper.orderByDesc(Article::getCreateTime);
 
         // 查询文章列表

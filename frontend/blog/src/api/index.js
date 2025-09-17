@@ -664,14 +664,46 @@ export default {
       return service.get(`/ai/session/${sessionId}/messages`, { params })
     },
     
-    // 写作辅助
-    assistWriting(data) {
-      return service.post('/ai/writing/assist', data)
+    // 写作辅助 - 智能续写
+    continueWriting(data) {
+      return service.post('/ai/writing/continue', data, {
+        timeout: 120000
+      })
     },
     
-    // 文章润色
-    polishArticle(data) {
-      return service.post('/ai/writing/polish', data)
+    // 根据主题生成文章
+    generateArticle(data) {
+      return service.post('/ai/writing/generate-article', data, {
+        timeout: 120000
+      })
+    },
+    
+    // 生成文章大纲
+    generateOutline(data) {
+      return service.post('/ai/writing/generate-outline', data, {
+        timeout: 120000
+      })
+    },
+    
+    // 内容优化
+    optimizeContent(data) {
+      return service.post('/ai/writing/optimize-content', data, {
+        timeout: 120000
+      })
+    },
+    
+    // 续写内容
+    continueWriting(data) {
+      return service.post('/ai/writing/continue-writing', data, {
+        timeout: 120000
+      })
+    },
+    
+    // 扩展段落
+    expandParagraph(data) {
+      return service.post('/ai/writing/expand-paragraph', data, {
+        timeout: 120000
+      })
     },
     
     // 测试AI连接

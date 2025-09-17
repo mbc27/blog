@@ -29,6 +29,14 @@ module.exports = defineConfig({
         ws: false,
         secure: false,
         logLevel: 'debug'
+      },
+      // 上传接口代理
+      '/upload': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        ws: false,
+        secure: false,
+        logLevel: 'debug'
       }
     }
   },

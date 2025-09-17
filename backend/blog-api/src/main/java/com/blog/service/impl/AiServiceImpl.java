@@ -33,6 +33,10 @@ public class AiServiceImpl implements AiService {
 
     @Override
     public String sendChatRequest(List<Map<String, String>> messages, String systemPrompt) {
+        return sendChatRequest(messages, systemPrompt, null);
+    }
+
+    public String sendChatRequest(List<Map<String, String>> messages, String systemPrompt, Integer maxTokens) {
         try {
             // 检查AI功能是否启用
             if (!aiConfigService.isAiEnabled()) {
@@ -71,7 +75,9 @@ public class AiServiceImpl implements AiService {
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", config.get("ai.model"));
             requestBody.put("messages", requestMessages);
-            requestBody.put("max_tokens", Integer.parseInt(config.getOrDefault("ai.max.tokens", "2000")));
+            // 使用自定义maxTokens，如果没有则使用配置值，最后使用默认值
+            int tokenLimit = maxTokens != null ? maxTokens : Integer.parseInt(config.getOrDefault("ai.max.tokens", "2000"));
+            requestBody.put("max_tokens", tokenLimit);
             requestBody.put("temperature", Double.parseDouble(config.getOrDefault("ai.temperature", "0.7")));
             requestBody.put("stream", false);
 
@@ -112,13 +118,18 @@ public class AiServiceImpl implements AiService {
 
     @Override
     public String sendSingleMessage(String message, String systemPrompt) {
+        return sendSingleMessage(message, systemPrompt, null);
+    }
+
+    @Override
+    public String sendSingleMessage(String message, String systemPrompt, Integer maxTokens) {
         List<Map<String, String>> messages = new ArrayList<>();
         Map<String, String> userMessage = new HashMap<>();
         userMessage.put("role", "user");
         userMessage.put("content", message);
         messages.add(userMessage);
         
-        return sendChatRequest(messages, systemPrompt);
+        return sendChatRequest(messages, systemPrompt, maxTokens);
     }
 
     @Override

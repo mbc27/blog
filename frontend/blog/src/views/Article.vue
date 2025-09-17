@@ -285,6 +285,7 @@ export default {
               id: article.id || 0,
               title: article.title || '无标题',
               date: this.formatDate(article.createTime || article.create_time || new Date()),
+              createTime: article.createTime || article.create_time, // 保留原始创建时间用于排序
               views: article.viewCount || article.view_count || 0,
               comments: article.commentCount || article.comment_count || 0,
               summary: article.summary || '暂无摘要',
@@ -293,7 +294,8 @@ export default {
               categoryId: article.categoryId || 0,
               categoryName: '未分类',
               status: article.status || 1, // 默认为已发布状态
-              cover: article.cover || '' // 添加封面图片
+              cover: article.cover || '', // 添加封面图片
+              isTop: article.isTop || 0 // 添加置顶字段
             }
             
             // 尝试获取分类名称
@@ -321,16 +323,33 @@ export default {
             return processedArticle
           })
           
-          // 如果是"我的文章"视图，按审核状态排序（未审核的排在前面）
-          if (this.viewMode === 'self') {
-            this.articles.sort((a, b) => {
+          // 确保文章按正确顺序排序
+          this.articles.sort((a, b) => {
+            // 如果是"我的文章"视图，先按审核状态排序
+            if (this.viewMode === 'self') {
               // 优先级：待审核(2) > 审核不通过(3) > 草稿(0) > 已发布(1)
               const priorityMap = { 2: 0, 3: 1, 0: 2, 1: 3 };
               const priorityA = priorityMap[a.status] !== undefined ? priorityMap[a.status] : 999;
               const priorityB = priorityMap[b.status] !== undefined ? priorityMap[b.status] : 999;
-              return priorityA - priorityB;
-            });
-          }
+              
+              // 如果状态优先级不同，按状态排序
+              if (priorityA !== priorityB) {
+                return priorityA - priorityB;
+              }
+            }
+            
+            // 首先按置顶状态排序（置顶文章在前）
+            const topA = a.isTop || 0;
+            const topB = b.isTop || 0;
+            if (topA !== topB) {
+              return topB - topA; // 置顶的在前
+            }
+            
+            // 然后按创建时间倒序排序（新文章在前）
+            const dateA = new Date(a.createTime || a.date || 0);
+            const dateB = new Date(b.createTime || b.date || 0);
+            return dateB.getTime() - dateA.getTime();
+          });
           
           this.total = total
           console.log('最终文章列表:', this.articles)

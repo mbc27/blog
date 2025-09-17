@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .antMatchers("/images/**").permitAll()
                 .antMatchers("/uploads/**").permitAll() // 允许访问上传的文件
                 .antMatchers("/api/upload/**").permitAll() // 允许文件上传接口
+                .antMatchers("/upload/**").permitAll() // 允许简化的上传接口
                 .antMatchers("/api/public/**").permitAll()
                 .antMatchers("/api/auth/**").permitAll() // 允许认证相关的API
                 .antMatchers("/api/about/**").permitAll() // 允许访问关于我页面

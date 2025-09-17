@@ -37,4 +37,9 @@ public interface AiService {
      * 获取模型信息
      */
     Map<String, Object> getModelInfo();
+
+    /**
+     * 发送单条消息请求（带自定义参数）
+     */
+    String sendSingleMessage(String message, String systemPrompt, Integer maxTokens);
 }

@@ -368,7 +368,7 @@ export default {
         aiWritingPrompt: '你是一个专业的写作助手。请根据用户提供的内容和要求，提供具体的写作建议和改进意见。',
         aiPolishPrompt: '你是一个专业的文章编辑。请对用户提供的文章内容进行润色，提升语言表达、逻辑结构和可读性。'
       },
-      uploadUrl: '/upload',
+      uploadUrl: '/upload/image',
       uploadHeaders: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       },

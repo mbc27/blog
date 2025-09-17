@@ -27,6 +27,7 @@ D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\Ski
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\PhotoService.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\controller\AuthController.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\dto\ContactMessageDto.java
+D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\AiWritingService.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\SystemSettingsServiceImpl.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\PhotoCategoryServiceImpl.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\controller\CategoryController.java
@@ -67,6 +68,7 @@ D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\WorkExpe
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\entity\AiChatSession.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\entity\Project.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\config\JwtAuthenticationFilter.java
+D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\dto\AiWritingRequest.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\config\MybatisPlusConfig.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\config\WebConfig.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\controller\AdminMessageController.java
@@ -130,11 +132,14 @@ D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\entity\AiChatMes
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\PhotoCategoryService.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\dao\ArticleMapper.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\mapper\SkillCategoryMapper.java
+D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\controller\UploadRedirectController.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\CommentServiceImpl.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\InternshipExperienceService.java
+D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\controller\AiWritingController.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\entity\SystemSettings.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\SystemSettingsService.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\config\MultiUploadsResourceHandler.java
+D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\AiWritingServiceImpl.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\InternshipExperienceServiceImpl.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\ArticleService.java
 D:\Trae-AI\Project\blog\backend\blog-api\src\main\java\com\blog\service\impl\FriendLinkServiceImpl.java

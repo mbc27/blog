@@ -18,6 +18,7 @@ com\blog\controller\PublicSettingsController.class
 com\blog\vo\ArticleVo.class
 com\blog\entity\Category.class
 com\blog\mapper\EducationMapper.class
+com\blog\service\impl\AiWritingServiceImpl.class
 com\blog\service\AiChatService.class
 com\blog\controller\AiConfigController.class
 com\blog\controller\SystemController.class
@@ -38,6 +39,7 @@ com\blog\controller\AiChatController.class
 com\blog\utils\SecurityUtils.class
 com\blog\service\EducationService.class
 com\blog\controller\AdminAiConfigController.class
+com\blog\controller\UploadRedirectController.class
 com\blog\controller\CommentController.class
 com\blog\controller\TagController.class
 com\blog\mapper\AiChatMessageMapper.class
@@ -51,6 +53,7 @@ com\blog\service\AiService.class
 com\blog\service\impl\ArticleServiceImpl.class
 com\blog\controller\PhotoController.class
 com\blog\controller\AdminFriendLinkController.class
+com\blog\controller\AiWritingController.class
 com\blog\controller\ContactController.class
 com\blog\service\impl\WorkExperienceServiceImpl.class
 com\blog\service\SystemSettingsService.class
@@ -94,6 +97,7 @@ com\blog\service\impl\PhotoServiceImpl.class
 com\blog\controller\AdminCommentController$StatusRequest.class
 com\blog\controller\AdminAboutController.class
 com\blog\mapper\SkillMapper.class
+com\blog\service\AiWritingService.class
 com\blog\controller\UserController.class
 com\blog\entity\WorkExperience.class
 com\blog\controller\MessageController.class
@@ -111,6 +115,7 @@ com\blog\service\ArticleService.class
 com\blog\service\CommentService.class
 com\blog\service\impl\MessageServiceImpl.class
 com\blog\mapper\InterestMapper.class
+com\blog\dto\AiWritingRequest.class
 com\blog\config\UserDetailsServiceImpl.class
 com\blog\dao\PhotoCategoryMapper.class
 com\blog\controller\PhotoCategoryController.class

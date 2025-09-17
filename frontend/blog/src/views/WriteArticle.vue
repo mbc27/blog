@@ -164,6 +164,18 @@
               </div>
             </div>
             
+            <!-- AI写作助手组件 -->
+            <AiWritingAssistant 
+              :content="articleForm.content"
+              :selected-content="selectedContent"
+              :title="articleForm.title"
+              :category="getCategoryName(articleForm.categoryId)"
+              @content-generated="handleContentGenerated"
+              @content-replaced="handleContentReplaced"
+              @selected-content-replaced="handleSelectedContentReplaced"
+              @get-current-selection="getCurrentSelection"
+            />
+            
             <div class="content-editor-wrapper">
               <el-input 
                 ref="contentEditor"
@@ -171,7 +183,10 @@
                 v-model="articleForm.content" 
                 rows="15" 
                 placeholder="请输入文章内容，支持Markdown格式"
-                class="content-editor">
+                class="content-editor"
+                @select="handleTextSelection"
+                @mouseup="handleTextSelection"
+                @keyup="handleTextSelection">
               </el-input>
             </div>
           </el-form-item>
@@ -301,9 +316,13 @@
 import api from '../api'
 import { mapGetters } from 'vuex'
 import { marked } from 'marked'
+import AiWritingAssistant from '../components/AiWritingAssistant.vue'
 
 export default {
   name: 'WriteArticle',
+  components: {
+    AiWritingAssistant
+  },
   data() {
     return {
       articleForm: {
@@ -339,7 +358,11 @@ export default {
       loading: false,
       previewVisible: false,
       isEditMode: false,
-      editingArticleId: null
+      editingArticleId: null,
+      // 选中内容相关
+      selectedContent: '',
+      selectionStart: 0,
+      selectionEnd: 0
     }
   },
   computed: {
@@ -654,6 +677,93 @@ export default {
     // 插入分割线
     insertDivider() {
       this.insertMarkdown('---\n');
+    },
+
+    // ==================== 文本选择处理 ====================
+    
+    // 处理文本选择事件
+    handleTextSelection() {
+      this.$nextTick(() => {
+        const textarea = this.$refs.contentEditor?.$refs?.textarea;
+        if (textarea) {
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          
+          if (start !== end) {
+            // 有选中内容
+            this.selectedContent = this.articleForm.content.substring(start, end);
+            this.selectionStart = start;
+            this.selectionEnd = end;
+            console.log('选中内容:', this.selectedContent);
+            console.log('选中位置:', start, '-', end);
+          } else {
+            // 没有选中内容
+            this.selectedContent = '';
+            this.selectionStart = 0;
+            this.selectionEnd = 0;
+            console.log('清空选中内容');
+          }
+        }
+      });
+    },
+
+    // 手动获取当前选中内容（用于AI操作前的最后检查）
+    getCurrentSelection() {
+      const textarea = this.$refs.contentEditor?.$refs?.textarea;
+      if (textarea) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        
+        if (start !== end) {
+          const selectedText = this.articleForm.content.substring(start, end);
+          this.selectedContent = selectedText;
+          this.selectionStart = start;
+          this.selectionEnd = end;
+          console.log('手动获取选中内容:', selectedText);
+          return selectedText;
+        }
+      }
+      return '';
+    },
+
+    // ==================== AI写作助手事件处理 ====================
+    
+    // 处理AI生成的内容（追加到文章末尾）
+    handleContentGenerated(content) {
+      if (content) {
+        // 在当前内容末尾添加生成的内容
+        if (this.articleForm.content && !this.articleForm.content.endsWith('\n')) {
+          this.articleForm.content += '\n\n';
+        }
+        this.articleForm.content += content;
+        this.$message.success('AI内容已添加到文章末尾');
+      }
+    },
+
+    // 处理AI替换的内容（替换整个文章内容）
+    handleContentReplaced(content) {
+      if (content) {
+        this.articleForm.content = content;
+        this.$message.success('文章内容已被AI生成的内容替换');
+      }
+    },
+
+    // 处理选中内容的替换（替换选中的部分内容）
+    handleSelectedContentReplaced(content) {
+      if (content && this.selectedContent) {
+        // 替换选中的内容
+        const beforeSelection = this.articleForm.content.substring(0, this.selectionStart);
+        const afterSelection = this.articleForm.content.substring(this.selectionEnd);
+        
+        this.articleForm.content = beforeSelection + content + afterSelection;
+        
+        // 清空选中状态
+        this.selectedContent = '';
+        this.selectionStart = 0;
+        this.selectionEnd = 0;
+        
+        this.$message.success('选中内容已被AI生成的内容替换');
+      }
     }
   }
 }
