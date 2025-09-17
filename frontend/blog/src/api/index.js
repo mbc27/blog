@@ -5,7 +5,7 @@ import { Message } from 'element-ui'
 // 创建axios实例
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API || 'http://localhost:8080/api', // API的基础URL
-  timeout: 10000 // 请求超时时间
+  timeout: 60000 // 请求超时时间 - 增加到60秒以支持AI API调用
 })
 
 // 请求拦截器
@@ -632,6 +632,61 @@ export default {
     // 根据分类获取项目
     getByCategory(categoryId) {
       return service.get(`/about/projects/category/${categoryId}`)
+    }
+  },
+
+  // AI助手相关接口
+  ai: {
+    // 发送聊天消息
+    sendMessage(data) {
+      return service.post('/ai/chat/message', data, {
+        timeout: 120000 // AI聊天请求设置2分钟超时
+      })
+    },
+    
+    // 获取聊天会话
+    getSession(sessionId) {
+      return service.get(`/ai/session/${sessionId}`)
+    },
+    
+    // 创建新的聊天会话
+    createSession(data) {
+      return service.post('/ai/session', data)
+    },
+    
+    // 获取用户的聊天会话列表
+    getSessions(params) {
+      return service.get('/ai/sessions', { params })
+    },
+    
+    // 获取会话的消息历史
+    getMessages(sessionId, params) {
+      return service.get(`/ai/session/${sessionId}/messages`, { params })
+    },
+    
+    // 写作辅助
+    assistWriting(data) {
+      return service.post('/ai/writing/assist', data)
+    },
+    
+    // 文章润色
+    polishArticle(data) {
+      return service.post('/ai/writing/polish', data)
+    },
+    
+    // 测试AI连接
+    testConnection(data) {
+      return service.post('/admin/ai/test-connection', data)
+    },
+    
+    // 获取AI配置（管理员）
+    getConfig() {
+      return service.get('/admin/ai/config')
+    },
+    
+    // 更新AI配置（管理员）
+    updateConfig(data) {
+      return service.put('/admin/ai/config', data)
     }
   }
 }

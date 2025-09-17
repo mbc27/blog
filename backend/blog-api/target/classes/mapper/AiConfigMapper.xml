@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.AiConfigMapper">
+
+    <!-- 根据配置键获取配置 -->
+    <select id="selectByConfigKey" resultType="com.blog.entity.AiConfig">
+        SELECT id, config_key, 
+               CAST(config_value AS CHAR) as config_value,
+               config_name, description, config_group, 
+               enabled, sort_order, create_time, update_time
+        FROM ai_config 
+        WHERE config_key = #{configKey}
+    </select>
+
+    <!-- 根据配置分组获取配置列表 -->
+    <select id="selectByConfigGroup" resultType="com.blog.entity.AiConfig">
+        SELECT id, config_key, 
+               CAST(config_value AS CHAR) as config_value,
+               config_name, description, config_group, 
+               enabled, sort_order, create_time, update_time
+        FROM ai_config 
+        WHERE config_group = #{configGroup}
+        ORDER BY sort_order ASC
+    </select>
+
+    <!-- 获取所有启用的配置 -->
+    <select id="selectEnabledConfigs" resultType="com.blog.entity.AiConfig">
+        SELECT id, config_key, 
+               CAST(config_value AS CHAR) as config_value,
+               config_name, description, config_group, 
+               enabled, sort_order, create_time, update_time
+        FROM ai_config 
+        WHERE enabled = 1
+        ORDER BY config_group ASC, sort_order ASC
+    </select>
+
+    <!-- 批量更新配置 -->
+    <update id="updateBatch">
+        <foreach collection="configs" item="config" separator=";">
+            UPDATE ai_config 
+            SET config_value = #{config.configValue},
+                config_name = #{config.configName},
+                description = #{config.description},
+                enabled = #{config.enabled},
+                update_time = NOW()
+            WHERE config_key = #{config.configKey}
+        </foreach>
+    </update>
+
+</mapper>

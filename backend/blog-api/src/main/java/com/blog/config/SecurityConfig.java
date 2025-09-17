@@ -52,6 +52,8 @@ public class SecurityConfig {
                 .antMatchers("/api/friend-links").permitAll() // 允许访问友链列表
                 .antMatchers("/api/friend-links/apply").permitAll() // 允许申请友链
                 .antMatchers("/api/statistics/**").permitAll() // 允许访问统计接口
+                .antMatchers("/api/ai/chat/**").permitAll() // 允许访问AI聊天功能（游客和用户都可以使用）
+                .antMatchers("/api/ai/test-connection").permitAll() // 允许测试AI连接
                 .antMatchers("/api/admin/**").hasRole("ADMIN") // 管理员接口需要ADMIN角色
                 .anyRequest().authenticated()
             .and()

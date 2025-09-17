@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.AiChatMessageMapper">
+
+    <!-- 根据会话ID获取消息列表 -->
+    <select id="selectBySessionId" resultType="com.blog.entity.AiChatMessage">
+        SELECT * FROM ai_chat_message 
+        WHERE session_id = #{sessionId}
+        ORDER BY create_time ASC
+    </select>
+
+    <!-- 根据会话ID获取最新的消息 -->
+    <select id="selectLatestBySessionId" resultType="com.blog.entity.AiChatMessage">
+        SELECT * FROM ai_chat_message 
+        WHERE session_id = #{sessionId}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <!-- 根据会话ID删除消息 -->
+    <delete id="deleteBySessionId">
+        DELETE FROM ai_chat_message 
+        WHERE session_id = #{sessionId}
+    </delete>
+
+</mapper>

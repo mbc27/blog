@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI功能修复工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+
+        .section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.green {
+            background: #28a745;
+        }
+
+        .status-indicator.red {
+            background: #dc3545;
+        }
+
+        .status-indicator.yellow {
+            background: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI功能修复工具</h1>
+            <p>诊断和修复博客系统的AI功能问题</p>
+        </div>
+
+        <div class="content">
+            <!-- 诊断部分 -->
+            <div class="section">
+                <h3>🔍 系统诊断</h3>
+                <p>点击下方按钮诊断AI功能状态</p>
+                <button class="btn" onclick="diagnose()">开始诊断</button>
+                <div id="diagnoseResult"></div>
+            </div>
+
+            <!-- 快速修复部分 -->
+            <div class="section">
+                <h3>⚡ 一键修复</h3>
+                <p>提供API密钥进行自动修复</p>
+                <div class="form-group">
+                    <label for="apiKey">API密钥 *</label>
+                    <input type="password" id="apiKey" placeholder="请输入您的AI服务API密钥">
+                </div>
+                <div class="form-group">
+                    <label for="apiUrl">API地址</label>
+                    <input type="text" id="apiUrl" value="https://api.deepseek.com/v1/chat/completions" placeholder="AI服务API地址">
+                </div>
+                <div class="form-group">
+                    <label for="model">模型名称</label>
+                    <input type="text" id="model" value="deepseek-chat" placeholder="AI模型名称">
+                </div>
+                <button class="btn" onclick="autoFix()">一键修复</button>
+                <div id="fixResult"></div>
+            </div>
+
+            <!-- 手动操作部分 -->
+            <div class="section">
+                <h3>🔧 手动操作</h3>
+                <p>分步骤手动修复AI功能</p>
+                <button class="btn btn-secondary" onclick="enableAi()">启用AI功能</button>
+                <button class="btn btn-secondary" onclick="setApiKey()">设置API密钥</button>
+                <button class="btn btn-secondary" onclick="testConnection()">测试连接</button>
+                <button class="btn btn-danger" onclick="resetConfig()">重置配置</button>
+                <div id="manualResult"></div>
+            </div>
+
+            <!-- 加载指示器 -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>处理中，请稍候...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${content}</div>`;
+        }
+
+        async function makeRequest(url, method = 'GET', data = null) {
+            try {
+                showLoading();
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(url, options);
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                return {
+                    success: false,
+                    message: '请求失败：' + error.message
+                };
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function diagnose() {
+            const result = await makeRequest(`${API_BASE}/ai-fix/diagnose`);
+            
+            if (result.success) {
+                let content = '诊断结果：\n\n';
+                
+                const diagnosis = result.diagnosis;
+                content += `AI功能状态: ${diagnosis.aiEnabled ? '✅ 已启用' : '❌ 未启用'}\n`;
+                content += `API密钥状态: ${diagnosis.hasApiKey ? '✅ 已配置' : '❌ 未配置'}\n`;
+                content += `API地址: ${diagnosis.apiUrl || '未配置'}\n`;
+                content += `连接状态: ${diagnosis.connected ? '✅ 正常' : '❌ 异常'}\n`;
+                
+                if (diagnosis.connectionError) {
+                    content += `连接错误: ${diagnosis.connectionError}\n`;
+                }
+
+                if (Object.keys(result.issues).length > 0) {
+                    content += '\n发现的问题：\n';
+                    for (const [key, issue] of Object.entries(result.issues)) {
+                        content += `• ${issue}\n`;
+                    }
+                }
+
+                if (Object.keys(result.suggestions).length > 0) {
+                    content += '\n修复建议：\n';
+                    for (const [key, suggestion] of Object.entries(result.suggestions)) {
+                        content += `• ${suggestion}\n`;
+                    }
+                }
+
+                showResult('diagnoseResult', content, 'info');
+            } else {
+                showResult('diagnoseResult', '诊断失败：' + result.message, 'error');
+            }
+        }
+
+        async function autoFix() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const model = document.getElementById('model').value.trim();
+
+            if (!apiKey) {
+                showResult('fixResult', '请输入API密钥', 'error');
+                return;
+            }
+
+            const data = {
+                apiKey,
+                apiUrl,
+                model
+            };
+
+            const result = await makeRequest(`${API_BASE}/ai-fix/auto-fix`, 'POST', data);
+            
+            if (result.success) {
+                let content = '修复完成！\n\n';
+                const fixResults = result.fixResults;
+                
+                content += `启用AI功能: ${fixResults.enableAi ? '✅ 成功' : '❌ 失败'}\n`;
+                content += `设置API密钥: ${fixResults.setApiKey ? '✅ 成功' : '❌ 失败'}\n`;
+                content += `配置参数: ${fixResults.setConfigs ? '✅ 成功' : '❌ 失败'}\n`;
+                content += `连接测试: ${fixResults.testConnection ? '✅ 成功' : '❌ 失败'}\n`;
+                
+                if (fixResults.testMessage) {
+                    content += `\n测试响应: ${fixResults.testMessage}`;
+                }
+
+                showResult('fixResult', content, 'success');
+            } else {
+                showResult('fixResult', '修复失败：' + result.message, 'error');
+            }
+        }
+
+        async function enableAi() {
+            const result = await makeRequest(`${API_BASE}/ai-fix/enable-ai`, 'POST');
+            showResult('manualResult', result.message, result.success ? 'success' : 'error');
+        }
+
+        async function setApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) {
+                showResult('manualResult', '请先输入API密钥', 'error');
+                return;
+            }
+
+            const result = await makeRequest(`${API_BASE}/ai-fix/set-api-key`, 'POST', { apiKey });
+            showResult('manualResult', result.message, result.success ? 'success' : 'error');
+        }
+
+        async function testConnection() {
+            const result = await makeRequest(`${API_BASE}/ai-fix/test-connection`, 'POST');
+            let content = result.message;
+            if (result.testResponse) {
+                content += '\n\n测试响应: ' + result.testResponse;
+            }
+            showResult('manualResult', content, result.success ? 'success' : 'error');
+        }
+
+        async function resetConfig() {
+            if (!confirm('确定要重置所有AI配置吗？这将清除当前的API密钥等设置。')) {
+                return;
+            }
+
+            const result = await makeRequest(`${API_BASE}/admin/ai-config/reset`, 'POST');
+            showResult('manualResult', result.message, result.success ? 'success' : 'error');
+        }
+
+        // 页面加载时自动诊断
+        window.onload = function() {
+            setTimeout(diagnose, 1000);
+        };
+    </script>
+</body>
+</html>

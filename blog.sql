@@ -233,7 +233,64 @@ CREATE TABLE IF NOT EXISTS `tb_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='网站配置表';
 
 -- =====================================================
--- 5. 关于我页面相关表
+-- 5. AI助手功能表
+-- =====================================================
+
+-- AI配置表
+CREATE TABLE IF NOT EXISTS `ai_config` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '配置ID',
+  `config_key` varchar(100) NOT NULL COMMENT '配置键',
+  `config_value` text COMMENT '配置值',
+  `config_name` varchar(200) DEFAULT NULL COMMENT '配置名称',
+  `description` varchar(500) DEFAULT NULL COMMENT '配置描述',
+  `config_group` varchar(50) DEFAULT NULL COMMENT '配置分组',
+  `enabled` tinyint(1) DEFAULT '1' COMMENT '是否启用：1-启用，0-禁用',
+  `sort_order` int(11) DEFAULT '0' COMMENT '排序',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_config_key` (`config_key`),
+  KEY `idx_config_group` (`config_group`),
+  KEY `idx_enabled` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI配置表';
+
+-- AI聊天会话表
+CREATE TABLE IF NOT EXISTS `ai_chat_session` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '会话ID',
+  `session_id` varchar(64) NOT NULL COMMENT '会话标识符（UUID）',
+  `user_id` bigint(20) DEFAULT NULL COMMENT '用户ID（游客为null）',
+  `title` varchar(200) DEFAULT NULL COMMENT '会话标题',
+  `session_type` tinyint(4) DEFAULT '1' COMMENT '会话类型：1-普通对话，2-写作辅助，3-文章润色',
+  `article_id` bigint(20) DEFAULT NULL COMMENT '关联文章ID（写作辅助时使用）',
+  `status` tinyint(4) DEFAULT '1' COMMENT '会话状态：1-活跃，0-已结束',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_session_id` (`session_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_session_type` (`session_type`),
+  KEY `idx_status` (`status`),
+  KEY `idx_update_time` (`update_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI聊天会话表';
+
+-- AI聊天消息表
+CREATE TABLE IF NOT EXISTS `ai_chat_message` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '消息ID',
+  `session_id` bigint(20) NOT NULL COMMENT '会话ID',
+  `role` varchar(20) NOT NULL COMMENT '消息角色：user-用户，assistant-AI助手，system-系统',
+  `content` longtext NOT NULL COMMENT '消息内容',
+  `message_type` tinyint(4) DEFAULT '1' COMMENT '消息类型：1-文本，2-图片，3-文件',
+  `status` tinyint(4) DEFAULT '1' COMMENT '消息状态：1-正常，0-已删除',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_session_id` (`session_id`),
+  KEY `idx_role` (`role`),
+  KEY `idx_create_time` (`create_time`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI聊天消息表';
+
+-- =====================================================
+-- 6. 关于我页面相关表
 -- =====================================================
 
 -- 个人基本信息表
@@ -456,7 +513,7 @@ CREATE TABLE IF NOT EXISTS `tb_project_like` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='项目点赞记录表';
 
 -- =====================================================
--- 6. 外键约束
+-- 7. 外键约束
 -- =====================================================
 
 -- 文章相关外键约束
@@ -478,7 +535,7 @@ ALTER TABLE `tb_photo`
 ADD CONSTRAINT `fk_photo_category` FOREIGN KEY (`category_id`) REFERENCES `tb_photo_category` (`id`) ON DELETE SET NULL;
 
 -- =====================================================
--- 7. 基础数据初始化
+-- 8. 基础数据初始化
 -- =====================================================
 
 -- 管理员账号 (密码: 123456)
@@ -544,8 +601,36 @@ INSERT INTO `tb_config` (`config_key`, `config_value`, `description`) VALUES
 ('site_logo', '', '网站Logo'),
 ('site_favicon', '', '网站图标');
 
+-- AI配置数据（优化后的通用配置）
+INSERT INTO `ai_config` (`config_key`, `config_value`, `config_name`, `description`, `config_group`, `enabled`, `sort_order`) VALUES
+-- 基础功能配置
+('ai.enabled', '0', 'AI功能启用', '是否启用AI助手功能：1-启用，0-禁用', 'basic', 1, 1),
+('ai.provider', 'deepseek', 'AI服务提供商', '当前使用的AI服务提供商标识', 'basic', 1, 2),
+
+-- API接口配置
+('ai.api.key', '', 'API密钥', 'AI服务的API密钥，请在管理后台配置', 'api', 1, 1),
+('ai.api.url', 'https://api.deepseek.com/v1/chat/completions', 'API接口地址', 'AI服务的API请求地址', 'api', 1, 2),
+('ai.model', 'deepseek-chat', 'AI模型', '使用的AI模型名称', 'api', 1, 3),
+('ai.api.timeout', '30', 'API超时时间', 'API请求超时时间（秒）', 'api', 1, 4),
+
+-- 模型参数配置
+('ai.max.tokens', '1800', '最大Token数', 'AI回复的最大Token数量', 'model', 1, 1),
+('ai.temperature', '0.6', '温度参数', 'AI回复的创造性程度，0-1之间', 'model', 1, 2),
+
+-- 提示词配置
+('ai.system.prompt', '你是一个智能的博客助手，可以帮助用户回答问题和提供写作建议。请以友好和专业的方式回应。', '系统提示词', 'AI助手的系统提示词', 'prompt', 1, 1),
+('ai.writing.prompt', '你是一个专业的写作助手。请根据用户提供的内容和要求，提供具体的写作建议和改进意见。', '写作助手提示词', '写作辅助功能的提示词', 'prompt', 1, 2),
+('ai.polish.prompt', '你是一个专业的文章编辑。请对用户提供的文章内容进行润色，提升语言表达、逻辑结构和可读性。', '文章润色提示词', '文章润色功能的提示词', 'prompt', 1, 3)
+ON DUPLICATE KEY UPDATE 
+`config_value` = VALUES(`config_value`),
+`config_name` = VALUES(`config_name`),
+`description` = VALUES(`description`),
+`config_group` = VALUES(`config_group`),
+`enabled` = VALUES(`enabled`),
+`sort_order` = VALUES(`sort_order`);
+
 -- =====================================================
--- 8. 测试数据
+-- 9. 测试数据
 -- =====================================================
 
 -- 测试文章数据
@@ -576,7 +661,7 @@ INSERT INTO `tb_friend_link` (`name`, `description`, `url`, `avatar`, `status`, 
 ('示例友链2', '这是另一个示例友链', 'https://example2.com', '/images/friend2.png', 1, 2);
 
 -- =====================================================
--- 9. 扩展测试数据
+-- 10. 扩展测试数据
 -- =====================================================
 
 -- 添加测试用户
@@ -636,7 +721,7 @@ INSERT INTO `tb_message` (`content`, `nickname`, `email`, `avatar`, `parent_id`,
 ('感谢支持！', '博主', 'admin@example.com', 'https://example.com/avatar.png', 5, 2);
 
 -- =====================================================
--- 10. 关于我页面数据初始化
+-- 11. 关于我页面数据初始化
 -- =====================================================
 
 -- 插入个人基本信息
@@ -839,7 +924,7 @@ INSERT INTO `tb_internship_experience` (
 ON DUPLICATE KEY UPDATE `company_name` = VALUES(`company_name`);
 
 -- =====================================================
--- 11. 系统配置补丁和修复脚本
+-- 12. 系统配置补丁和修复脚本
 -- =====================================================
 
 -- 添加联系信息相关的系统设置
@@ -870,7 +955,7 @@ UPDATE `tb_friend_link` SET `avatar` = 'https://cube.elemecdn.com/3/7c/3ea6beec6
 WHERE `avatar` = '/images/friend1.png' OR `avatar` = '/images/friend2.png' OR `avatar` = '' OR `avatar` IS NULL;
 
 -- =====================================================
--- 12. 可选维护脚本（谨慎使用）
+-- 13. 可选维护脚本（谨慎使用）
 -- =====================================================
 
 /*

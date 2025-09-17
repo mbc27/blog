@@ -7,6 +7,8 @@
     <Footer v-if="!isAdminRoute" />
     <!-- 回到顶部按钮 - 只在非管理端显示 -->
     <back-to-top v-if="!isAdminRoute" />
+    <!-- AI咨询机器人 -->
+    <ChatBot />
   </div>
 </template>
 
@@ -15,13 +17,15 @@ import { mapGetters } from 'vuex'
 import NavBar from './components/NavBar.vue'
 import Footer from './components/Footer.vue'
 import BackToTop from './components/BackToTop.vue'
+import ChatBot from './components/ChatBot.vue'
 
 export default {
   name: 'App',
   components: {
     NavBar,
     Footer,
-    BackToTop
+    BackToTop,
+    ChatBot
   },
   computed: {
     ...mapGetters(['isAuthenticated', 'isAdmin']),

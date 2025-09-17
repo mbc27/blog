@@ -1,6 +1,8 @@
+com\blog\mapper\AiChatSessionMapper.class
 com\blog\config\MybatisPlusConfig.class
 com\blog\controller\AdminCommentController.class
 com\blog\mapper\InternshipExperienceMapper.class
+com\blog\service\impl\AiServiceImpl.class
 com\blog\controller\FileUploadController.class
 com\blog\controller\UploadController.class
 com\blog\controller\ImageController.class
@@ -16,9 +18,12 @@ com\blog\controller\PublicSettingsController.class
 com\blog\vo\ArticleVo.class
 com\blog\entity\Category.class
 com\blog\mapper\EducationMapper.class
+com\blog\service\AiChatService.class
+com\blog\controller\AiConfigController.class
 com\blog\controller\SystemController.class
 com\blog\config\WebConfig.class
 com\blog\service\impl\TagServiceImpl.class
+com\blog\controller\AiFixController.class
 com\blog\entity\Comment.class
 com\blog\service\FriendLinkService.class
 com\blog\service\impl\EducationServiceImpl.class
@@ -29,15 +34,20 @@ com\blog\service\WorkExperienceService.class
 com\blog\mapper\ProjectCategoryMapper.class
 com\blog\utils\JwtUtils.class
 com\blog\service\EmailService.class
+com\blog\controller\AiChatController.class
 com\blog\utils\SecurityUtils.class
 com\blog\service\EducationService.class
+com\blog\controller\AdminAiConfigController.class
 com\blog\controller\CommentController.class
 com\blog\controller\TagController.class
+com\blog\mapper\AiChatMessageMapper.class
+com\blog\entity\AiChatSession.class
 com\blog\controller\ArticleController.class
 com\blog\dao\ArticleLikeMapper.class
 com\blog\service\impl\CategoryServiceImpl.class
 com\blog\exception\GlobalExceptionHandler.class
 com\blog\service\SkillService.class
+com\blog\service\AiService.class
 com\blog\service\impl\ArticleServiceImpl.class
 com\blog\controller\PhotoController.class
 com\blog\controller\AdminFriendLinkController.class
@@ -52,8 +62,10 @@ com\blog\service\impl\SystemSettingsServiceImpl.class
 com\blog\entity\Interest.class
 com\blog\service\impl\InternshipExperienceServiceImpl.class
 com\blog\dao\CategoryMapper.class
+com\blog\service\impl\AiChatServiceImpl.class
 com\blog\config\SecurityConfig.class
 com\blog\entity\Project.class
+com\blog\mapper\AiConfigMapper.class
 com\blog\service\impl\UniversalEmailServiceImpl$1.class
 com\blog\BlogApplication.class
 com\blog\exception\BusinessException.class
@@ -62,6 +74,7 @@ com\blog\util\IpUtils.class
 com\blog\controller\AdminUserController.class
 com\blog\entity\SystemSettings.class
 com\blog\controller\AboutMeController.class
+com\blog\controller\AiTestController.class
 com\blog\controller\AdminSettingsController.class
 com\blog\entity\Education.class
 com\blog\util\FileUtils.class
@@ -91,6 +104,7 @@ com\blog\service\impl\ProjectServiceImpl.class
 com\blog\entity\Tag.class
 com\blog\util\UrlDetectionUtils.class
 com\blog\service\MessageService.class
+com\blog\service\AiConfigService.class
 com\blog\service\impl\PhotoCategoryServiceImpl.class
 com\blog\service\TagService.class
 com\blog\service\ArticleService.class
@@ -108,6 +122,7 @@ com\blog\mapper\AboutMeMapper.class
 com\blog\mapper\WorkExperienceMapper.class
 com\blog\dao\ArticleMapper.class
 com\blog\controller\AdminMessageController.class
+com\blog\entity\AiConfig.class
 com\blog\mapper\ProjectLikeMapper.class
 com\blog\entity\FriendLink.class
 com\blog\entity\ArticleTag.class
@@ -116,7 +131,9 @@ com\blog\service\ProjectLikeService.class
 com\blog\entity\Photo.class
 com\blog\entity\ArticleLike.class
 com\blog\service\impl\InterestServiceImpl.class
+com\blog\service\impl\AiConfigServiceImpl.class
 com\blog\controller\FriendLinkController.class
+com\blog\entity\AiChatMessage.class
 com\blog\service\impl\SkillServiceImpl.class
 com\blog\controller\CategoryController.class
 com\blog\entity\AboutMe.class

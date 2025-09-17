@@ -176,6 +176,12 @@ const routes = [
         name: 'ImageUploadTest',
         component: () => import('@/views/test/ImageUploadTest.vue'),
         meta: { title: '图片上传测试', requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'ai-settings',
+        name: 'AiSettings',
+        component: () => import('@/views/admin/AiSettings.vue'),
+        meta: { title: 'AI助手配置', requiresAuth: true, requiresAdmin: true }
       }
     ]
   },

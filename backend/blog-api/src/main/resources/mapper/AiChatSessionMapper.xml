@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.AiChatSessionMapper">
+
+    <!-- 根据用户ID获取会话列表 -->
+    <select id="selectByUserId" resultType="com.blog.entity.AiChatSession">
+        SELECT * FROM ai_chat_session 
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据会话ID和用户ID获取会话 -->
+    <select id="selectBySessionIdAndUserId" resultType="com.blog.entity.AiChatSession">
+        SELECT * FROM ai_chat_session 
+        WHERE session_id = #{sessionId} AND user_id = #{userId}
+    </select>
+
+    <!-- 获取用户最新的会话 -->
+    <select id="selectLatestByUserId" resultType="com.blog.entity.AiChatSession">
+        SELECT * FROM ai_chat_session 
+        WHERE user_id = #{userId}
+        ORDER BY update_time DESC
+        LIMIT 1
+    </select>
+
+    <!-- 根据会话ID获取会话详情 -->
+    <select id="selectBySessionId" resultType="com.blog.entity.AiChatSession">
+        SELECT * FROM ai_chat_session 
+        WHERE session_id = #{sessionId}
+    </select>
+
+    <!-- 更新会话状态 -->
+    <update id="updateSessionStatus">
+        UPDATE ai_chat_session 
+        SET status = #{status}, update_time = NOW()
+        WHERE session_id = #{sessionId}
+    </update>
+
+</mapper>

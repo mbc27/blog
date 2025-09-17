@@ -112,12 +112,15 @@
             <version>${hutool.version}</version>
         </dependency>
         
-        <!-- Lombok -->
+
+        
+        <!-- JSON 处理依赖 -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
+        
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
