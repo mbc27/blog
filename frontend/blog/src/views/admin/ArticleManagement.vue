@@ -248,7 +248,11 @@ export default {
         this.articleList = response.data.records
         this.total = response.data.total
       } catch (error) {
-        this.$message.error('获取文章列表失败')
+        this.$message({
+          message: '获取文章列表失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.loading = false
       }
@@ -318,11 +322,19 @@ export default {
         })
         
         await api.article.delete(id)
-        this.$message.success('删除成功')
+        this.$message({
+          message: '删除成功',
+          type: 'success',
+          duration: 3000
+        })
         this.getArticleList()
       } catch (error) {
         if (error !== 'cancel') {
-          this.$message.error('删除失败')
+          this.$message({
+            message: '删除失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       }
     },
@@ -332,7 +344,11 @@ export default {
       try {
         // 检查分类是否已选择
         if (!this.articleForm.categoryId) {
-          this.$message.error('请选择文章分类');
+          this.$message({
+            message: '请选择文章分类',
+            type: 'error',
+            duration: 3000
+          });
           return;
         }
         
@@ -340,7 +356,11 @@ export default {
         await this.$refs.articleForm.validate();
         
         if (!this.articleForm.content) {
-          this.$message.error('请输入文章内容');
+          this.$message({
+            message: '请输入文章内容',
+            type: 'error',
+            duration: 3000
+          });
           return;
         }
         
@@ -349,10 +369,18 @@ export default {
         
         if (this.isEdit) {
           await api.article.update(this.articleForm.id, this.articleForm);
-          this.$message.success('更新成功');
+          this.$message({
+            message: '更新成功',
+            type: 'success',
+            duration: 3000
+          });
         } else {
           await api.article.add(this.articleForm);
-          this.$message.success('添加成功');
+          this.$message({
+            message: '添加成功',
+            type: 'success',
+            duration: 3000
+          });
         }
         
         this.dialogVisible = false;
@@ -360,9 +388,17 @@ export default {
       } catch (error) {
         console.error('提交文章失败:', error);
         if (error.message) {
-          this.$message.error(error.message);
+          this.$message({
+            message: error.message,
+            type: 'error',
+            duration: 3000
+          });
         } else {
-          this.$message.error('提交失败，请检查表单');
+          this.$message({
+            message: '提交失败，请检查表单',
+            type: 'error',
+            duration: 3000
+          });
         }
       } finally {
         this.submitLoading = false;
@@ -412,16 +448,28 @@ export default {
         this.articleForm.coverImage = this.getImageUrl(imageUrl);
         console.log('处理后的图片URL:', this.articleForm.coverImage);
         
-        this.$message.success('封面上传成功');
+        this.$message({
+          message: '封面上传成功',
+          type: 'success',
+          duration: 3000
+        });
       } else {
-        this.$message.error(res.message || '上传失败');
+        this.$message({
+          message: res.message || '上传失败',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
     
     // 上传错误处理
     handleUploadError(err) {
       console.error('上传错误:', err)
-      this.$message.error('图片上传失败，请重试')
+      this.$message({
+        message: '图片上传失败，请重试',
+        type: 'error',
+        duration: 3000
+      })
       this.imageError = true
     },
     
@@ -431,10 +479,18 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isImage) {
-        this.$message.error('上传封面只能是图片格式!')
+        this.$message({
+          message: '上传封面只能是图片格式!',
+          type: 'error',
+          duration: 3000
+        })
       }
       if (!isLt2M) {
-        this.$message.error('上传封面大小不能超过 2MB!')
+        this.$message({
+          message: '上传封面大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        })
       }
       return isImage && isLt2M
     },

@@ -281,7 +281,11 @@ export default {
         }
       } catch (error) {
         console.error('加载分类失败:', error)
-        this.$message.error('加载分类失败')
+        this.$message({
+          message: '加载分类失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
 
@@ -294,7 +298,11 @@ export default {
         }
       } catch (error) {
         console.error('加载文章失败:', error)
-        this.$message.error('加载文章失败')
+        this.$message({
+          message: '加载文章失败',
+          type: 'error',
+          duration: 3000
+        })
         this.$router.push('/write')
       }
     },
@@ -304,9 +312,17 @@ export default {
       try {
         this.article.status = 0 // 草稿状态
         await this.saveArticle()
-        this.$message.success('草稿已自动保存')
+        this.$message({
+          message: '草稿已自动保存',
+          type: 'success',
+          duration: 3000
+        })
       } catch (error) {
-        this.$message.error('草稿保存失败，请检查网络连接')
+        this.$message({
+          message: '草稿保存失败，请检查网络连接',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.saving = false
       }
@@ -323,10 +339,18 @@ export default {
       try {
         this.article.status = 1 // 发布状态
         await this.saveArticle()
-        this.$message.success(this.isEdit ? '文章更新成功！' : '文章发布成功！正在跳转...')
+        this.$message({
+          message: this.isEdit ? '文章更新成功！' : '文章发布成功！正在跳转...',
+          type: 'success',
+          duration: 3000
+        })
         this.$router.push('/article')
       } catch (error) {
-        this.$message.error(this.isEdit ? '文章更新失败，请重试' : '文章发布失败，请检查网络连接或稍后重试')
+        this.$message({
+          message: this.isEdit ? '文章更新失败，请重试' : '文章发布失败，请检查网络连接或稍后重试',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.publishing = false
       }
@@ -355,11 +379,19 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isImage) {
-        this.$message.error('只能上传图片文件!')
+        this.$message({
+          message: '只能上传图片文件!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       if (!isLt2M) {
-        this.$message.error('图片大小不能超过 2MB!')
+        this.$message({
+          message: '图片大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       
@@ -370,15 +402,27 @@ export default {
     handleCoverSuccess(response) {
       if (response.code === 200) {
         this.article.cover = response.data.url
-        this.$message.success('封面图片上传成功')
+        this.$message({
+          message: '封面图片上传成功',
+          type: 'success',
+          duration: 3000
+        })
       } else {
-        this.$message.error('封面上传失败，请重试')
+        this.$message({
+          message: '封面上传失败，请重试',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
 
     handleCoverError(error) {
       console.error('封面上传失败:', error)
-      this.$message.error('封面上传失败，请检查网络连接')
+      this.$message({
+        message: '封面上传失败，请检查网络连接',
+        type: 'error',
+        duration: 3000
+      })
     },
 
     removeCover() {
@@ -395,11 +439,19 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isImage) {
-        this.$message.error('只能上传图片文件!')
+        this.$message({
+          message: '只能上传图片文件!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       if (!isLt2M) {
-        this.$message.error('图片大小不能超过 2MB!')
+        this.$message({
+          message: '图片大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       
@@ -413,15 +465,27 @@ export default {
         const markdownImage = `![图片](${imageUrl})`
         this.insertTextAtCursor(markdownImage)
         this.showImageDialog = false
-        this.$message.success('图片上传成功')
+        this.$message({
+          message: '图片上传成功',
+          type: 'success',
+          duration: 3000
+        })
       } else {
-        this.$message.error(response.message || '上传失败')
+        this.$message({
+          message: response.message || '上传失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
 
     handleImageError(error) {
       console.error('图片上传失败:', error)
-      this.$message.error('图片上传失败')
+      this.$message({
+        message: '图片上传失败',
+        type: 'error',
+        duration: 3000
+      })
     },
 
     insertTextAtCursor(text) {
@@ -487,14 +551,22 @@ export default {
       try {
         const response = await api.category.create(this.newCategory)
         if (response.code === 200) {
-          this.$message.success('分类创建成功')
+          this.$message({
+            message: '分类创建成功',
+            type: 'success',
+            duration: 3000
+          })
           this.showCategoryDialog = false
           this.newCategory = { name: '', description: '' }
           await this.loadCategories()
           this.article.categoryId = response.data.id
         }
       } catch (error) {
-        this.$message.error('创建分类失败')
+        this.$message({
+          message: '创建分类失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.creatingCategory = false
       }

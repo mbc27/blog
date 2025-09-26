@@ -169,7 +169,11 @@ export default {
         }
       } catch (error) {
         console.error('创建会话失败:', error)
-        this.$message.error('创建会话失败')
+        this.$message({
+          message: '创建会话失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
 
@@ -197,7 +201,11 @@ export default {
       if (!this.currentSession) {
         await this.createSession()
         if (!this.currentSession) {
-          this.$message.error('无法创建会话')
+          this.$message({
+            message: '无法创建会话',
+            type: 'error',
+            duration: 3000
+          })
           return
         }
       }
@@ -226,15 +234,27 @@ export default {
           const aiMessage = response.data
           this.messages.push(aiMessage)
         } else {
-          this.$message.error(response.message || 'AI回复失败')
+          this.$message({
+            message: response.message || 'AI回复失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         console.error('发送消息失败:', error)
         // 检查是否是超时错误
         if (error.code === 'ECONNABORTED' && error.message.includes('timeout')) {
-          this.$message.error('AI正在思考中，请求超时，请稍后再试')
+          this.$message({
+            message: 'AI正在思考中，请求超时，请稍后再试',
+            type: 'error',
+            duration: 3000
+          })
         } else {
-          this.$message.error('发送消息失败: ' + (error.message || '未知错误'))
+          this.$message({
+            message: '发送消息失败: ' + (error.message || '未知错误'),
+            type: 'error',
+            duration: 3000
+          })
         }
         
         // 添加错误消息

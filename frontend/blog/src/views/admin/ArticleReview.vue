@@ -178,7 +178,11 @@ export default {
         
       } catch (error) {
         console.error('获取待审核文章失败', error)
-        this.$message.error('获取待审核文章失败')
+        this.$message({
+          message: '获取待审核文章失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.loading = false
       }
@@ -262,18 +266,34 @@ export default {
         })
           .then(response => {
             if (response.data && response.data.code === 200) {
-              this.$message.success('审核通过')
+              this.$message({
+                message: '审核通过',
+                type: 'success',
+                duration: 3000
+              })
               this.fetchPendingArticles()
             } else if (response.code === 200) {
-              this.$message.success('审核通过')
+              this.$message({
+                message: '审核通过',
+                type: 'success',
+                duration: 3000
+              })
               this.fetchPendingArticles()
             } else {
-              this.$message.error(response.message || '审核失败')
+              this.$message({
+                message: response.message || '审核失败',
+                type: 'error',
+                duration: 3000
+              })
             }
           })
           .catch(error => {
             console.error('审核通过失败', error)
-            this.$message.error('审核通过失败')
+            this.$message({
+              message: '审核通过失败',
+              type: 'error',
+              duration: 3000
+            })
           })
       }).catch(() => {})
     },
@@ -290,18 +310,34 @@ export default {
         })
           .then(response => {
             if (response.data && response.data.code === 200) {
-              this.$message.success('审核拒绝')
+              this.$message({
+                message: '审核拒绝',
+                type: 'success',
+                duration: 3000
+              })
               this.fetchPendingArticles()
             } else if (response.code === 200) {
-              this.$message.success('审核拒绝')
+              this.$message({
+                message: '审核拒绝',
+                type: 'success',
+                duration: 3000
+              })
               this.fetchPendingArticles()
             } else {
-              this.$message.error(response.message || '审核失败')
+              this.$message({
+                message: response.message || '审核失败',
+                type: 'error',
+                duration: 3000
+              })
             }
           })
           .catch(error => {
             console.error('审核拒绝失败', error)
-            this.$message.error('审核拒绝失败')
+            this.$message({
+              message: '审核拒绝失败',
+              type: 'error',
+              duration: 3000
+            })
           })
       }).catch(() => {})
     },

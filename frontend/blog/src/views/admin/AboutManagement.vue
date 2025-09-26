@@ -655,12 +655,24 @@ export default {
           try {
             const response = await axios.put('/admin/about/basic', this.basicInfo)
             if (response.data.code === 200) {
-              this.$message.success('保存成功')
+              this.$message({
+                message: '保存成功',
+                type: 'success',
+                duration: 3000
+              })
             } else {
-              this.$message.error(response.data.message || '保存失败')
+              this.$message({
+                message: response.data.message || '保存失败',
+                type: 'error',
+                duration: 3000
+              })
             }
           } catch (error) {
-            this.$message.error('保存失败')
+            this.$message({
+              message: '保存失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         }
       })
@@ -678,18 +690,30 @@ export default {
         }
         
         this.basicInfo.avatar = avatarUrl;
-        this.$message.success('头像上传成功')
+        this.$message({
+          message: '头像上传成功',
+          type: 'success',
+          duration: 3000
+        })
         // 自动保存基本信息
         this.saveBasicInfo()
       } else {
-        this.$message.error(response.message || '头像上传失败')
+        this.$message({
+          message: response.message || '头像上传失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
     
     // 头像上传失败回调
     handleAvatarError(error) {
       console.error('头像上传失败:', error)
-      this.$message.error('头像上传失败，请重试')
+      this.$message({
+        message: '头像上传失败，请重试',
+        type: 'error',
+        duration: 3000
+      })
     },
     
     // 头像上传前的校验
@@ -698,11 +722,19 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isImage) {
-        this.$message.error('只能上传图片文件!')
+        this.$message({
+          message: '只能上传图片文件!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!')
+        this.$message({
+          message: '上传头像图片大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       
@@ -723,7 +755,11 @@ export default {
       }).then(() => {
         this.basicInfo.avatar = ''
         this.saveBasicInfo()
-        this.$message.success('头像已删除')
+        this.$message({
+          message: '头像已删除',
+          type: 'success',
+          duration: 3000
+        })
       }).catch(() => {
         // 用户取消删除
       })
@@ -835,14 +871,26 @@ export default {
             }
             
             if (response.data.code === 200) {
-              this.$message.success('保存成功')
+              this.$message({
+                message: '保存成功',
+                type: 'success',
+                duration: 3000
+              })
               this.workDialogVisible = false
               this.loadWorkExperiences()
             } else {
-              this.$message.error(response.data.message || '保存失败')
+              this.$message({
+                message: response.data.message || '保存失败',
+                type: 'error',
+                duration: 3000
+              })
             }
           } catch (error) {
-            this.$message.error('保存失败')
+            this.$message({
+              message: '保存失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         }
       })
@@ -858,13 +906,25 @@ export default {
         try {
           const response = await axios.delete(`/admin/about/work-experience/${id}`)
           if (response.data.code === 200) {
-            this.$message.success('删除成功')
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.loadWorkExperiences()
           } else {
-            this.$message.error(response.data.message || '删除失败')
+            this.$message({
+              message: response.data.message || '删除失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         } catch (error) {
-          this.$message.error('删除失败')
+          this.$message({
+            message: '删除失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       })
     },
@@ -916,14 +976,26 @@ export default {
             }
             
             if (response.data.code === 200) {
-              this.$message.success('保存成功')
+              this.$message({
+                message: '保存成功',
+                type: 'success',
+                duration: 3000
+              })
               this.educationDialogVisible = false
               this.loadEducations()
             } else {
-              this.$message.error(response.data.message || '保存失败')
+              this.$message({
+                message: response.data.message || '保存失败',
+                type: 'error',
+                duration: 3000
+              })
             }
           } catch (error) {
-            this.$message.error('保存失败')
+            this.$message({
+              message: '保存失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         }
       })
@@ -939,13 +1011,25 @@ export default {
         try {
           const response = await axios.delete(`/admin/about/education/${id}`)
           if (response.data.code === 200) {
-            this.$message.success('删除成功')
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.loadEducations()
           } else {
-            this.$message.error(response.data.message || '删除失败')
+            this.$message({
+              message: response.data.message || '删除失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         } catch (error) {
-          this.$message.error('删除失败')
+          this.$message({
+            message: '删除失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       })
     },

@@ -188,7 +188,11 @@ export default {
         })
         .catch(error => {
           console.error('获取相册分类失败', error)
-          this.$message.error('获取相册分类失败')
+          this.$message({
+            message: '获取相册分类失败',
+            type: 'error',
+            duration: 3000
+          })
         })
     },
     fetchPhotos() {
@@ -231,7 +235,11 @@ export default {
         })
         .catch(error => {
           console.error('获取照片列表失败', error)
-          this.$message.error('获取照片列表失败: ' + (error.message || '网络错误'))
+          this.$message({
+            message: '获取照片列表失败: ' + (error.message || '网络错误'),
+            type: 'error',
+            duration: 3000
+          })
           this.photos = []
           this.pagination.total = 0
         })
@@ -295,12 +303,20 @@ export default {
       }).then(() => {
         api.photo.delete(photo.id)
           .then(() => {
-            this.$message.success('删除成功')
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchPhotos()
           })
           .catch(error => {
             console.error('删除照片失败', error)
-            this.$message.error('删除照片失败')
+            this.$message({
+              message: '删除照片失败',
+              type: 'error',
+              duration: 3000
+            })
           })
       }).catch(() => {})
     },
@@ -310,9 +326,17 @@ export default {
         // 使用统一的图片URL处理函数
         let imageUrl = res.data?.url || res.data || '';
         this.photoForm.url = getImageUrl(imageUrl);
-        this.$message.success('上传成功');
+        this.$message({
+          message: '上传成功',
+          type: 'success',
+          duration: 3000
+        });
       } else {
-        this.$message.error('上传失败: ' + (res.message || '未知错误'));
+        this.$message({
+          message: '上传失败: ' + (res.message || '未知错误'),
+          type: 'error',
+          duration: 3000
+        });
       }
     },
     beforePhotoUpload(file) {
@@ -320,10 +344,18 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG/PNG/GIF 格式!')
+        this.$message({
+          message: '上传头像图片只能是 JPG/PNG/GIF 格式!',
+          type: 'error',
+          duration: 3000
+        })
       }
       if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!')
+        this.$message({
+          message: '上传头像图片大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        })
       }
       return isJPG && isLt2M
     },
@@ -341,7 +373,11 @@ export default {
           promise
             .then(response => {
               console.log('提交照片响应:', response)
-              this.$message.success(this.photoForm.id ? '更新成功' : '添加成功')
+              this.$message({
+                message: this.photoForm.id ? '更新成功' : '添加成功',
+                type: 'success',
+                duration: 3000
+              })
               this.dialogVisible = false
               // 重置分页到第一页以确保能看到新添加的照片
               this.pagination.current = 1
@@ -353,7 +389,11 @@ export default {
             .catch(error => {
               console.error('提交照片失败', error)
               const errorMsg = error.response?.data?.message || error.message || '未知错误'
-              this.$message.error(this.photoForm.id ? '更新照片失败: ' + errorMsg : '添加照片失败: ' + errorMsg)
+              this.$message({
+                message: this.photoForm.id ? '更新照片失败: ' + errorMsg : '添加照片失败: ' + errorMsg,
+                type: 'error',
+                duration: 3000
+              })
             })
             .finally(() => {
               this.submitLoading = false

@@ -407,7 +407,11 @@ export default {
         }
       } catch (error) {
         console.error('获取关于我信息失败:', error)
-        this.$message.error('获取信息失败')
+        this.$message({
+          message: '获取信息失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.loading = false
       }
@@ -601,14 +605,26 @@ export default {
           project.isLiked = response.data.liked;
           
           if (response.data.liked) {
-            this.$message.success('点赞成功');
+            this.$message({
+              message: '点赞成功',
+              type: 'success',
+              duration: 3000
+            });
           } else {
-            this.$message.success('取消点赞');
+            this.$message({
+              message: '取消点赞',
+              type: 'success',
+              duration: 3000
+            });
           }
         }
       } catch (error) {
         console.error('点赞操作失败:', error);
-        this.$message.error('点赞操作失败');
+        this.$message({
+          message: '点赞操作失败',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
 

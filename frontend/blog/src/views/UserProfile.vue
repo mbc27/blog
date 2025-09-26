@@ -106,7 +106,11 @@ export default {
           }
         }
       } catch (error) {
-        this.$message.error('获取用户信息失败');
+        this.$message({
+          message: '获取用户信息失败',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
     
@@ -114,7 +118,11 @@ export default {
     updateProfile() {
       // 添加防护措施，确保表单引用存在
       if (!this.$refs.userForm) {
-        this.$message.error('表单未正确初始化，请刷新页面重试');
+        this.$message({
+          message: '表单未正确初始化，请刷新页面重试',
+          type: 'error',
+          duration: 3000
+        });
         return;
       }
       
@@ -123,7 +131,11 @@ export default {
           this.loading = true;
           try {
             await this.updateUserInfo(this.userForm);
-            this.$message.success('个人信息更新成功！');
+            this.$message({
+              message: '个人信息更新成功！',
+              type: 'success',
+              duration: 3000
+            });
             // 强制更新导航栏显示
             this.$forceUpdate();
             // 触发全局状态更新
@@ -131,7 +143,11 @@ export default {
               this.$root.$emit('user-updated');
             });
           } catch (error) {
-            this.$message.error('个人信息更新失败，请检查网络连接或稍后重试');
+            this.$message({
+              message: '个人信息更新失败，请检查网络连接或稍后重试',
+              type: 'error',
+              duration: 3000
+            });
           } finally {
             this.loading = false;
           }
@@ -145,12 +161,20 @@ export default {
       if (res.code === 200) {
         // 使用统一的图片URL处理函数
         this.userForm.avatar = getImageUrl(res.data.url);
-        this.$message.success('头像更新成功！');
+        this.$message({
+          message: '头像更新成功！',
+          type: 'success',
+          duration: 3000
+        });
         
         // 强制更新组件显示
         this.$forceUpdate();
       } else {
-        this.$message.error('头像上传失败，请重试');
+        this.$message({
+          message: '头像上传失败，请重试',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
     
@@ -160,10 +184,18 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2;
 
       if (!isJPG) {
-        this.$message.error('请选择 JPG 或 PNG 格式的图片文件');
+        this.$message({
+          message: '请选择 JPG 或 PNG 格式的图片文件',
+          type: 'error',
+          duration: 3000
+        });
       }
       if (!isLt2M) {
-        this.$message.error('图片文件大小不能超过 2MB，请选择较小的图片');
+        this.$message({
+          message: '图片文件大小不能超过 2MB，请选择较小的图片',
+          type: 'error',
+          duration: 3000
+        });
       }
       return isJPG && isLt2M;
     },
@@ -171,7 +203,11 @@ export default {
     // 头像上传失败回调
     handleAvatarError(err) {
       console.error('头像上传失败:', err);
-      this.$message.error('头像上传失败，请检查网络连接后重试');
+      this.$message({
+        message: '头像上传失败，请检查网络连接后重试',
+        type: 'error',
+        duration: 3000
+      });
     },
     
     // 获取图片URL

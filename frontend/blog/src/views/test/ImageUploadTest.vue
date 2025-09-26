@@ -127,11 +127,19 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isImage) {
-        this.$message.error('只能上传图片文件!')
+        this.$message({
+          message: '只能上传图片文件!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       if (!isLt2M) {
-        this.$message.error('图片大小不能超过 2MB!')
+        this.$message({
+          message: '图片大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       
@@ -145,10 +153,18 @@ export default {
       
       if (res.code === 200) {
         this.coverImage = res.data.url
-        this.$message.success('封面上传成功!')
+        this.$message({
+          message: '封面上传成功!',
+          type: 'success',
+          duration: 3000
+        })
         this.addLog('INFO', `封面URL设置为: ${this.coverImage}`)
       } else {
-        this.$message.error(res.message || '封面上传失败')
+        this.$message({
+          message: res.message || '封面上传失败',
+          type: 'error',
+          duration: 3000
+        })
         this.addLog('ERROR', `封面上传失败: ${res.message}`)
       }
     },
@@ -159,10 +175,18 @@ export default {
       
       if (res.code === 200) {
         this.avatarImage = res.data.url
-        this.$message.success('头像上传成功!')
+        this.$message({
+          message: '头像上传成功!',
+          type: 'success',
+          duration: 3000
+        })
         this.addLog('INFO', `头像URL设置为: ${this.avatarImage}`)
       } else {
-        this.$message.error(res.message || '头像上传失败')
+        this.$message({
+          message: res.message || '头像上传失败',
+          type: 'error',
+          duration: 3000
+        })
         this.addLog('ERROR', `头像上传失败: ${res.message}`)
       }
     },

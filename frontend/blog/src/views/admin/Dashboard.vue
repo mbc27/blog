@@ -139,14 +139,22 @@ export default {
       console.log('User role:', this.user ? this.user.role : 'No user');
       
       if (!this.user) {
-        this.$message.error('请先登录');
+        this.$message({
+          message: '请先登录',
+          type: 'error',
+          duration: 3000
+        });
         this.$router.push('/login');
         return;
       }
       
       if (this.user.role !== 0) {
         console.log('Not admin, role is:', this.user.role);
-        this.$message.error('您没有管理员权限');
+        this.$message({
+          message: '您没有管理员权限',
+          type: 'error',
+          duration: 3000
+        });
         this.$router.push('/');
       } else {
         console.log('Admin permission verified');
@@ -172,7 +180,11 @@ export default {
       }).then(() => {
         this.logout();
         this.$router.push('/login');
-        this.$message.success('退出登录成功');
+        this.$message({
+          message: '退出登录成功',
+          type: 'success',
+          duration: 3000
+        });
       }).catch(() => {});
     },
     

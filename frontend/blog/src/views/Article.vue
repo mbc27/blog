@@ -191,11 +191,19 @@ export default {
           console.log('获取分类列表成功:', this.categories)
         } else {
           console.error('获取分类列表失败:', response.message)
-          this.$message.error('获取分类列表失败: ' + response.message)
+          this.$message({
+            message: '获取分类列表失败: ' + response.message,
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         console.error('获取分类列表失败:', error)
-        this.$message.error('获取分类列表失败: ' + (error.message || '未知错误'))
+        this.$message({
+          message: '获取分类列表失败: ' + (error.message || '未知错误'),
+          type: 'error',
+          duration: 3000
+        })
       }
     },
     
@@ -233,7 +241,11 @@ export default {
         // 检查响应是否有效
         if (!axiosResponse) {
           console.error('响应为空')
-          this.$message.error('获取文章列表失败: 响应为空')
+          this.$message({
+            message: '获取文章列表失败: 响应为空',
+            type: 'error',
+            duration: 3000
+          })
           this.articles = []
           return
         }
@@ -268,7 +280,11 @@ export default {
             total = 1
           } else {
             console.error('无法识别的数据格式:', response.data)
-            this.$message.warning('数据格式不正确')
+            this.$message({
+              message: '数据格式不正确',
+              type: 'warning',
+              duration: 3000
+            })
             this.articles = []
             this.total = 0
             return
@@ -356,15 +372,27 @@ export default {
           
           // 如果没有文章，显示提示
           if (this.articles.length === 0) {
-            this.$message.info('暂无文章')
+            this.$message({
+              message: '暂无文章',
+              type: 'info',
+              duration: 3000
+            })
           }
         } else {
           console.error('响应码错误:', response.code)
-          this.$message.error(response.message || '获取文章列表失败')
+          this.$message({
+            message: response.message || '获取文章列表失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         console.error('获取文章列表失败:', error)
-        this.$message.error('获取文章列表失败: ' + (error.message || '未知错误'))
+        this.$message({
+          message: '获取文章列表失败: ' + (error.message || '未知错误'),
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.loading = false
         // 数据加载完成后，延迟执行布局优化

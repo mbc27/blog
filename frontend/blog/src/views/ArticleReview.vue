@@ -160,13 +160,21 @@ export default {
           const userInfo = response.data
           const isAdmin = userInfo.roles && userInfo.roles.some(role => role === 'ROLE_ADMIN')
           if (!isAdmin) {
-            this.$message.error('您没有权限访问此页面')
+            this.$message({
+              message: '您没有权限访问此页面',
+              type: 'error',
+              duration: 3000
+            })
             this.$router.push('/')
           }
         }
       } catch (error) {
         console.error('获取用户信息失败:', error)
-        this.$message.error('获取用户信息失败')
+        this.$message({
+          message: '获取用户信息失败',
+          type: 'error',
+          duration: 3000
+        })
         this.$router.push('/')
       }
     },
@@ -186,7 +194,11 @@ export default {
         }
       } catch (error) {
         console.error('获取待审核文章失败:', error)
-        this.$message.error('获取待审核文章失败')
+        this.$message({
+          message: '获取待审核文章失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.loading = false
       }
@@ -209,7 +221,11 @@ export default {
         }
       } catch (error) {
         console.error('获取已审核文章失败:', error)
-        this.$message.error('获取已审核文章失败')
+        this.$message({
+          message: '获取已审核文章失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.loading = false
       }
@@ -225,11 +241,19 @@ export default {
       try {
         const response = await api.article.approve(id)
         if (response.code === 200) {
-          this.$message.success('审核通过成功')
+          this.$message({
+            message: '审核通过成功',
+            type: 'success',
+            duration: 3000
+          })
           this.fetchPendingArticles()
         }
       } catch (error) {
-        this.$message.error('审核操作失败: ' + (error.message || '未知错误'))
+        this.$message({
+          message: '审核操作失败: ' + (error.message || '未知错误'),
+          type: 'error',
+          duration: 3000
+        })
       }
     },
     
@@ -238,11 +262,19 @@ export default {
       try {
         const response = await api.article.reject(id)
         if (response.code === 200) {
-          this.$message.success('审核拒绝成功')
+          this.$message({
+            message: '审核拒绝成功',
+            type: 'success',
+            duration: 3000
+          })
           this.fetchPendingArticles()
         }
       } catch (error) {
-        this.$message.error('审核操作失败: ' + (error.message || '未知错误'))
+        this.$message({
+          message: '审核操作失败: ' + (error.message || '未知错误'),
+          type: 'error',
+          duration: 3000
+        })
       }
     },
     

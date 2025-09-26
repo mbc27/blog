@@ -492,7 +492,11 @@ export default {
         this.$router.push('/user/profile')
       } else if (command === 'logout') {
         this.logout()
-        this.$message.success('已退出登录')
+        this.$message({
+          message: '已退出登录',
+          type: 'success',
+          duration: 3000
+        })
         this.$router.push('/').catch(() => {})
       }
     },
@@ -579,7 +583,11 @@ export default {
       } else if (project.githubUrl) {
         this.openProjectUrl(project.githubUrl)
       } else {
-        this.$message.info('项目详情功能开发中...')
+        this.$message({
+          message: '项目详情功能开发中...',
+          type: 'info',
+          duration: 3000
+        })
       }
     },
 
@@ -652,14 +660,26 @@ export default {
           project.isLiked = response.data.liked;
           
           if (response.data.liked) {
-            this.$message.success('点赞成功');
+            this.$message({
+              message: '点赞成功',
+              type: 'success',
+              duration: 3000
+            });
           } else {
-            this.$message.success('取消点赞');
+            this.$message({
+              message: '取消点赞',
+              type: 'success',
+              duration: 3000
+            });
           }
         }
       } catch (error) {
         console.error('点赞操作失败:', error);
-        this.$message.error('点赞操作失败');
+        this.$message({
+          message: '点赞操作失败',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
 

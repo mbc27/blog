@@ -259,7 +259,11 @@ export default {
         this.$router.push('/user/profile')
       } else if (command === 'logout') {
         this.logout()
-        this.$message.success('已退出登录')
+        this.$message({
+          message: '已退出登录',
+          type: 'success',
+          duration: 3000
+        })
         this.$router.push('/').catch(() => {})
       }
     },

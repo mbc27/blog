@@ -218,7 +218,11 @@ export default {
         }
       } catch (error) {
         console.error('加载系统设置失败:', error)
-        this.$message.error('加载系统设置失败')
+        this.$message({
+          message: '加载系统设置失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
     
@@ -229,13 +233,25 @@ export default {
           try {
             const response = await api.system.updateSettings(this.settingsForm)
             if (response.code === 200) {
-              this.$message.success('系统设置保存成功')
+              this.$message({
+                message: '系统设置保存成功',
+                type: 'success',
+                duration: 3000
+              })
             } else {
-              this.$message.error(response.message || '保存失败')
+              this.$message({
+                message: response.message || '保存失败',
+                type: 'error',
+                duration: 3000
+              })
             }
           } catch (error) {
             console.error('保存系统设置失败:', error)
-            this.$message.error('保存系统设置失败')
+            this.$message({
+              message: '保存系统设置失败',
+              type: 'error',
+              duration: 3000
+            })
           } finally {
             this.saving = false
           }
@@ -257,32 +273,60 @@ export default {
         try {
           const response = await api.system.initSettings()
           if (response.code === 200) {
-            this.$message.success('恢复默认设置成功')
+            this.$message({
+              message: '恢复默认设置成功',
+              type: 'success',
+              duration: 3000
+            })
             this.loadSettings()
           } else {
-            this.$message.error(response.message || '恢复默认设置失败')
+            this.$message({
+              message: response.message || '恢复默认设置失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         } catch (error) {
           console.error('恢复默认设置失败:', error)
-          this.$message.error('恢复默认设置失败')
+          this.$message({
+            message: '恢复默认设置失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       })
     },
     
     uploadLogo() {
-      this.$message.info('文件上传功能待实现')
+      this.$message({
+        message: '文件上传功能待实现',
+        type: 'info',
+        duration: 3000
+      })
     },
     
     uploadFavicon() {
-      this.$message.info('文件上传功能待实现')
+      this.$message({
+        message: '文件上传功能待实现',
+        type: 'info',
+        duration: 3000
+      })
     },
     
     uploadWechatQr() {
-      this.$message.info('微信二维码上传功能待实现')
+      this.$message({
+        message: '微信二维码上传功能待实现',
+        type: 'info',
+        duration: 3000
+      })
     },
     
     uploadWechatOfficialQr() {
-      this.$message.info('微信公众号二维码上传功能待实现')
+      this.$message({
+        message: '微信公众号二维码上传功能待实现',
+        type: 'info',
+        duration: 3000
+      })
     }
   }
 }

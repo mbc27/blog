@@ -126,7 +126,7 @@ export default {
       try {
         // 检查是否已登录
         if (!this.$store.getters.isAuthenticated) {
-          console.log('用户未登录，无法获取用户信息')
+          console.log('用户未登录，跳过获取用户信息')
           return
         }
         
@@ -140,6 +140,9 @@ export default {
         }
       } catch (error) {
         console.error('获取用户信息失败:', error)
+        // 如果获取用户信息失败，清除本地状态，但不影响页面正常显示
+        this.currentUserId = null
+        this.isAdmin = false
       }
     },
 
@@ -161,11 +164,19 @@ export default {
             this.checkLikeStatus()
           }
         } else {
-          this.$message.error('获取文章详情失败')
+          this.$message({
+            message: '获取文章详情失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         console.error('获取文章详情失败:', error)
-        this.$message.error('获取文章详情失败')
+        this.$message({
+          message: '获取文章详情失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
 
@@ -188,7 +199,11 @@ export default {
     // 切换点赞状态
     async toggleLike() {
       if (!this.$store.getters.isAuthenticated) {
-        this.$message.warning('请先登录')
+        this.$message({
+          message: '请先登录',
+          type: 'warning',
+          duration: 3000
+        })
         return
       }
 
@@ -203,13 +218,25 @@ export default {
           } else {
             this.article.likeCount--
           }
-          this.$message.success(this.isLiked ? '点赞成功' : '取消点赞成功')
+          this.$message({
+            message: this.isLiked ? '点赞成功' : '取消点赞成功',
+            type: 'success',
+            duration: 3000
+          })
         } else {
-          this.$message.error(response.message || '操作失败')
+          this.$message({
+            message: response.message || '操作失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         console.error('点赞操作失败:', error)
-        this.$message.error('操作失败')
+        this.$message({
+          message: '操作失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.liking = false
       }

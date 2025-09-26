@@ -447,11 +447,19 @@ export default {
             ...aiResponse
           }
         } else {
-          this.$message.error(systemResponse.message || '获取设置失败')
+          this.$message({
+            message: systemResponse.message || '获取设置失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       }).catch(error => {
         console.error('获取设置失败', error)
-        this.$message.error('获取设置失败：' + (error.message || '未知错误'))
+        this.$message({
+          message: '获取设置失败：' + (error.message || '未知错误'),
+          type: 'error',
+          duration: 3000
+        })
       }).finally(() => {
         this.loading = false
       })
@@ -508,12 +516,20 @@ export default {
             this.saveSystemSettings(),
             this.saveAiSettings()
           ]).then(() => {
-            this.$message.success('保存设置成功')
+            this.$message({
+              message: '保存设置成功',
+              type: 'success',
+              duration: 3000
+            })
             // 重新加载设置，确保数据一致性
             this.fetchSettings()
           }).catch(error => {
             console.error('保存设置失败', error)
-            this.$message.error('保存设置失败：' + (error.message || '未知错误'))
+            this.$message({
+              message: '保存设置失败：' + (error.message || '未知错误'),
+              type: 'error',
+              duration: 3000
+            })
           }).finally(() => {
             this.loading = false
           })
@@ -595,11 +611,19 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2
       
       if (!isImage) {
-        this.$message.error('只能上传图片文件!')
+        this.$message({
+          message: '只能上传图片文件!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       if (!isLt2M) {
-        this.$message.error('上传图片大小不能超过 2MB!')
+        this.$message({
+          message: '上传图片大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        })
         return false
       }
       return true
@@ -617,12 +641,20 @@ export default {
         }
         
         this.settings.wechatQrCode = qrUrl;
-        this.$message.success('微信二维码上传成功')
+        this.$message({
+          message: '微信二维码上传成功',
+          type: 'success',
+          duration: 3000
+        })
         console.log('设置微信二维码URL:', qrUrl)
         // 自动保存设置
         this.saveSettings()
       } else {
-        this.$message.error(response.message || '上传失败')
+        this.$message({
+          message: response.message || '上传失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
     
@@ -638,12 +670,20 @@ export default {
         }
         
         this.settings.wechatPublicQrCode = qrUrl;
-        this.$message.success('微信公众号二维码上传成功')
+        this.$message({
+          message: '微信公众号二维码上传成功',
+          type: 'success',
+          duration: 3000
+        })
         console.log('设置微信公众号二维码URL:', qrUrl)
         // 自动保存设置
         this.saveSettings()
       } else {
-        this.$message.error(response.message || '上传失败')
+        this.$message({
+          message: response.message || '上传失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
     
@@ -655,7 +695,11 @@ export default {
         type: 'warning'
       }).then(() => {
         this.settings.wechatQrCode = ''
-        this.$message.success('删除成功')
+        this.$message({
+          message: '删除成功',
+          type: 'success',
+          duration: 3000
+        })
       }).catch(() => {})
     },
     
@@ -667,7 +711,11 @@ export default {
         type: 'warning'
       }).then(() => {
         this.settings.wechatPublicQrCode = ''
-        this.$message.success('删除成功')
+        this.$message({
+          message: '删除成功',
+          type: 'success',
+          duration: 3000
+        })
       }).catch(() => {})
     },
     
@@ -714,7 +762,11 @@ export default {
     // 测试AI连接
     testAiConnection() {
       if (!this.settings.deepseekApiKey) {
-        this.$message.warning('请先配置DeepSeek API Key')
+        this.$message({
+          message: '请先配置DeepSeek API Key',
+          type: 'warning',
+          duration: 3000
+        })
         return
       }
       
@@ -733,13 +785,21 @@ export default {
               success: true,
               message: 'AI连接测试成功！'
             }
-            this.$message.success('AI连接测试成功')
+            this.$message({
+              message: 'AI连接测试成功',
+              type: 'success',
+              duration: 3000
+            })
           } else {
             this.aiTestResult = {
               success: false,
               message: response.message || 'AI连接测试失败'
             }
-            this.$message.error(response.message || 'AI连接测试失败')
+            this.$message({
+              message: response.message || 'AI连接测试失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         })
         .catch(error => {
@@ -748,7 +808,11 @@ export default {
             success: false,
             message: 'AI连接测试失败：' + (error.message || '网络错误')
           }
-          this.$message.error('AI连接测试失败：' + (error.message || '网络错误'))
+          this.$message({
+            message: 'AI连接测试失败：' + (error.message || '网络错误'),
+            type: 'error',
+            duration: 3000
+          })
         })
         .finally(() => {
           this.testingAi = false

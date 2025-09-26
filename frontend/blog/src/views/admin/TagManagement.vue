@@ -136,7 +136,11 @@ export default {
         })
         .catch(error => {
           console.error('获取标签列表失败', error)
-          this.$message.error('获取标签列表失败')
+          this.$message({
+            message: '获取标签列表失败',
+            type: 'error',
+            duration: 3000
+          })
         })
         .finally(() => {
           this.loading = false
@@ -186,12 +190,20 @@ export default {
           }
         })
           .then(() => {
-            this.$message.success('删除成功')
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchTags()
           })
           .catch(error => {
             console.error('删除标签失败', error)
-            this.$message.error('删除标签失败')
+            this.$message({
+              message: '删除标签失败',
+              type: 'error',
+              duration: 3000
+            })
           })
       }).catch(() => {})
     },
@@ -208,13 +220,21 @@ export default {
             }
           })
             .then(() => {
-              this.$message.success(`${this.tagForm.id ? '更新' : '添加'}标签成功`)
+              this.$message({
+                message: `${this.tagForm.id ? '更新' : '添加'}标签成功`,
+                type: 'success',
+                duration: 3000
+              })
               this.dialogVisible = false
               this.fetchTags()
             })
             .catch(error => {
               console.error(`${this.tagForm.id ? '更新' : '添加'}标签失败`, error)
-              this.$message.error(`${this.tagForm.id ? '更新' : '添加'}标签失败`)
+              this.$message({
+                message: `${this.tagForm.id ? '更新' : '添加'}标签失败`,
+                type: 'error',
+                duration: 3000
+              })
             })
             .finally(() => {
               this.submitLoading = false

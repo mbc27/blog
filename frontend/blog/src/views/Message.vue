@@ -299,7 +299,11 @@ export default {
           try {
             const response = await api.message.add(this.messageForm)
             if (response.code === 200) {
-              this.$message.success('留言提交成功！感谢您的留言，管理员会及时查看')
+              this.$message({
+                message: '留言提交成功！感谢您的留言，管理员会及时查看',
+                type: 'success',
+                duration: 3000
+              })
               // 只清空内容，保留用户信息
               this.messageForm.content = ''
               if (!this.isAuthenticated) {
@@ -311,7 +315,11 @@ export default {
             }
           } catch (error) {
             console.error('提交留言失败:', error)
-            this.$message.error('留言提交失败，请检查网络连接或稍后重试')
+            this.$message({
+              message: '留言提交失败，请检查网络连接或稍后重试',
+              type: 'error',
+              duration: 3000
+            })
           }
         } else {
           return false
@@ -350,16 +358,28 @@ export default {
       // 手动验证表单
       let isValid = true
       if (!this.replyForm.content.trim()) {
-        this.$message.error('请输入回复内容')
+        this.$message({
+          message: '请输入回复内容',
+          type: 'error',
+          duration: 3000
+        })
         isValid = false
       }
       if (!this.isAuthenticated) {
         if (!this.replyForm.nickname.trim()) {
-          this.$message.error('请输入昵称')
+          this.$message({
+            message: '请输入昵称',
+            type: 'error',
+            duration: 3000
+          })
           isValid = false
         }
         if (!this.replyForm.email.trim()) {
-          this.$message.error('请输入邮箱')
+          this.$message({
+            message: '请输入邮箱',
+            type: 'error',
+            duration: 3000
+          })
           isValid = false
         }
       }
@@ -377,14 +397,22 @@ export default {
         
         const response = await api.message.add(replyData)
         if (response.code === 200) {
-          this.$message.success('回复发表成功！')
+          this.$message({
+            message: '回复发表成功！',
+            type: 'success',
+            duration: 3000
+          })
           this.cancelReply()
           // 重新获取留言列表
           this.fetchMessages()
         }
       } catch (error) {
         console.error('回复失败:', error)
-        this.$message.error('回复发表失败，请检查网络连接或稍后重试')
+        this.$message({
+          message: '回复发表失败，请检查网络连接或稍后重试',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.replySubmitting = false
       }

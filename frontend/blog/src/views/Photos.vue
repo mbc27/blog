@@ -387,14 +387,22 @@ export default {
           console.log('处理后的照片数据:', this.photos)
         } else {
           console.error('获取照片列表失败:', response.message)
-          this.$message.error('获取照片列表失败: ' + (response.message || '未知错误'))
+          this.$message({
+            message: '获取照片列表失败: ' + (response.message || '未知错误'),
+            type: 'error',
+            duration: 3000
+          })
           this.photos = []
           this.total = 0
           this.totalViews = 0
         }
       } catch (error) {
         console.error('获取相册列表失败:', error)
-        this.$message.error('获取相册列表失败: ' + (error.message || '网络错误'))
+        this.$message({
+          message: '获取相册列表失败: ' + (error.message || '网络错误'),
+          type: 'error',
+          duration: 3000
+        })
         this.photos = []
         this.total = 0
       } finally {

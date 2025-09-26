@@ -156,7 +156,11 @@ export default {
       console.log('快速续写 - 处理内容:', contentToProcess.substring(0, 100) + '...');
       
       if (!contentToProcess.trim()) {
-        this.$message.warning(hasSelectedContent ? '请先选择一些内容进行续写' : '请先输入一些内容，AI才能进行续写');
+        this.$message({
+          message: hasSelectedContent ? '请先选择一些内容进行续写' : '请先输入一些内容，AI才能进行续写',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
@@ -175,21 +179,41 @@ export default {
             if (hasSelectedContent) {
               // 有选中内容：替换选中内容
               this.$emit('selected-content-replaced', continuedContent);
-              this.$message.success('选中内容续写完成并已替换！');
+              this.$message({
+                message: '选中内容续写完成并已替换！',
+                type: 'success',
+                duration: 3000
+              });
             } else {
               // 没有选中内容：追加到文章末尾
               this.$emit('content-generated', '\n\n' + continuedContent);
-              this.$message.success('AI续写完成并已添加到文章末尾！');
+              this.$message({
+                message: 'AI续写完成并已添加到文章末尾！',
+                type: 'success',
+                duration: 3000
+              });
             }
           } else {
-            this.$message.error('AI续写返回内容为空');
+            this.$message({
+              message: 'AI续写返回内容为空',
+              type: 'error',
+              duration: 3000
+            });
           }
         } else {
-          this.$message.error(response.message || 'AI续写失败');
+          this.$message({
+            message: response.message || 'AI续写失败',
+            type: 'error',
+            duration: 3000
+          });
         }
       } catch (error) {
         console.error('AI续写失败:', error);
-        this.$message.error('AI续写失败，请稍后重试');
+        this.$message({
+          message: 'AI续写失败，请稍后重试',
+          type: 'error',
+          duration: 3000
+        });
       } finally {
         this.aiLoading = false;
       }
@@ -211,7 +235,11 @@ export default {
       console.log('快速优化 - 处理内容:', contentToProcess.substring(0, 100) + '...');
       
       if (!contentToProcess.trim()) {
-        this.$message.warning(hasSelectedContent ? '请先选择一些内容进行优化' : '请先输入内容，AI才能进行优化');
+        this.$message({
+          message: hasSelectedContent ? '请先选择一些内容进行优化' : '请先输入内容，AI才能进行优化',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
@@ -229,21 +257,41 @@ export default {
             if (hasSelectedContent) {
               // 有选中内容：替换选中内容
               this.$emit('selected-content-replaced', optimizedContent);
-              this.$message.success('选中内容优化完成并已替换！');
+              this.$message({
+                message: '选中内容优化完成并已替换！',
+                type: 'success',
+                duration: 3000
+              });
             } else {
               // 没有选中内容：追加到文章末尾
               this.$emit('content-generated', '\n\n' + optimizedContent);
-              this.$message.success('AI优化完成并已添加到文章末尾！');
+              this.$message({
+                message: 'AI优化完成并已添加到文章末尾！',
+                type: 'success',
+                duration: 3000
+              });
             }
           } else {
-            this.$message.error('AI优化返回内容为空');
+            this.$message({
+              message: 'AI优化返回内容为空',
+              type: 'error',
+              duration: 3000
+            });
           }
         } else {
-          this.$message.error(response.message || 'AI优化失败');
+          this.$message({
+            message: response.message || 'AI优化失败',
+            type: 'error',
+            duration: 3000
+          });
         }
       } catch (error) {
         console.error('AI优化失败:', error);
-        this.$message.error('AI优化失败，请稍后重试');
+        this.$message({
+          message: 'AI优化失败，请稍后重试',
+          type: 'error',
+          duration: 3000
+        });
       } finally {
         this.aiLoading = false;
       }
@@ -252,7 +300,11 @@ export default {
     // 生成内容
     async generateContent() {
       if (!this.aiForm.topic.trim()) {
-        this.$message.warning('请输入主题描述');
+        this.$message({
+          message: '请输入主题描述',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
@@ -286,16 +338,32 @@ export default {
           const generatedContent = response.data || response.message || '';
           if (generatedContent) {
             this.aiResult = generatedContent;
-            this.$message.success('AI生成完成！');
+            this.$message({
+              message: 'AI生成完成！',
+              type: 'success',
+              duration: 3000
+            });
           } else {
-            this.$message.error('AI生成返回内容为空');
+            this.$message({
+              message: 'AI生成返回内容为空',
+              type: 'error',
+              duration: 3000
+            });
           }
         } else {
-          this.$message.error(response.message || 'AI生成失败');
+          this.$message({
+            message: response.message || 'AI生成失败',
+            type: 'error',
+            duration: 3000
+          });
         }
       } catch (error) {
         console.error('AI生成失败:', error);
-        this.$message.error('AI生成失败，请稍后重试');
+        this.$message({
+          message: 'AI生成失败，请稍后重试',
+          type: 'error',
+          duration: 3000
+        });
       } finally {
         this.aiLoading = false;
       }
@@ -306,19 +374,31 @@ export default {
     // 插入结果到文章
     insertResult() {
       if (!this.aiResult) {
-        this.$message.warning('没有可插入的内容');
+        this.$message({
+          message: '没有可插入的内容',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
       this.$emit('content-generated', '\n\n' + this.aiResult);
-      this.$message.success('内容已插入到文章末尾');
+      this.$message({
+        message: '内容已插入到文章末尾',
+        type: 'success',
+        duration: 3000
+      });
       this.aiDialogVisible = false;
     },
 
     // 替换当前内容
     replaceContent() {
       if (!this.aiResult) {
-        this.$message.warning('没有可替换的内容');
+        this.$message({
+          message: '没有可替换的内容',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
@@ -328,22 +408,38 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$emit('content-replaced', this.aiResult);
-        this.$message.success('内容已替换');
+        this.$message({
+          message: '内容已替换',
+          type: 'success',
+          duration: 3000
+        });
         this.aiDialogVisible = false;
       }).catch(() => {
-        this.$message.info('已取消替换');
+        this.$message({
+          message: '已取消替换',
+          type: 'info',
+          duration: 3000
+        });
       });
     },
 
     // 替换选中内容
     replaceSelectedContent() {
       if (!this.aiResult) {
-        this.$message.warning('没有可替换的内容');
+        this.$message({
+          message: '没有可替换的内容',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
       if (!this.selectedContent) {
-        this.$message.warning('没有选中内容');
+        this.$message({
+          message: '没有选中内容',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
@@ -353,17 +449,29 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$emit('selected-content-replaced', this.aiResult);
-        this.$message.success('选中内容已替换');
+        this.$message({
+          message: '选中内容已替换',
+          type: 'success',
+          duration: 3000
+        });
         this.aiDialogVisible = false;
       }).catch(() => {
-        this.$message.info('已取消替换');
+        this.$message({
+          message: '已取消替换',
+          type: 'info',
+          duration: 3000
+        });
       });
     },
 
     // 复制结果
     copyResult() {
       if (!this.aiResult) {
-        this.$message.warning('没有可复制的内容');
+        this.$message({
+          message: '没有可复制的内容',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
@@ -375,7 +483,11 @@ export default {
       document.execCommand('copy');
       document.body.removeChild(textarea);
       
-      this.$message.success('内容已复制到剪贴板');
+      this.$message({
+        message: '内容已复制到剪贴板',
+        type: 'success',
+        duration: 3000
+      });
     },
 
     // 清空结果
@@ -386,7 +498,11 @@ export default {
         topic: '',
         style: 'popular'
       };
-      this.$message.success('结果已清空');
+      this.$message({
+        message: '结果已清空',
+        type: 'success',
+        duration: 3000
+      });
     }
   }
 }

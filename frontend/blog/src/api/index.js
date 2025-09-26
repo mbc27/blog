@@ -42,15 +42,18 @@ service.interceptors.response.use(
       Message({
         message: res.message || '请求失败',
         type: 'error',
-        duration: 5 * 1000
+        duration: 3 * 1000
       })
 
       // 401: 未登录或token过期
       if (res.code === 401) {
-        store.dispatch('logout').then(() => {
-          // 重新登录
-          location.reload()
+        Message({
+          message: '登录已过期，请重新登录',
+          type: 'warning',
+          duration: 3 * 1000
         })
+        store.dispatch('logout')
+        // 不要自动重新加载页面，让用户手动操作
       }
       return Promise.reject(new Error(res.message || '请求失败'))
     } else {
@@ -65,41 +68,42 @@ service.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           Message({
-            message: '未授权，请重新登录',
-            type: 'error',
-            duration: 5 * 1000
+            message: '登录已过期，请重新登录',
+            type: 'warning',
+            duration: 3 * 1000
           })
-          // 清除token并跳转到登录页
-          store.dispatch('logout').then(() => {
-            location.reload()
-          })
+          // 清除token，但不自动重新加载页面
+          store.dispatch('logout')
           break
         case 403:
+          // 403错误通常也是token过期或无效导致的
           Message({
-            message: '拒绝访问，请检查您的权限',
-            type: 'error',
-            duration: 5 * 1000
+            message: '登录已过期或权限不足，请重新登录',
+            type: 'warning',
+            duration: 3 * 1000
           })
+          // 对于403错误，也清除token，但不自动重新加载页面
+          store.dispatch('logout')
           break
         case 404:
           Message({
             message: '请求的资源不存在',
             type: 'error',
-            duration: 5 * 1000
+            duration: 3 * 1000
           })
           break
         case 500:
           Message({
             message: '服务器内部错误',
             type: 'error',
-            duration: 5 * 1000
+            duration: 3 * 1000
           })
           break
         default:
           Message({
             message: error.response.data.message || '请求失败',
             type: 'error',
-            duration: 5 * 1000
+            duration: 3 * 1000
           })
       }
     } else {
@@ -107,7 +111,7 @@ service.interceptors.response.use(
       Message({
         message: '网络错误，请检查您的网络连接',
         type: 'error',
-        duration: 5 * 1000
+        duration: 3 * 1000
       })
     }
     return Promise.reject(error)

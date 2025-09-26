@@ -31,11 +31,19 @@ axios.interceptors.response.use(
     return response
   },
   error => {
-    if (error.response && error.response.status === 401) {
-      // 清除token并跳转到登录页
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      // 显示友好的错误提示
+      ElementUI.Message({
+        message: '登录已过期，请重新登录',
+        type: 'warning',
+        duration: 3 * 1000
+      })
+      // 清除token，但只在不是登录页面时才跳转
       localStorage.removeItem('token')
       store.dispatch('logout')
-      router.push('/login')
+      if (router.currentRoute.path !== '/login') {
+        router.push('/login').catch(() => {})
+      }
     }
     return Promise.reject(error)
   }

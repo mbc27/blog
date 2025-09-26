@@ -190,14 +190,26 @@ export default {
           this.total = response.data.total || 0
           
           if (this.userList.length === 0 && this.total === 0) {
-            this.$message.info('未找到符合条件的用户')
+            this.$message({
+              message: '未找到符合条件的用户',
+              type: 'info',
+              duration: 3000
+            })
           }
         } else {
-          this.$message.error('获取用户列表失败: ' + (response.message || '未知错误'))
+          this.$message({
+            message: '获取用户列表失败: ' + (response.message || '未知错误'),
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         console.error('获取用户列表失败:', error)
-        this.$message.error('获取用户列表失败: ' + (error.message || '网络错误'))
+        this.$message({
+          message: '获取用户列表失败: ' + (error.message || '网络错误'),
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.loading = false
       }
@@ -255,16 +267,28 @@ export default {
         })
         
         if (response.code === 200) {
-          this.$message.success('用户信息更新成功')
+          this.$message({
+            message: '用户信息更新成功',
+            type: 'success',
+            duration: 3000
+          })
           this.editDialogVisible = false
           // 重新加载用户列表以显示最新数据
           await this.loadUsers()
         } else {
-          this.$message.error('更新用户信息失败: ' + (response.message || '未知错误'))
+          this.$message({
+            message: '更新用户信息失败: ' + (response.message || '未知错误'),
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         console.error('更新用户信息失败:', error)
-        this.$message.error('更新用户信息失败: ' + (error.message || '网络错误'))
+        this.$message({
+          message: '更新用户信息失败: ' + (error.message || '网络错误'),
+          type: 'error',
+          duration: 3000
+        })
       }
     },
 
@@ -281,15 +305,27 @@ export default {
 
         const response = await api.adminUser.updateStatus(user.id, newStatus)
         if (response.code === 200) {
-          this.$message.success(`${action}用户成功`)
+          this.$message({
+            message: `${action}用户成功`,
+            type: 'success',
+            duration: 3000
+          })
           await this.loadUsers()
         } else {
-          this.$message.error(`${action}用户失败: ` + (response.message || '未知错误'))
+          this.$message({
+            message: `${action}用户失败: ` + (response.message || '未知错误'),
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         if (error !== 'cancel') {
           console.error(`${action}用户失败:`, error)
-          this.$message.error(`${action}用户失败: ` + (error.message || '网络错误'))
+          this.$message({
+            message: `${action}用户失败: ` + (error.message || '网络错误'),
+            type: 'error',
+            duration: 3000
+          })
         }
       }
     },
@@ -304,14 +340,26 @@ export default {
 
         const response = await api.adminUser.resetPassword(user.id)
         if (response.code === 200) {
-          this.$message.success('密码重置成功，新密码为：123456')
+          this.$message({
+            message: '密码重置成功，新密码为：123456',
+            type: 'success',
+            duration: 3000
+          })
         } else {
-          this.$message.error('重置密码失败: ' + (response.message || '未知错误'))
+          this.$message({
+            message: '重置密码失败: ' + (response.message || '未知错误'),
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         if (error !== 'cancel') {
           console.error('重置密码失败:', error)
-          this.$message.error('重置密码失败: ' + (error.message || '网络错误'))
+          this.$message({
+            message: '重置密码失败: ' + (error.message || '网络错误'),
+            type: 'error',
+            duration: 3000
+          })
         }
       }
     },
@@ -326,15 +374,27 @@ export default {
 
         const response = await api.adminUser.delete(user.id)
         if (response.code === 200) {
-          this.$message.success('删除用户成功')
+          this.$message({
+            message: '删除用户成功',
+            type: 'success',
+            duration: 3000
+          })
           await this.loadUsers()
         } else {
-          this.$message.error('删除用户失败: ' + (response.message || '未知错误'))
+          this.$message({
+            message: '删除用户失败: ' + (response.message || '未知错误'),
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         if (error !== 'cancel') {
           console.error('删除用户失败:', error)
-          this.$message.error('删除用户失败: ' + (error.message || '网络错误'))
+          this.$message({
+            message: '删除用户失败: ' + (error.message || '网络错误'),
+            type: 'error',
+            duration: 3000
+          })
         }
       }
     },

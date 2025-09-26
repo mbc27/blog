@@ -214,10 +214,18 @@ export default {
           this.messages = response.data.records
           this.total = response.data.total
         } else {
-          this.$message.error(response.message || '获取留言列表失败')
+          this.$message({
+            message: response.message || '获取留言列表失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
-        this.$message.error('获取留言列表失败')
+        this.$message({
+          message: '获取留言列表失败',
+          type: 'error',
+          duration: 3000
+        })
         console.error('Error fetching messages:', error)
       } finally {
         this.loading = false
@@ -245,10 +253,18 @@ export default {
           this.total = response.data.total
           this.currentPage = 1
         } else {
-          this.$message.error(response.message || '搜索失败')
+          this.$message({
+            message: response.message || '搜索失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
-        this.$message.error('搜索失败')
+        this.$message({
+          message: '搜索失败',
+          type: 'error',
+          duration: 3000
+        })
         console.error('Error searching messages:', error)
       } finally {
         this.loading = false
@@ -289,14 +305,26 @@ export default {
       try {
         const response = await api.message.update(this.editForm.id, this.editForm)
         if (response.code === 200) {
-          this.$message.success('更新成功')
+          this.$message({
+            message: '更新成功',
+            type: 'success',
+            duration: 3000
+          })
           this.editDialogVisible = false
           this.fetchMessages()
         } else {
-          this.$message.error(response.message || '更新失败')
+          this.$message({
+            message: response.message || '更新失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
-        this.$message.error('更新失败')
+        this.$message({
+          message: '更新失败',
+          type: 'error',
+          duration: 3000
+        })
         console.error('Error updating message:', error)
       }
     },
@@ -310,13 +338,25 @@ export default {
         try {
           const response = await api.message.delete(id)
           if (response.code === 200) {
-            this.$message.success('删除成功')
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchMessages()
           } else {
-            this.$message.error(response.message || '删除失败')
+            this.$message({
+              message: response.message || '删除失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         } catch (error) {
-          this.$message.error('删除失败')
+          this.$message({
+            message: '删除失败',
+            type: 'error',
+            duration: 3000
+          })
           console.error('Error deleting message:', error)
         }
       })
@@ -324,7 +364,11 @@ export default {
 
     batchDeleteMessages() {
       if (this.selectedMessages.length === 0) {
-        this.$message.warning('请选择要删除的留言')
+        this.$message({
+          message: '请选择要删除的留言',
+          type: 'warning',
+          duration: 3000
+        })
         return
       }
 
@@ -337,13 +381,25 @@ export default {
           const ids = this.selectedMessages.map(message => message.id)
           const response = await api.message.batchDelete(ids)
           if (response.code === 200) {
-            this.$message.success('批量删除成功')
+            this.$message({
+              message: '批量删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchMessages()
           } else {
-            this.$message.error(response.message || '批量删除失败')
+            this.$message({
+              message: response.message || '批量删除失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         } catch (error) {
-          this.$message.error('批量删除失败')
+          this.$message({
+            message: '批量删除失败',
+            type: 'error',
+            duration: 3000
+          })
           console.error('Error batch deleting messages:', error)
         }
       })

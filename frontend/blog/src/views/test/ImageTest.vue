@@ -99,7 +99,11 @@ export default {
         console.log('服务器信息:', data);
       } catch (error) {
         console.error('获取服务器信息失败:', error);
-        this.$message.error('获取服务器信息失败');
+        this.$message({
+          message: '获取服务器信息失败',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
     
@@ -112,30 +116,50 @@ export default {
         console.log('服务器IP:', data);
       } catch (error) {
         console.error('获取服务器IP失败:', error);
-        this.$message.error('获取服务器IP失败');
+        this.$message({
+          message: '获取服务器IP失败',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
     
     // 测试图片
     async testImage() {
       if (!this.imageUrl) {
-        this.$message.warning('请输入图片URL');
+        this.$message({
+          message: '请输入图片URL',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
       // 使用Image对象测试图片是否可访问
       const success = await this.testImageUrl(this.imageUrl);
       if (success) {
-        this.$message.success('图片可访问');
+        this.$message({
+          message: '图片可访问',
+          type: 'success',
+          duration: 3000
+        });
       } else {
-        this.$message.error('图片不可访问');
+        this.$message({
+          message: '图片不可访问',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
     
     // 处理图片URL
     async processImage() {
       if (!this.imageUrl) {
-        this.$message.warning('请输入图片URL');
+        this.$message({
+          message: '请输入图片URL',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
@@ -156,17 +180,29 @@ export default {
         
         this.processedUrl = processed;
         this.imageUrl = processed;
-        this.$message.success('URL处理成功');
+        this.$message({
+          message: 'URL处理成功',
+          type: 'success',
+          duration: 3000
+        });
       } catch (error) {
         console.error('处理图片URL失败:', error);
-        this.$message.error('处理图片URL失败');
+        this.$message({
+          message: '处理图片URL失败',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
     
     // 尝试多种URL
     async tryMultipleUrls() {
       if (!this.imageUrl) {
-        this.$message.warning('请输入图片URL');
+        this.$message({
+          message: '请输入图片URL',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
@@ -324,14 +360,22 @@ export default {
         
         this.uploadedImageUrl = imageUrl;
       } else {
-        this.$message.error(res.message || '上传失败');
+        this.$message({
+          message: res.message || '上传失败',
+          type: 'error',
+          duration: 3000
+        });
       }
     },
     
     // 上传错误处理
     handleUploadError(err) {
       console.error('上传错误:', err);
-      this.$message.error('图片上传失败');
+      this.$message({
+        message: '图片上传失败',
+        type: 'error',
+        duration: 3000
+      });
     },
     
     // 上传前校验
@@ -340,10 +384,18 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2;
       
       if (!isImage) {
-        this.$message.error('只能上传图片文件!');
+        this.$message({
+          message: '只能上传图片文件!',
+          type: 'error',
+          duration: 3000
+        });
       }
       if (!isLt2M) {
-        this.$message.error('图片大小不能超过 2MB!');
+        this.$message({
+          message: '图片大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        });
       }
       return isImage && isLt2M;
     },

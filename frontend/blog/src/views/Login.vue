@@ -195,7 +195,11 @@ export default {
           // 如果注册功能关闭且当前在注册页面，则切换到登录页面
           if (!this.registerEnabled && !this.isLogin) {
             this.isLogin = true;
-            this.$message.warning('注册功能已关闭，请联系管理员');
+            this.$message({
+              message: '注册功能已关闭，请联系管理员',
+              type: 'warning',
+              duration: 3000
+            });
           }
         }
       } catch (error) {
@@ -207,7 +211,11 @@ export default {
     submitForm() {
       // 注册时检查是否同意协议
       if (!this.isLogin && !this.agreeTerms) {
-        this.$message.warning('请先同意注册协议');
+        this.$message({
+          message: '请先同意注册协议',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       
@@ -225,7 +233,11 @@ export default {
               // 处理记住密码
               this.handleRememberPassword();
               
-              this.$message.success('登录成功');
+              this.$message({
+                message: '登录成功',
+                type: 'success',
+                duration: 3000
+              });
               
               // 检查是否有重定向URL
               const redirectUrl = localStorage.getItem('redirectUrl');
@@ -256,21 +268,45 @@ export default {
                 nickname: this.form.nickname,
                 email: this.form.email
               });
-              this.$message.success('注册成功，请登录');
+              this.$message({
+                message: '注册成功，请登录',
+                type: 'success',
+                duration: 3000
+              });
               this.isLogin = true;
               this.resetForm();
             }
           } catch (error) {
             if (error.message && error.message.includes('用户名或密码错误')) {
-              this.$message.error('用户名或密码错误，请重新输入');
+              this.$message({
+                message: '用户名或密码错误，请重新输入',
+                type: 'error',
+                duration: 3000
+              });
             } else if (error.message && error.message.includes('用户不存在')) {
-              this.$message.error('该用户不存在，请检查用户名或先注册');
+              this.$message({
+                message: '该用户不存在，请检查用户名或先注册',
+                type: 'error',
+                duration: 3000
+              });
             } else if (error.message && error.message.includes('密码错误')) {
-              this.$message.error('密码错误，请重新输入或使用忘记密码功能');
+              this.$message({
+                message: '密码错误，请重新输入或使用忘记密码功能',
+                type: 'error',
+                duration: 3000
+              });
             } else if (error.message && error.message.includes('账户被禁用')) {
-              this.$message.error('您的账户已被禁用，请联系管理员');
+              this.$message({
+                message: '您的账户已被禁用，请联系管理员',
+                type: 'error',
+                duration: 3000
+              });
             } else {
-              this.$message.error(error.message || '登录失败，请检查网络连接或稍后重试');
+              this.$message({
+                message: error.message || '登录失败，请检查网络连接或稍后重试',
+                type: 'error',
+                duration: 3000
+              });
             }
           } finally {
             this.loading = false;
@@ -283,7 +319,11 @@ export default {
     switchMode() {
       // 如果要切换到注册模式，但注册功能已关闭，则提示用户
       if (this.isLogin && !this.registerEnabled) {
-        this.$message.warning('注册功能已关闭，请联系管理员');
+        this.$message({
+          message: '注册功能已关闭，请联系管理员',
+          type: 'warning',
+          duration: 3000
+        });
         return;
       }
       

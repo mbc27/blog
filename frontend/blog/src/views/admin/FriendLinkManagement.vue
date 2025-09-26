@@ -263,10 +263,18 @@ export default {
           this.friendLinks = response.data.records
           this.total = response.data.total
         } else {
-          this.$message.error(response.message || '获取友链列表失败')
+          this.$message({
+            message: response.message || '获取友链列表失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
-        this.$message.error('获取友链列表失败')
+        this.$message({
+          message: '获取友链列表失败',
+          type: 'error',
+          duration: 3000
+        })
         console.error('Error fetching friend links:', error)
       } finally {
         this.loading = false
@@ -342,14 +350,26 @@ export default {
             }
             
             if (response.code === 200) {
-              this.$message.success(this.editForm.id ? '更新成功' : '新增成功')
+              this.$message({
+                message: this.editForm.id ? '更新成功' : '新增成功',
+                type: 'success',
+                duration: 3000
+              })
               this.editDialogVisible = false
               this.fetchFriendLinks()
             } else {
-              this.$message.error(response.message || '操作失败')
+              this.$message({
+                message: response.message || '操作失败',
+                type: 'error',
+                duration: 3000
+              })
             }
           } catch (error) {
-            this.$message.error('操作失败')
+            this.$message({
+              message: '操作失败',
+              type: 'error',
+              duration: 3000
+            })
             console.error('Error saving friend link:', error)
           }
         }
@@ -360,13 +380,25 @@ export default {
       try {
         const response = await api.friendLink.audit(id, status)
         if (response.code === 200) {
-          this.$message.success(response.message)
+          this.$message({
+            message: response.message,
+            type: 'success',
+            duration: 3000
+          })
           this.fetchFriendLinks()
         } else {
-          this.$message.error(response.message || '审核失败')
+          this.$message({
+            message: response.message || '审核失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
-        this.$message.error('审核失败')
+        this.$message({
+          message: '审核失败',
+          type: 'error',
+          duration: 3000
+        })
         console.error('Error auditing friend link:', error)
       }
     },
@@ -380,13 +412,25 @@ export default {
         try {
           const response = await api.friendLink.delete(id)
           if (response.code === 200) {
-            this.$message.success('删除成功')
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchFriendLinks()
           } else {
-            this.$message.error(response.message || '删除失败')
+            this.$message({
+              message: response.message || '删除失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         } catch (error) {
-          this.$message.error('删除失败')
+          this.$message({
+            message: '删除失败',
+            type: 'error',
+            duration: 3000
+          })
           console.error('Error deleting friend link:', error)
         }
       })
@@ -394,7 +438,11 @@ export default {
 
     batchDeleteFriendLinks() {
       if (this.selectedFriendLinks.length === 0) {
-        this.$message.warning('请选择要删除的友链')
+        this.$message({
+          message: '请选择要删除的友链',
+          type: 'warning',
+          duration: 3000
+        })
         return
       }
       
@@ -407,13 +455,25 @@ export default {
           const ids = this.selectedFriendLinks.map(item => item.id)
           const response = await api.friendLink.batchDelete(ids)
           if (response.code === 200) {
-            this.$message.success('批量删除成功')
+            this.$message({
+              message: '批量删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchFriendLinks()
           } else {
-            this.$message.error(response.message || '批量删除失败')
+            this.$message({
+              message: response.message || '批量删除失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         } catch (error) {
-          this.$message.error('批量删除失败')
+          this.$message({
+            message: '批量删除失败',
+            type: 'error',
+            duration: 3000
+          })
           console.error('Error batch deleting friend links:', error)
         }
       })

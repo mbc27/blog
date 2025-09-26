@@ -156,11 +156,19 @@ export default {
           console.log('友链列表处理完成:', this.friends)
         } else {
           console.error('获取友链列表失败，响应码:', response.code)
-          this.$message.error(response.message || '获取友链列表失败')
+          this.$message({
+            message: response.message || '获取友链列表失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         console.error('获取友链列表失败:', error)
-        this.$message.error('获取友链列表失败: ' + (error.message || '网络错误'))
+        this.$message({
+          message: '获取友链列表失败: ' + (error.message || '网络错误'),
+          type: 'error',
+          duration: 3000
+        })
         // 设置一些默认的友链数据以防止页面空白
         this.friends = []
       } finally {
@@ -171,7 +179,11 @@ export default {
     submitLinkApplication() {
       // 添加安全检查
       if (!this.$refs.linkForm) {
-        this.$message.error('表单未准备就绪，请稍后再试')
+        this.$message({
+          message: '表单未准备就绪，请稍后再试',
+          type: 'error',
+          duration: 3000
+        })
         return
       }
       
@@ -180,7 +192,11 @@ export default {
           try {
             const response = await api.friendLink.apply(this.linkForm)
             if (response.code === 200) {
-              this.$message.success('友链申请提交成功，请等待审核！')
+              this.$message({
+                message: '友链申请提交成功，请等待审核！',
+                type: 'success',
+                duration: 3000
+              })
               this.dialogVisible = false
               this.linkForm = {
                 name: '',
@@ -194,7 +210,11 @@ export default {
             }
           } catch (error) {
             console.error('提交友链申请失败:', error)
-            this.$message.error('提交友链申请失败')
+            this.$message({
+              message: '提交友链申请失败',
+              type: 'error',
+              duration: 3000
+            })
           }
         } else {
           return false

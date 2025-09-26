@@ -509,9 +509,17 @@ export default {
           this.$emit('comment-count-updated', this.pagination.total)
         }
       } catch (error) {
-        console.error('获取评论失败:', error)
-        this.comments = []
-        this.pagination.total = 0
+        // 如果是403错误（未登录），不显示错误信息，只是静默处理
+        if (error.response && error.response.status === 403) {
+          console.log('用户未登录，无法获取评论列表')
+          this.comments = []
+          this.pagination.total = 0
+          this.$emit('comment-count-updated', 0)
+        } else {
+          console.error('获取评论失败:', error)
+          this.comments = []
+          this.pagination.total = 0
+        }
       }
     },
 
@@ -522,7 +530,11 @@ export default {
       }
 
       if (!this.newComment.trim()) {
-        this.$message.warning('评论内容不能为空')
+        this.$message({
+          message: '评论内容不能为空',
+          type: 'warning',
+          duration: 3000
+        })
         return
       }
 
@@ -538,9 +550,17 @@ export default {
           const commentAudit = this.siteSettings.comment_audit === '1' || this.siteSettings.comment_audit === 1
           
           if (commentAudit) {
-            this.$message.success('评论发表成功，等待审核后显示')
+            this.$message({
+              message: '评论发表成功，等待审核后显示',
+              type: 'success',
+              duration: 3000
+            })
           } else {
-            this.$message.success('评论发表成功')
+            this.$message({
+              message: '评论发表成功',
+              type: 'success',
+              duration: 3000
+            })
           }
           
           this.newComment = ''
@@ -548,7 +568,11 @@ export default {
         }
       } catch (error) {
         console.error('评论发表失败:', error)
-        this.$message.error('评论发表失败')
+        this.$message({
+          message: '评论发表失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.submitting = false
       }
@@ -570,7 +594,11 @@ export default {
 
     async submitReply(parentComment) {
       if (!this.replyContent.trim()) {
-        this.$message.warning('回复内容不能为空')
+        this.$message({
+          message: '回复内容不能为空',
+          type: 'warning',
+          duration: 3000
+        })
         return
       }
 
@@ -589,9 +617,17 @@ export default {
           const commentAudit = this.siteSettings.comment_audit === '1' || this.siteSettings.comment_audit === 1
           
           if (commentAudit) {
-            this.$message.success('回复成功，等待审核后显示')
+            this.$message({
+              message: '回复成功，等待审核后显示',
+              type: 'success',
+              duration: 3000
+            })
           } else {
-            this.$message.success('回复成功')
+            this.$message({
+              message: '回复成功',
+              type: 'success',
+              duration: 3000
+            })
           }
           
           this.cancelReply()
@@ -599,7 +635,11 @@ export default {
         }
       } catch (error) {
         console.error('回复失败:', error)
-        this.$message.error('回复失败')
+        this.$message({
+          message: '回复失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.replySubmitting = false
       }

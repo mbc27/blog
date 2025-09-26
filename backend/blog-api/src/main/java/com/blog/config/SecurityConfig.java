@@ -50,6 +50,9 @@ public class SecurityConfig {
                 .antMatchers("/api/tag/list").permitAll() // 允许访问标签列表
                 .antMatchers("/api/photo/list").permitAll() // 允许访问照片列表
                 .antMatchers("/api/photo/category/list").permitAll() // 允许访问照片分类列表
+                .antMatchers("/api/comment/list").permitAll() // 允许访问评论列表
+                .antMatchers("/api/comment/tree").permitAll() // 允许访问评论树
+                .antMatchers("/api/comment/count/**").permitAll() // 允许访问评论数量
                 .antMatchers("/api/friend-links").permitAll() // 允许访问友链列表
                 .antMatchers("/api/friend-links/apply").permitAll() // 允许申请友链
                 .antMatchers("/api/statistics/**").permitAll() // 允许访问统计接口

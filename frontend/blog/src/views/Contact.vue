@@ -270,14 +270,26 @@ export default {
             const response = await api.contact.sendMessage(this.messageForm)
             console.log('发送消息响应:', response)
             if (response.code === 200) {
-              this.$message.success('消息发送成功！感谢您的留言，我会在24小时内回复您')
+              this.$message({
+                message: '消息发送成功！感谢您的留言，我会在24小时内回复您',
+                type: 'success',
+                duration: 3000
+              })
               this.resetForm()
             } else {
-              this.$message.error('消息发送失败，请检查网络连接或稍后重试')
+              this.$message({
+                message: '消息发送失败，请检查网络连接或稍后重试',
+                type: 'error',
+                duration: 3000
+              })
             }
           } catch (error) {
             console.error('发送消息错误:', error)
-            this.$message.error('网络连接失败，请检查网络后重试')
+            this.$message({
+              message: '网络连接失败，请检查网络后重试',
+              type: 'error',
+              duration: 3000
+            })
           } finally {
             this.sending = false
           }
@@ -294,7 +306,11 @@ export default {
     async copyToClipboard(text) {
       try {
         await navigator.clipboard.writeText(text)
-        this.$message.success('已复制到剪贴板')
+        this.$message({
+          message: '已复制到剪贴板',
+          type: 'success',
+          duration: 3000
+        })
       } catch (error) {
         // 降级方案
         const textArea = document.createElement('textarea')
@@ -303,7 +319,11 @@ export default {
         textArea.select()
         document.execCommand('copy')
         document.body.removeChild(textArea)
-        this.$message.success('已复制到剪贴板')
+        this.$message({
+          message: '已复制到剪贴板',
+          type: 'success',
+          duration: 3000
+        })
       }
     },
     

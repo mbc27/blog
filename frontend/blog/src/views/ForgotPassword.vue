@@ -209,14 +209,26 @@ export default {
             });
             
             if (response.code === 200) {
-              this.$message.success('验证码已发送到您的邮箱，请查收（如未收到请检查垃圾邮件）');
+              this.$message({
+                message: '验证码已发送到您的邮箱，请查收（如未收到请检查垃圾邮件）',
+                type: 'success',
+                duration: 3000
+              });
               this.step = 2;
               this.startCountdown();
             } else {
-              this.$message.error('验证码发送失败，请检查邮箱地址是否正确或稍后重试');
+              this.$message({
+                message: '验证码发送失败，请检查邮箱地址是否正确或稍后重试',
+                type: 'error',
+                duration: 3000
+              });
             }
           } catch (error) {
-            this.$message.error('网络连接失败，请检查网络后重试');
+            this.$message({
+              message: '网络连接失败，请检查网络后重试',
+              type: 'error',
+              duration: 3000
+            });
           } finally {
             this.loading = false;
           }
@@ -233,13 +245,25 @@ export default {
         });
         
         if (response.code === 200) {
-          this.$message.success('验证码已重新发送，请查收邮件');
+          this.$message({
+            message: '验证码已重新发送，请查收邮件',
+            type: 'success',
+            duration: 3000
+          });
           this.startCountdown();
         } else {
-          this.$message.error('验证码重新发送失败，请稍后重试');
+          this.$message({
+            message: '验证码重新发送失败，请稍后重试',
+            type: 'error',
+            duration: 3000
+          });
         }
       } catch (error) {
-        this.$message.error('网络连接失败，请检查网络后重试');
+        this.$message({
+          message: '网络连接失败，请检查网络后重试',
+          type: 'error',
+          duration: 3000
+        });
       } finally {
         this.loading = false;
       }
@@ -257,13 +281,25 @@ export default {
             });
             
             if (response.code === 200) {
-              this.$message.success('验证码验证通过，请设置新密码');
+              this.$message({
+                message: '验证码验证通过，请设置新密码',
+                type: 'success',
+                duration: 3000
+              });
               this.step = 3;
             } else {
-              this.$message.error('验证码错误或已过期，请重新获取验证码');
+              this.$message({
+                message: '验证码错误或已过期，请重新获取验证码',
+                type: 'error',
+                duration: 3000
+              });
             }
           } catch (error) {
-            this.$message.error('网络连接失败，请检查网络后重试');
+            this.$message({
+              message: '网络连接失败，请检查网络后重试',
+              type: 'error',
+              duration: 3000
+            });
           } finally {
             this.loading = false;
           }
@@ -284,15 +320,27 @@ export default {
             });
             
             if (response.code === 200) {
-              this.$message.success('密码重置成功！3秒后自动跳转到登录页面...');
+              this.$message({
+                message: '密码重置成功！3秒后自动跳转到登录页面...',
+                type: 'success',
+                duration: 3000
+              });
               setTimeout(() => {
                 this.$router.push('/login');
               }, 2000);
             } else {
-              this.$message.error('密码重置失败，请重新尝试或联系管理员');
+              this.$message({
+                message: '密码重置失败，请重新尝试或联系管理员',
+                type: 'error',
+                duration: 3000
+              });
             }
           } catch (error) {
-            this.$message.error('网络连接失败，请检查网络后重试');
+            this.$message({
+              message: '网络连接失败，请检查网络后重试',
+              type: 'error',
+              duration: 3000
+            });
           } finally {
             this.loading = false;
           }

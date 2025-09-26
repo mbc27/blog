@@ -152,7 +152,11 @@ export default {
         })
         .catch(error => {
           console.error('获取分类列表失败', error)
-          this.$message.error('获取分类列表失败')
+          this.$message({
+            message: '获取分类列表失败',
+            type: 'error',
+            duration: 3000
+          })
         })
         .finally(() => {
           this.loading = false
@@ -192,7 +196,11 @@ export default {
     },
     handleDelete(row) {
       if (row.articleCount > 0) {
-        this.$message.warning('该分类下有文章，不能删除')
+        this.$message({
+          message: '该分类下有文章，不能删除',
+          type: 'warning',
+          duration: 3000
+        })
         return
       }
       
@@ -207,12 +215,20 @@ export default {
           }
         })
           .then(() => {
-            this.$message.success('删除成功')
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchCategories()
           })
           .catch(error => {
             console.error('删除分类失败', error)
-            this.$message.error('删除分类失败')
+            this.$message({
+              message: '删除分类失败',
+              type: 'error',
+              duration: 3000
+            })
           })
       }).catch(() => {})
     },
@@ -229,13 +245,21 @@ export default {
             }
           })
             .then(() => {
-              this.$message.success(`${this.categoryForm.id ? '更新' : '添加'}分类成功`)
+              this.$message({
+                message: `${this.categoryForm.id ? '更新' : '添加'}分类成功`,
+                type: 'success',
+                duration: 3000
+              })
               this.dialogVisible = false
               this.fetchCategories()
             })
             .catch(error => {
               console.error(`${this.categoryForm.id ? '更新' : '添加'}分类失败`, error)
-              this.$message.error(`${this.categoryForm.id ? '更新' : '添加'}分类失败`)
+              this.$message({
+                message: `${this.categoryForm.id ? '更新' : '添加'}分类失败`,
+                type: 'error',
+                duration: 3000
+              })
             })
             .finally(() => {
               this.submitLoading = false

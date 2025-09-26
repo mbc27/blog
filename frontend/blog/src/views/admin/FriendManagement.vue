@@ -131,7 +131,11 @@ export default {
           this.pagination.total = response.data.data.total
         }
       } catch (error) {
-        this.$message.error('获取友链列表失败')
+        this.$message({
+          message: '获取友链列表失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.loading = false
       }
@@ -166,12 +170,20 @@ export default {
         
         const response = await this.$axios.delete(`/friend/${row.id}`)
         if (response.data.code === 200) {
-          this.$message.success('删除成功')
+          this.$message({
+            message: '删除成功',
+            type: 'success',
+            duration: 3000
+          })
           this.getFriendList()
         }
       } catch (error) {
         if (error !== 'cancel') {
-          this.$message.error('删除失败')
+          this.$message({
+            message: '删除失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       }
     },
@@ -184,12 +196,20 @@ export default {
             const url = this.form.id ? '/friend/update' : '/friend/create'
             const response = await this.$axios.post(url, this.form)
             if (response.data.code === 200) {
-              this.$message.success(this.form.id ? '更新成功' : '添加成功')
+              this.$message({
+                message: this.form.id ? '更新成功' : '添加成功',
+                type: 'success',
+                duration: 3000
+              })
               this.dialogVisible = false
               this.getFriendList()
             }
           } catch (error) {
-            this.$message.error(error.response?.data?.message || '操作失败')
+            this.$message({
+              message: error.response?.data?.message || '操作失败',
+              type: 'error',
+              duration: 3000
+            })
           } finally {
             this.submitting = false
           }

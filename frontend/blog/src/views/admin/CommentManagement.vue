@@ -209,7 +209,11 @@ export default {
         })
         .catch(error => {
           console.error('获取评论列表失败', error)
-          this.$message.error('获取评论列表失败')
+          this.$message({
+            message: '获取评论列表失败',
+            type: 'error',
+            duration: 3000
+          })
         })
         .finally(() => {
           this.loading = false
@@ -251,7 +255,11 @@ export default {
           })
           .catch(error => {
             console.error('获取评论回复失败', error)
-            this.$message.error('获取评论回复失败')
+            this.$message({
+              message: '获取评论回复失败',
+              type: 'error',
+              duration: 3000
+            })
           })
       } else {
         this.replies = []
@@ -269,7 +277,11 @@ export default {
           }
         })
           .then(() => {
-            this.$message.success('审核通过成功')
+            this.$message({
+              message: '审核通过成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchComments()
             if (this.dialogVisible) {
               this.dialogVisible = false
@@ -277,7 +289,11 @@ export default {
           })
           .catch(error => {
             console.error('审核评论失败', error)
-            this.$message.error('审核评论失败')
+            this.$message({
+              message: '审核评论失败',
+              type: 'error',
+              duration: 3000
+            })
           })
       }).catch(() => {})
     },
@@ -293,7 +309,11 @@ export default {
           }
         })
           .then(() => {
-            this.$message.success('删除成功')
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchComments()
             if (this.dialogVisible) {
               this.dialogVisible = false
@@ -301,7 +321,11 @@ export default {
           })
           .catch(error => {
             console.error('删除评论失败', error)
-            this.$message.error('删除评论失败')
+            this.$message({
+              message: '删除评论失败',
+              type: 'error',
+              duration: 3000
+            })
           })
       }).catch(() => {})
     },

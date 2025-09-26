@@ -384,7 +384,11 @@ export default {
     
     // 检查用户是否已登录
     if (!this.isAuthenticated) {
-      this.$message.warning('请先登录')
+      this.$message({
+        message: '请先登录',
+        type: 'warning',
+        duration: 3000
+      })
       this.$router.push('/login')
       return
     }
@@ -407,7 +411,11 @@ export default {
         }
       } catch (error) {
         console.error('获取分类失败:', error)
-        this.$message.error('获取分类失败')
+        this.$message({
+          message: '获取分类失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
     
@@ -420,7 +428,11 @@ export default {
           const article = response.data
           // 检查是否是当前用户的文章或者用户是管理员
           if (article.userId !== this.user.id && !this.isAdmin) {
-            this.$message.error('您没有权限编辑此文章')
+            this.$message({
+              message: '您没有权限编辑此文章',
+              type: 'error',
+              duration: 3000
+            })
             this.$router.push('/article')
             return
           }
@@ -438,12 +450,20 @@ export default {
           this.isEditMode = true
           this.editingArticleId = articleId
         } else {
-          this.$message.error('文章不存在或已被删除')
+          this.$message({
+            message: '文章不存在或已被删除',
+            type: 'error',
+            duration: 3000
+          })
           this.$router.push('/article')
         }
       } catch (error) {
         console.error('加载文章失败:', error)
-        this.$message.error('加载文章失败')
+        this.$message({
+          message: '加载文章失败',
+          type: 'error',
+          duration: 3000
+        })
         this.$router.push('/article')
       } finally {
         this.loading = false
@@ -462,20 +482,36 @@ export default {
     handleCoverSuccess(response) {
       if (response.code === 200) {
         this.articleForm.cover = response.data.url
-        this.$message.success('封面上传成功')
+        this.$message({
+          message: '封面上传成功',
+          type: 'success',
+          duration: 3000
+        })
       } else {
-        this.$message.error(response.message || '上传失败')
+        this.$message({
+          message: response.message || '上传失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
 
     handleCoverError(error) {
       console.error('封面上传失败:', error)
-      this.$message.error('封面上传失败')
+      this.$message({
+        message: '封面上传失败',
+        type: 'error',
+        duration: 3000
+      })
     },
 
     removeCover() {
       this.articleForm.cover = ''
-      this.$message.success('封面已删除')
+      this.$message({
+        message: '封面已删除',
+        type: 'success',
+        duration: 3000
+      })
     },
     
     beforeCoverUpload(file) {
@@ -483,10 +519,18 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2
       
       if (!isImage) {
-        this.$message.error('只能上传图片文件!')
+        this.$message({
+          message: '只能上传图片文件!',
+          type: 'error',
+          duration: 3000
+        })
       }
       if (!isLt2M) {
-        this.$message.error('图片大小不能超过 2MB!')
+        this.$message({
+          message: '图片大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        })
       }
       
       return isImage && isLt2M
@@ -516,25 +560,45 @@ export default {
             
             if (response.code === 200) {
               if (this.isEditMode) {
-                this.$message.success('文章更新成功')
+                this.$message({
+                  message: '文章更新成功',
+                  type: 'success',
+                  duration: 3000
+                })
                 // 跳转到文章详情页
                 this.$router.push(`/article/${this.editingArticleId}`)
               } else {
                 if (this.isAdmin) {
-                  this.$message.success('文章发布成功')
+                  this.$message({
+                    message: '文章发布成功',
+                    type: 'success',
+                    duration: 3000
+                  })
                 } else {
-                  this.$message.success('文章提交成功，等待管理员审核')
+                  this.$message({
+                    message: '文章提交成功，等待管理员审核',
+                    type: 'success',
+                    duration: 3000
+                  })
                 }
                 this.previewVisible = false
                 // 跳转到文章主页
                 this.$router.push('/article')
               }
             } else {
-              this.$message.error(response.message || (this.isEditMode ? '更新失败' : '发布失败'))
+              this.$message({
+                message: response.message || (this.isEditMode ? '更新失败' : '发布失败'),
+                type: 'error',
+                duration: 3000
+              })
             }
           } catch (error) {
             console.error(this.isEditMode ? '更新文章失败:' : '发布文章失败:', error)
-            this.$message.error(this.isEditMode ? '更新文章失败' : '发布文章失败')
+            this.$message({
+              message: this.isEditMode ? '更新文章失败' : '发布文章失败',
+              type: 'error',
+              duration: 3000
+            })
           } finally {
             this.loading = false
           }
@@ -736,7 +800,11 @@ export default {
           this.articleForm.content += '\n\n';
         }
         this.articleForm.content += content;
-        this.$message.success('AI内容已添加到文章末尾');
+        this.$message({
+          message: 'AI内容已添加到文章末尾',
+          type: 'success',
+          duration: 3000
+        });
       }
     },
 
@@ -744,7 +812,11 @@ export default {
     handleContentReplaced(content) {
       if (content) {
         this.articleForm.content = content;
-        this.$message.success('文章内容已被AI生成的内容替换');
+        this.$message({
+          message: '文章内容已被AI生成的内容替换',
+          type: 'success',
+          duration: 3000
+        });
       }
     },
 
@@ -762,7 +834,11 @@ export default {
         this.selectionStart = 0;
         this.selectionEnd = 0;
         
-        this.$message.success('选中内容已被AI生成的内容替换');
+        this.$message({
+          message: '选中内容已被AI生成的内容替换',
+          type: 'success',
+          duration: 3000
+        });
       }
     }
   }

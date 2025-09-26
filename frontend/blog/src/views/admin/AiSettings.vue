@@ -206,7 +206,11 @@ export default {
         }
       } catch (error) {
         console.error('加载配置失败:', error)
-        this.$message.error('加载配置失败')
+        this.$message({
+          message: '加载配置失败',
+          type: 'error',
+          duration: 3000
+        })
       }
     },
 
@@ -239,7 +243,11 @@ export default {
         }
       } catch (error) {
         console.error('测试连接失败:', error)
-        this.$message.error('测试连接失败')
+        this.$message({
+          message: '测试连接失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.testing = false
       }
@@ -250,14 +258,26 @@ export default {
       try {
         const response = await this.$api.put('/admin/ai/configs', this.configs)
         if (response.data.code === 200) {
-          this.$message.success('配置保存成功')
+          this.$message({
+            message: '配置保存成功',
+            type: 'success',
+            duration: 3000
+          })
           await this.loadAiStatus()
         } else {
-          this.$message.error(response.data.message || '保存失败')
+          this.$message({
+            message: response.data.message || '保存失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       } catch (error) {
         console.error('保存配置失败:', error)
-        this.$message.error('保存配置失败')
+        this.$message({
+          message: '保存配置失败',
+          type: 'error',
+          duration: 3000
+        })
       } finally {
         this.saving = false
       }
@@ -271,13 +291,21 @@ export default {
         
         const response = await this.$api.post('/admin/ai/init-defaults')
         if (response.data.code === 200) {
-          this.$message.success('默认配置已恢复')
+          this.$message({
+            message: '默认配置已恢复',
+            type: 'success',
+            duration: 3000
+          })
           await this.loadConfigs()
         }
       } catch (error) {
         if (error !== 'cancel') {
           console.error('恢复默认配置失败:', error)
-          this.$message.error('恢复默认配置失败')
+          this.$message({
+            message: '恢复默认配置失败',
+            type: 'error',
+            duration: 3000
+          })
         }
       }
     },

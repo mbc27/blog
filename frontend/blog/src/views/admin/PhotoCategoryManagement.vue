@@ -172,7 +172,11 @@ export default {
         })
         .catch(error => {
           console.error('获取相册分类列表失败', error)
-          this.$message.error('获取相册分类列表失败')
+          this.$message({
+            message: '获取相册分类列表失败',
+            type: 'error',
+            duration: 3000
+          })
         })
         .finally(() => {
           this.loading = false
@@ -213,7 +217,11 @@ export default {
     },
     handleDelete(row) {
       if (row.photoCount > 0) {
-        this.$message.warning('该分类下有照片，不能删除')
+        this.$message({
+          message: '该分类下有照片，不能删除',
+          type: 'warning',
+          duration: 3000
+        })
         return
       }
       
@@ -229,28 +237,48 @@ export default {
           }
         })
           .then(() => {
-            this.$message.success('删除成功')
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 3000
+            })
             this.fetchCategories()
           })
           .catch(error => {
             console.error('删除相册分类失败', error)
-            this.$message.error('删除相册分类失败')
+            this.$message({
+              message: '删除相册分类失败',
+              type: 'error',
+              duration: 3000
+            })
           })
       }).catch(() => {})
     },
     handleCoverSuccess(res) {
       this.categoryForm.coverUrl = res.data
-      this.$message.success('封面上传成功')
+      this.$message({
+        message: '封面上传成功',
+        type: 'success',
+        duration: 3000
+      })
     },
     beforeCoverUpload(file) {
       const isImage = file.type.startsWith('image/')
       const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isImage) {
-        this.$message.error('上传封面只能是图片格式!')
+        this.$message({
+          message: '上传封面只能是图片格式!',
+          type: 'error',
+          duration: 3000
+        })
       }
       if (!isLt2M) {
-        this.$message.error('上传封面大小不能超过 2MB!')
+        this.$message({
+          message: '上传封面大小不能超过 2MB!',
+          type: 'error',
+          duration: 3000
+        })
       }
       return isImage && isLt2M
     },
@@ -270,13 +298,21 @@ export default {
           
           axios[method](url, this.categoryForm, config)
             .then(() => {
-              this.$message.success(`${this.categoryForm.id ? '更新' : '添加'}相册分类成功`)
+              this.$message({
+                message: `${this.categoryForm.id ? '更新' : '添加'}相册分类成功`,
+                type: 'success',
+                duration: 3000
+              })
               this.dialogVisible = false
               this.fetchCategories()
             })
             .catch(error => {
               console.error(`${this.categoryForm.id ? '更新' : '添加'}相册分类失败`, error)
-              this.$message.error(`${this.categoryForm.id ? '更新' : '添加'}相册分类失败`)
+              this.$message({
+                message: `${this.categoryForm.id ? '更新' : '添加'}相册分类失败`,
+                type: 'error',
+                duration: 3000
+              })
             })
             .finally(() => {
               this.submitLoading = false
